@@ -1,0 +1,6 @@
+*/bin
+*/obj
+*.suo
+*.sln.dotsettings.user
+*/*.csproj.dotsettings.user
+
