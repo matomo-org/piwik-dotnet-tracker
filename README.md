@@ -6,7 +6,7 @@ Check the [changelog](CHANGELOG.md) to know which versions of Piwik are supporte
 
 ## Usage
 
-Three Visual Studio Solutions are provided :
+Three Visual Studio Solutions are provided : 
 
   * [Piwik.Tracker.sln](Piwik.Tracker.sln) : Library project
   * [Piwik.Tracker.Samples.sln](Piwik.Tracker.Samples.sln) : Console Samples project
