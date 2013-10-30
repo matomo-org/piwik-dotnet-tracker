@@ -71,6 +71,11 @@ namespace Piwik.Tracker
         private string forcedVisitorId;
         private int width;
         private int height;
+        private string country;
+        private string region;
+        private string city;
+        private double latitude;
+        private double longitude;
 
         public enum ActionType {download, link};
 
@@ -136,6 +141,67 @@ namespace Piwik.Tracker
         public void setUrlReferrer(string url)
         {
             urlReferrer = url;
+        }
+
+
+        /// <summary>
+        /// Sets the two letter country code of the visitor, eg fr, de, us.
+        /// 
+        /// Allowed only for Super User, must be used along with <see cref="setTokenAuth"/>
+        /// </summary>
+        /// <param name="code">Two letter country code</param>
+        public void setCountryCode(string code)
+        {
+            country = code;
+        }
+
+
+        /// <summary>
+        /// Sets the two letter region code as defined by MaxMind's GeoIP databases.
+        /// 
+        /// Allowed only for Super User, must be used along with <see cref="setTokenAuth"/>
+        /// </summary>
+        /// <param name="region">Two letter region code</param>
+        /// <seealso cref="http://www.maxmind.com/?rId=piwik"/>
+        public void setRegion(string region)
+        {
+            this.region = region;
+        }
+
+
+        /// <summary>
+        /// Sets the name of the city the visitor is located in.
+        /// 
+        /// Allowed only for Super User, must be used along with <see cref="setTokenAuth"/>
+        /// </summary>
+        /// <param name="city"></param>
+        public void setCity(string city)
+        {
+            this.city = city;
+        }
+
+
+        /// <summary>
+        /// Sets the visitor's latitude.
+        /// 
+        /// Allowed only for Super User, must be used along with <see cref="setTokenAuth"/>
+        /// </summary>
+        /// <param name="latitude">eg 22.456</param>
+        public void setLatitude(double latitude)
+        {
+            this.latitude = latitude;
+        }
+
+
+        /// <summary>
+        /// Sets the visitor's longitude.
+        /// 
+        /// Allowed only for Super User, must be used along with <see cref="setTokenAuth"/>
+        /// </summary>
+        /// <param name="longitude">eg 22.456</param>
+        public void setLongitude(double longitude)
+        {
+            this.longitude = longitude;
         }
 
 
@@ -847,6 +913,13 @@ namespace Piwik.Tracker
                 ((attributionInfo != null && !attributionInfo.referrerTimestamp.Equals(DateTimeOffset.MinValue)) ? "&_refts=" + formatTimestamp(attributionInfo.referrerTimestamp) : "") +
     	        // Referrer URL
                 ((attributionInfo != null && !String.IsNullOrEmpty(attributionInfo.referrerUrl)) ? "&_ref=" + urlEncode(attributionInfo.referrerUrl) : "") +
+
+                // Geo location details
+                (!String.IsNullOrEmpty(country) ? "&country=" + country : "") +
+                (!String.IsNullOrEmpty(region) ? "&region=" + region : "") +
+                (!String.IsNullOrEmpty(city) ? "&city=" + city : "") +
+                (latitude != 0.0D ? "&lat=" + latitude.ToString() : "") +
+                (longitude != 0.0D ? "&long=" + longitude.ToString() : "") +
 
     	        // DEBUG 
 	            DEBUG_APPEND_URL;
