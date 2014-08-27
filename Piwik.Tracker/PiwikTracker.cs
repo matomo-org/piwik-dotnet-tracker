@@ -814,7 +814,7 @@ namespace Piwik.Tracker
                 "?idsite=" + idSite +
 		        "&rec=1" +
 		        "&apiv=" + VERSION + 
-	            "&r=" + Convert.ToString(new Random().Next()).Substring(2, 6) +
+	            "&r=" + new Random().Next(0, 1000000).ToString("000000") +
     	   	 
     	        // Only allowed for Super User, token_auth required
 		        (!String.IsNullOrEmpty(ip) ? "&cip=" + ip : "") +
