@@ -13,8 +13,6 @@ Three Visual Studio Solutions are provided :
 * [Piwik.Tracker.Samples.sln](Piwik.Tracker.Samples.sln) : Console Samples project
 * [Piwik.Tracker.Web.Samples.sln](Piwik.Tracker.Web.Samples.sln) : ASP.NET Samples project
 
-The two Samples projects provide exhaustive examples.
-
 ## How to contribute
 
 The Piwik C# Tracking API is a translation of the [official PHP Tracking API](https://github.com/piwik/piwik/tree/master/libs/PiwikTracker) in C#.
