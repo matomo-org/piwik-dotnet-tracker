@@ -52,9 +52,4 @@ However, the PHP tracking API source code can be tagged redundantly because
 
 To avoid creating redundant tags, we only keep tags that have introduced changes in the source code.
 
-Here is a command example to list changes between two versions of Piwik:
-
-    git log 1.5.1..1.6 libs/PiwikTracker/PiwikTracker.php
-
-
 # [License](LICENSE)
