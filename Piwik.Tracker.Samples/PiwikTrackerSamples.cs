@@ -9,11 +9,13 @@ using System.IO;
 
 namespace Piwik.Tracker.Samples
 {
+    using System.Collections.Generic;
+
     class PiwikTrackerSamples
     {
         static void Main(string[] args)
         {
-            PiwikTracker.URL = "http://piwik-1.5";
+            PiwikTracker.URL = "http://piwik.local";
 
             // ** PAGE VIEW **
 //            RecordSimplePageView();
@@ -179,7 +181,7 @@ namespace Piwik.Tracker.Samples
         {
             var piwikTracker = new PiwikTracker(1);      
 
-            piwikTracker.setEcommerceView("", "", "Electronics & Cameras");
+            piwikTracker.setEcommerceView("", "", new List<string> { "Electronics & Cameras" });
             var response = piwikTracker.doTrackPageView("Looking at Electronics & Cameras page with a page level custom variable");
             displayHttpWebReponse(response);
         }
@@ -192,7 +194,7 @@ namespace Piwik.Tracker.Samples
         {
             var piwikTracker = new PiwikTracker(1);
 
-            piwikTracker.setEcommerceView("SKU2", "PRODUCT name", "Electronics & Cameras");
+            piwikTracker.setEcommerceView("SKU2", "PRODUCT name", new List<string> { "Electronics & Cameras", "Clothes" });
 
             var response = piwikTracker.doTrackPageView("incredible title!");
             displayHttpWebReponse(response);
@@ -220,8 +222,8 @@ namespace Piwik.Tracker.Samples
             var piwikTracker = new PiwikTracker(1);
 
             piwikTracker.addEcommerceItem(
-                "SKU VERY nice indeed", 
-                "PRODUCT name", "Electronics & Cameras", 
+                "SKU VERY nice indeed",
+                "PRODUCT name", new List<string> { "Clothes", "Electronics & Cameras" }, 
                 500.2,
                 2
             );
@@ -256,16 +258,15 @@ namespace Piwik.Tracker.Samples
             piwikTracker.addEcommerceItem(
                 "SKU VERY nice indeed",
                 "PRODUCT name",
-                "Electronics & Cameras",
-                500, 
-                1
+                new List<string> { "Electronics & Cameras" },
+                500
             );
 
             // This one overrides the previous addition
             piwikTracker.addEcommerceItem(
                 "SKU VERY nice indeed",
                 "PRODUCT name", 
-                "Electronics & Cameras", 
+                new List<string> { "Electronics & Cameras" }, 
                 500, 
                 2
             );
@@ -273,7 +274,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.addEcommerceItem(
                 "SKU NEW",
                 "BLABLA", 
-                "", 
+                null, 
                 5000000, 
                 20
             );
@@ -296,7 +297,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.addEcommerceItem(
                 "SKU VERY nice indeed",
                 "PRODUCT name",
-                "Electronics & Cameras", 
+                new List<string> { "Electronics & Cameras" }, 
                 500,
                 2
              );
@@ -304,7 +305,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.addEcommerceItem(
                 "ANOTHER SKU HERE", 
                 "PRODUCT name BIS" , 
-                "", 
+                null, 
                 100, 
                 6
             );        
@@ -326,7 +327,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.addEcommerceItem(
                 "SKU2", 
                 "Canon SLR" , 
-                "Electronics & Cameras", 
+                new List<string> { "Electronics & Cameras" }, 
                 1500,
                 1
             );
@@ -350,7 +351,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.addEcommerceItem(
                 "SKU VERY nice indeed",
                 "PRODUCT name",
-                "Electronics & Cameras",
+                new List<string> { "Electronics & Cameras" , "Clothes"},
                 500,
                 2
              );
@@ -358,7 +359,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.addEcommerceItem(
                 "ANOTHER SKU HERE",
                 "PRODUCT name BIS",
-                "",
+                null,
                 100,
                 6
             );

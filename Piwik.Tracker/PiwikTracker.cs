@@ -56,7 +56,7 @@ namespace Piwik.Tracker
         private string token_auth;
         private AttributionInfo attributionInfo;
         private DateTimeOffset ecommerceLastOrderTimestamp;
-        private Dictionary<string, string[]> ecommerceItems = new Dictionary<string, string[]>();
+        private Dictionary<string, object[]> ecommerceItems = new Dictionary<string, object[]>();
         private Cookie requestCookie;
         private int idSite;
         private string urlReferrer;
@@ -309,41 +309,17 @@ namespace Piwik.Tracker
         /// </summary>       
         /// <param name="sku">SKU, Product identifier </param> 
         /// <param name="name">Product name</param> 
-        /// <param name="category">Product category</param> 
+        /// <param name="categories">Array of product categories (up to 5 categories can be specified for a given product)</param> 
         /// <param name="price"> Individual product price (supports integer and decimal prices)</param> 
         /// <param name="quantity">Product quantity. If not specified, will default to 1 in the Reports</param> 
-        public void addEcommerceItem(string sku, string name = null, string category = null, double price = Double.MinValue, UInt64 quantity = UInt64.MinValue)
+        public void addEcommerceItem(string sku, string name = null, List<string> categories = null, double price = 0, UInt64 quantity = 1)
         {
     	    if(String.IsNullOrEmpty(sku))
     	    {
     		    throw new Exception("You must specify a SKU for the Ecommerce item");
     	    }
 
-            string sanitizedName = name;
-            if (name == null)
-            {
-                sanitizedName = "false";
-            }
-
-            string sanitizedCategory = category;
-            if (category == null)
-            {
-                sanitizedCategory = "false";
-            }
-
-            string priceString = formatMonetaryValue(price);
-            if (price.Equals(Double.MinValue))
-            {
-                priceString = "false";
-            }
-
-            string quantityString = quantity.ToString();
-            if (quantity.Equals(UInt64.MinValue))
-            {
-                quantityString = "false";
-            }
-
-            string[] eCommerceItem = { sku, sanitizedName, sanitizedCategory, priceString, quantityString };
+            object[] eCommerceItem = { sku, name, categories, formatMonetaryValue(price), quantity };
 
             ecommerceItems.Remove(sku);
             ecommerceItems.Add(sku, eCommerceItem);
@@ -400,8 +376,8 @@ namespace Piwik.Tracker
         /// </summary>       
         /// <param name="sku">Product SKU being viewed</param> 
         /// <param name="name">Product Name being viewed</param> 
-        /// <param name="category">Category being viewed. On a Product page, this is the product's category</param> 
-        public void setEcommerceView(string sku = null, string name = null, string category = null)
+        /// <param name="categories">Category being viewed. On a Product page, this is the product's category. You can also specify an array of up to 5 categories for a given page view.</param> 
+        public void setEcommerceView(string sku = null, string name = null, List<string> categories = null)
         {
             if (!String.IsNullOrEmpty(sku))
             {
@@ -411,10 +387,12 @@ namespace Piwik.Tracker
             {
                 setCustomVariable(4, "_pkn", name, CustomVar.Scopes.page);
             }
-            if (!String.IsNullOrEmpty(category))
+            if (categories != null)
             {
-                setCustomVariable(5, "_pkc", category, CustomVar.Scopes.page);
-            }
+                var serializedCategories = new JavaScriptSerializer().Serialize(categories);
+
+                setCustomVariable(5, "_pkc", serializedCategories, CustomVar.Scopes.page);
+            }   
         }
 
 
@@ -485,7 +463,7 @@ namespace Piwik.Tracker
     		    url += "&ec_items=" + urlEncode(new JavaScriptSerializer().Serialize(ecommerceItems.Values));                
     	    }
 
-            ecommerceItems = new Dictionary<string, string[]>();
+            ecommerceItems = new Dictionary<string, object[]>();
 
     	    return url;
         }
