@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piwik.Tracker.Web.Samples", "Piwik.Tracker.Web.Samples\Piwik.Tracker.Web.Samples.csproj", "{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piwik.Tracker", "Piwik.Tracker\Piwik.Tracker.csproj", "{C3BB0E94-F45C-4691-81FF-061FC20E3209}"
