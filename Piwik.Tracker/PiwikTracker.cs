@@ -25,10 +25,6 @@ namespace Piwik.Tracker
     /// This is a PHP Version of the piwik.js standard Tracking API.
     /// For more information, see http://piwik.org/docs/tracking-api/
     /// </summary>
-    /// 
-    /// <remarks>
-    /// This tracking API is tested against Piwik 1.5
-    /// </remarks> 
     public class PiwikTracker
     {
         /// <summary>
