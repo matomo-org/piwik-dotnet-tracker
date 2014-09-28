@@ -380,23 +380,32 @@ namespace Piwik.Tracker
         /// <param name="price">Specify the price at which the item was displayed</param> 
         public void setEcommerceView(string sku = null, string name = null, List<string> categories = null, double price = double.MinValue)
         {
+            var serializedCategories = "";
+            if (categories != null)
+            {
+                serializedCategories = new JavaScriptSerializer().Serialize(categories);
+            }
+            setCustomVariable(5, "_pkc", serializedCategories, CustomVar.Scopes.page);
+
+            if (!price.Equals(Double.MinValue))
+            {
+                setCustomVariable(2, "_pkp", formatMonetaryValue(price), CustomVar.Scopes.page);
+            }
+
+            // On a category page, do not record "Product name not defined" 
+            if (String.IsNullOrEmpty(sku) && String.IsNullOrEmpty(name))
+            {
+                return;
+            }
             if (!String.IsNullOrEmpty(sku))
             {
                 setCustomVariable(3, "_pks", sku, CustomVar.Scopes.page);
             }
-            if (!String.IsNullOrEmpty(name))
+            if (String.IsNullOrEmpty(name))
             {
-                setCustomVariable(4, "_pkn", name, CustomVar.Scopes.page);
+                name = "";
             }
-            if (categories != null)
-            {
-                var serializedCategories = new JavaScriptSerializer().Serialize(categories);
-
-                setCustomVariable(5, "_pkc", serializedCategories, CustomVar.Scopes.page);
-            }   
-            if(!price.Equals(Double.MinValue)) {
-                setCustomVariable(2, "_pkp", formatMonetaryValue(price), CustomVar.Scopes.page);
-            }
+            setCustomVariable(4, "_pkn", name, CustomVar.Scopes.page);
         }
 
 
