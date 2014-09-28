@@ -377,7 +377,8 @@ namespace Piwik.Tracker
         /// <param name="sku">Product SKU being viewed</param> 
         /// <param name="name">Product Name being viewed</param> 
         /// <param name="categories">Category being viewed. On a Product page, this is the product's category. You can also specify an array of up to 5 categories for a given page view.</param> 
-        public void setEcommerceView(string sku = null, string name = null, List<string> categories = null)
+        /// <param name="price">Specify the price at which the item was displayed</param> 
+        public void setEcommerceView(string sku = null, string name = null, List<string> categories = null, double price = double.MinValue)
         {
             if (!String.IsNullOrEmpty(sku))
             {
@@ -393,6 +394,9 @@ namespace Piwik.Tracker
 
                 setCustomVariable(5, "_pkc", serializedCategories, CustomVar.Scopes.page);
             }   
+            if(!price.Equals(Double.MinValue)) {
+                setCustomVariable(2, "_pkp", formatMonetaryValue(price), CustomVar.Scopes.page);
+            }
         }
 
 
