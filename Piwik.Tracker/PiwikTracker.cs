@@ -196,7 +196,7 @@ namespace Piwik.Tracker
             {
                 throw new Exception("Invalid 'scope' parameter value");
             }
-            if (visitorCustomVar.ContainsKey(stringId) && visitorCustomVar[stringId].Length > 0)
+            if (visitorCustomVar.ContainsKey(stringId))
             {
                 return new CustomVar(visitorCustomVar[stringId][0], visitorCustomVar[stringId][1]);
             }
