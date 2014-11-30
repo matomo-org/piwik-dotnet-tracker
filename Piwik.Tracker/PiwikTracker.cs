@@ -772,16 +772,20 @@ namespace Piwik.Tracker
             }
 
             var response = (HttpWebResponse) request.GetResponse();
-            var cookies = response.Cookies;        
+            var cookies = response.Cookies;
 
             // The cookie in the response will be set in the next request
-            for (var i = 0; i < cookies.Count; i++)
+            if (cookies != null)
             {
                 // in case several cookies returned, we keep only the latest one (ie. XDEBUG puts its cookie first in the list)
-                if (!cookies[i].Name.Contains("XDEBUG"))
-                {
-                    requestCookie = cookies[i];
-                }
+                for (var i = 0; i < cookies.Count; i++)
+                {                    
+                    // XDEBUG is a PHP Debugger
+                    if (!cookies[i].Name.Contains("XDEBUG"))
+                    {
+                        requestCookie = cookies[i];
+                    }
+                }   
             }
 
 		    return response;
