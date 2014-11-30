@@ -13,6 +13,8 @@ namespace Piwik.Tracker.Samples
 
     class PiwikTrackerSamples
     {
+        private const string UA = "Firefox";
+
         static void Main(string[] args)
         {
             PiwikTracker.URL = "http://piwik.local";
@@ -52,6 +54,7 @@ namespace Piwik.Tracker.Samples
         static private void GoalConversion()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             var response = piwikTracker.doTrackGoal(1, 42.69F);
 
@@ -65,6 +68,7 @@ namespace Piwik.Tracker.Samples
         static private void RecordCustomVariables()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             piwikTracker.setCustomVariable(1, "var1", "value1");
             piwikTracker.setCustomVariable(2, "var2", "value2");
@@ -84,6 +88,7 @@ namespace Piwik.Tracker.Samples
         static private void RecordSimplePageView()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             var response = piwikTracker.doTrackPageView("Document title of current page view");
 
@@ -97,6 +102,7 @@ namespace Piwik.Tracker.Samples
         static private void RecordSimplePageViewWithCustomProperties()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             piwikTracker.setResolution(1600, 1400);
 
@@ -132,6 +138,7 @@ namespace Piwik.Tracker.Samples
         static private void GoalConversionWithAttributionInfo()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             var attributionInfo = new AttributionInfo();
 
@@ -154,6 +161,7 @@ namespace Piwik.Tracker.Samples
         static private void TrackLink()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             var response = piwikTracker.doTrackAction("http://dev.piwik.org/svn", PiwikTracker.ActionType.link);
 
@@ -167,6 +175,7 @@ namespace Piwik.Tracker.Samples
         static private void trackDownload()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             var response = piwikTracker.doTrackAction("http://piwik.org/path/again/latest.zip", PiwikTracker.ActionType.download);
 
@@ -179,7 +188,8 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void ECommerceCategoryView()
         {
-            var piwikTracker = new PiwikTracker(1);      
+            var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             piwikTracker.setEcommerceView("", "", new List<string> { "Electronics & Cameras" });
             var response = piwikTracker.doTrackPageView("Looking at Electronics & Cameras page with a page level custom variable");
@@ -193,6 +203,7 @@ namespace Piwik.Tracker.Samples
         static private void ECommerceView()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             piwikTracker.setEcommerceView("SKU2", "PRODUCT name", new List<string> { "Electronics & Cameras", "Clothes" });
 
@@ -207,6 +218,7 @@ namespace Piwik.Tracker.Samples
         static private void ECommerceViewWithoutCategory()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             piwikTracker.setEcommerceView("SKU VERY nice indeed", "PRODUCT name");
 
@@ -220,6 +232,7 @@ namespace Piwik.Tracker.Samples
         static private void UpdateECommerceCartWithOneProduct()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             piwikTracker.addEcommerceItem(
                 "SKU VERY nice indeed",
@@ -239,6 +252,7 @@ namespace Piwik.Tracker.Samples
         static private void UpdateECommerceCartWithOneProductSKUOnly()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             piwikTracker.addEcommerceItem(
                 "SKU VERY nice indeed"
@@ -254,6 +268,7 @@ namespace Piwik.Tracker.Samples
         static private void UpdateECommerceCartWithMultipleProducts()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             piwikTracker.addEcommerceItem(
                 "SKU VERY nice indeed",
@@ -291,6 +306,7 @@ namespace Piwik.Tracker.Samples
         static private void RecordTwoECommerceOrders()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             // First order
 
@@ -347,6 +363,7 @@ namespace Piwik.Tracker.Samples
         static private void RecordECommerceOrder()
         {
             var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
 
             piwikTracker.addEcommerceItem(
                 "SKU VERY nice indeed",
