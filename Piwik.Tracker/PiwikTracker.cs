@@ -514,8 +514,6 @@ namespace Piwik.Tracker
         /// to track visits in the past. All times are in UTC.
         /// 
         /// Allowed only for Super User, must be used along with setTokenAuth()
-        /// Set tracking_requests_require_authentication = 0 in config.ini.php [Tracker] section
-        /// to change this security constraint.
         /// </summary>
         /// <param name="dateTime">Date to set</param>
         public void setForceVisitDateTime(DateTimeOffset dateTime)
@@ -528,8 +526,6 @@ namespace Piwik.Tracker
         /// Overrides IP address
         /// 
         /// Allowed only for Super User, must be used along with setTokenAuth()
-        /// Set tracking_requests_require_authentication = 0 in config.ini.php [Tracker] section
-        /// to change this security constraint.
         /// </summary>
         /// <param name="ip">IP string, eg. 130.54.2.1</param>  
         public void setIp(string ip)
@@ -545,8 +541,6 @@ namespace Piwik.Tracker
         /// This is typically used with the Javascript getVisitorId() function.
         /// 
         /// Allowed only for Super User, must be used along with setTokenAuth()
-        /// Set tracking_requests_require_authentication = 0 in config.ini.php [Tracker] section
-        /// to change this security constraint.
         /// </summary>       
         /// <param name="visitorId">16 hexadecimal characters visitor ID, eg. "33c31e01394bdc63"</param>          
         public void setVisitorId(string visitorId)
@@ -653,8 +647,6 @@ namespace Piwik.Tracker
         /// - force the date & time of the tracking requests rather than track for the current datetime
         /// - force Piwik to track the requests to a specific VisitorId rather than use the standard visitor matching heuristic
         /// 
-        /// Set tracking_requests_require_authentication = 0 in config.ini.php [Tracker] section
-        /// to change this security constraint.
         /// </summary>
         /// <param name="token_auth">32 chars token_auth string</param>
 	    public void setTokenAuth(string token_auth)
@@ -793,7 +785,6 @@ namespace Piwik.Tracker
 	            "&r=" + new Random().Next(0, 1000000).ToString("000000") +
 
                 // Only allowed for Super User, token_auth required,
-                // except when tracking_requests_require_authentication = 0 in config.ini.php [Tracker] section
 		        (!String.IsNullOrEmpty(ip) ? "&cip=" + ip : "") +
     	        (!String.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + visitorId) +
                 (!forcedDatetime.Equals(DateTimeOffset.MinValue) ? "&cdt=" + formatDateValue(forcedDatetime) : "") +
