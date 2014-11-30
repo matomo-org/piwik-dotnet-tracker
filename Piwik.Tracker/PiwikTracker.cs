@@ -264,7 +264,7 @@ namespace Piwik.Tracker
         /// <param name="idGoal">Id Goal to record a conversion</param> 
         /// <param name="revenue">Revenue for this conversion</param> 
         /// <returns>HTTP Response from the server</returns>
-        public HttpWebResponse doTrackGoal(int idGoal, double revenue = Double.MinValue)
+        public HttpWebResponse doTrackGoal(int idGoal, float revenue = float.MinValue)
         {
     	    string url = getUrlTrackGoal(idGoal, revenue);
     	    return sendRequest(url);
@@ -487,13 +487,13 @@ namespace Piwik.Tracker
         /// <param name="idGoal">Id Goal to record a conversion</param> 
         /// <param name="revenue">Revenue for this conversion</param> 
         /// <returns>URL to piwik.php with all parameters set to track the goal conversion</returns>
-        public string getUrlTrackGoal(int idGoal, double revenue)
+        public string getUrlTrackGoal(int idGoal, float revenue)
         {
     	    string url = getRequest( idSite );
 
             url += "&idgoal=" + idGoal;
 
-    	    if(!revenue.Equals(Double.MinValue)) {
+    	    if(!revenue.Equals(float.MinValue)) {
                 url += "&revenue=" + formatMonetaryValue(revenue);
     	    }
 
