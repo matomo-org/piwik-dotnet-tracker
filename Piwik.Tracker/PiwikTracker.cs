@@ -186,55 +186,33 @@ namespace Piwik.Tracker
         /// <returns>The requested custom variable</returns>
         public CustomVar getCustomVariable(int id, CustomVar.Scopes scope = CustomVar.Scopes.visit)
         {
-            string stringId = Convert.ToString(id);
+            var stringId = Convert.ToString(id);
 
-            switch (scope)
+            if (scope.Equals(CustomVar.Scopes.page))
             {
-                case CustomVar.Scopes.page:
-                    if (pageCustomVar.ContainsKey(stringId))
-                    {
-                        string[] requestedCustomVar = pageCustomVar[stringId];
-                        if (requestedCustomVar.Count() != 2)
-                        {
-                            throw new Exception("The requested custom var is invalid. This is a coding error within the tracking API. requestedCustomVar = " + requestedCustomVar);
-                        }
-                        return new CustomVar(requestedCustomVar[0], requestedCustomVar[1]);
-                    }
-                    break;
-
-                case CustomVar.Scopes.visit:
-                    if (visitorCustomVar.ContainsKey(stringId))
-                    {
-                        string[] requestedCustomVar = visitorCustomVar[stringId];
-                        if (requestedCustomVar.Count() != 2)
-                        {
-                            throw new Exception("The requested custom var is invalid. This is a coding error within the tracking API. requestedCustomVar = " + requestedCustomVar);
-                        }
-                        return new CustomVar(requestedCustomVar[0], requestedCustomVar[1]);
-                    }
-                    break;
-
-                default:
-                    throw new Exception("Unimplemented scope");
+                return pageCustomVar.ContainsKey(stringId) ? new CustomVar(pageCustomVar[stringId][0], pageCustomVar[stringId][1]) : null;
             }
-
-            HttpCookie cookie = getCookieMatchingName("cvar." + idSite + ".");
-
+            else if (!scope.Equals(CustomVar.Scopes.visit))
+            {
+                throw new Exception("Invalid 'scope' parameter value");
+            }
+            if (visitorCustomVar.ContainsKey(stringId))
+            {
+                return new CustomVar(visitorCustomVar[stringId][0], visitorCustomVar[stringId][1]);
+            }
+            var customVariablesCookie = "cvar." + idSite + ".";
+            var cookie = getCookieMatchingName(customVariablesCookie);
             if (cookie == null)
             {
                 return null;
             }
-
-            Dictionary<string, string[]> cookieDecoded = new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value));
-
-            string[] customVar = cookieDecoded[stringId];
-
-            if (customVar == null || (customVar != null && customVar.Count() != 2))
-            {
-                return null;
-            }
-
-            return new CustomVar(customVar[0], customVar[1]);
+            var cookieDecoded = new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value));
+            if(!cookieDecoded.ContainsKey(stringId)    		
+    		    || cookieDecoded[stringId].Count() != 2)
+    	    {
+    		    return null;
+    	    }
+            return new CustomVar(cookieDecoded[stringId][0], cookieDecoded[stringId][1]);
         }
 
 
