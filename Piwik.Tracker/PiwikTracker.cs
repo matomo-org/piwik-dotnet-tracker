@@ -349,6 +349,11 @@ namespace Piwik.Tracker
         /// <returns>Response</returns>
         public HttpWebResponse doBulkTrack()
         {
+            if (string.IsNullOrWhiteSpace(this.token_auth))
+    	    {
+    		    throw new Exception("Token auth is required for bulk tracking.");
+    	    }
+    	
     	    if (!this.storedTrackingActions.Any())
     	    {
     		    return null;
@@ -356,10 +361,7 @@ namespace Piwik.Tracker
     	
     	    var data = new Dictionary<string, Object>();
             data["requests"] = this.storedTrackingActions;
-    	    if (!string.IsNullOrEmpty(this.token_auth))
-    	    {
-    		    data["token_auth"] = this.token_auth;
-    	    }
+            data["token_auth"] = this.token_auth;
     	
     	    var postData = new JavaScriptSerializer().Serialize(data);
     	    var response = this.sendRequest(this.getBaseUrl(), "POST", postData, true);
