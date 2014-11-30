@@ -498,10 +498,8 @@ namespace Piwik.Tracker
         /// <returns>URL to piwik.php with all parameters set to track an action</returns>
         public string getUrlTrackAction(string actionUrl, ActionType actionType)
         {
-    	    string url = getRequest( idSite );
-
-		    url += "&" + actionType.ToString() + "=" + urlEncode(actionUrl) + "&redirect=0";
-		
+    	    var url = getRequest( idSite );
+		    url += "&" + actionType + "=" + urlEncode(actionUrl);		
     	    return url;
         }
 
