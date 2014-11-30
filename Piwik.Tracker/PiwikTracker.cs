@@ -18,6 +18,9 @@ using System.Web.Script.Serialization;
 /// </summary>
 namespace Piwik.Tracker
 {
+    using System.IO;
+    using System.Web.Routing;
+
     /// <summary>
     /// Piwik - Open source web analytics
     ///
@@ -68,6 +71,8 @@ namespace Piwik.Tracker
         private int width;
         private int height;
         private int requestTimeout;
+        private bool doBulkRequests;
+        private List<string> storedTrackingActions;
 
         public enum ActionType {download, link};
 
@@ -120,6 +125,8 @@ namespace Piwik.Tracker
 
 		    // Allow debug while blocking the request
     	    this.requestTimeout = 600;
+    	    this.doBulkRequests = false;
+    	    this.storedTrackingActions = new List<string>();
         }
 
 
@@ -244,13 +251,21 @@ namespace Piwik.Tracker
         {
             this.userAgent = userAgent;
         }
-
+        
+        /// <summary>
+        /// Enables the bulk request feature. When used, each tracking action is stored until the
+        /// doBulkTrack method is called. This method will send all tracking data at once.
+        /// </summary>     
+	    public void enableBulkTracking()
+	    {
+		    this.doBulkRequests = true;
+	    }
 
         /// <summary>
         /// Tracks a page view
         /// </summary>       
         /// <param name="documentTitle">Page title as it will appear in the Actions > Page titles report</param> 
-        /// <returns>HTTP Response from the server</returns>
+        /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
         public HttpWebResponse doTrackPageView(string documentTitle = null)
         {
             string url = getUrlTrackPageView(documentTitle);
@@ -263,7 +278,7 @@ namespace Piwik.Tracker
         /// </summary>       
         /// <param name="idGoal">Id Goal to record a conversion</param> 
         /// <param name="revenue">Revenue for this conversion</param> 
-        /// <returns>HTTP Response from the server</returns>
+        /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
         public HttpWebResponse doTrackGoal(int idGoal, float revenue = float.MinValue)
         {
     	    string url = getUrlTrackGoal(idGoal, revenue);
@@ -276,7 +291,7 @@ namespace Piwik.Tracker
         /// </summary>       
         /// <param name="actionUrl">URL of the download or outlink</param> 
         /// <param name="actionType">Type of the action: 'download' or 'link'</param> 
-        /// <returns>HTTP Response from the server</returns>
+        /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
         public HttpWebResponse doTrackAction(string actionUrl, ActionType actionType)
         {
             // Referrer could be udpated to be the current URL temporarily (to mimic JS behavior)
@@ -326,6 +341,33 @@ namespace Piwik.Tracker
     	    return sendRequest(url); 
         }
 
+        /// <summary>
+        /// Sends all stored tracking actions at once. Only has an effect if bulk tracking is enabled.
+        /// 
+        /// To enable bulk tracking, call enableBulkTracking().
+        /// </summary>       
+        /// <returns>Response</returns>
+        public HttpWebResponse doBulkTrack()
+        {
+    	    if (!this.storedTrackingActions.Any())
+    	    {
+    		    return null;
+    	    }
+    	
+    	    var data = new Dictionary<string, Object>();
+            data["requests"] = this.storedTrackingActions;
+    	    if (!string.IsNullOrEmpty(this.token_auth))
+    	    {
+    		    data["token_auth"] = this.token_auth;
+    	    }
+    	
+    	    var postData = new JavaScriptSerializer().Serialize(data);
+    	    var response = this.sendRequest(this.getBaseUrl(), "POST", postData, true);
+    	
+    	    this.storedTrackingActions = new List<string>();
+    	
+    	    return response;
+        }
 
         /// <summary>
 	    /// Tracks an Ecommerce order.
@@ -340,6 +382,7 @@ namespace Piwik.Tracker
         /// <param name="tax">Tax amount for this order</param> 
         /// <param name="shipping">Shipping amount for this order</param> 
         /// <param name="discount">Discounted amount in this order</param> 
+        /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
         public HttpWebResponse doTrackEcommerceOrder(string orderId, double grandTotal, double subTotal = Double.MinValue, double tax = Double.MinValue, double shipping = Double.MinValue, double discount = Double.MinValue)
         {
     	    string url = getUrlTrackEcommerceOrder(orderId, grandTotal, subTotal, tax, shipping, discount);
@@ -748,18 +791,25 @@ namespace Piwik.Tracker
     	    }
     	
     	    this.requestTimeout = timeout;
-        }    
+        }
 
-        private HttpWebResponse sendRequest(string url)
+        private HttpWebResponse sendRequest(string url, string method = "GET", string data = null, bool force = false)
         {
+    	    // if doing a bulk request, store the url
+    	    if (this.doBulkRequests && !force)
+    	    {
+    		    this.storedTrackingActions.Add(url);
+    		    return null;
+    	    }
+
 		    if(!cookieSupport)
 		    {
 			    requestCookie = null;
 		    }
 
             var request = (HttpWebRequest)WebRequest.Create(url);
-            request.UserAgent = this.userAgent;
-            request.Timeout = this.requestTimeout;
+            request.Method = method;
+            request.UserAgent = this.userAgent;            
 
             if (acceptLanguage != null && acceptLanguage.Any())
             {
@@ -769,6 +819,17 @@ namespace Piwik.Tracker
             if(requestCookie != null)
             {
                 request.Headers.Add("Cookie", requestCookie.Name + "=" + requestCookie.Value);
+            }
+
+            request.Timeout = this.requestTimeout;
+
+            if (!string.IsNullOrEmpty(data))
+            {
+                request.ContentType = "Content-Type: application/json";
+                using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+                {
+                    streamWriter.Write(data);
+                }
             }
 
             var response = (HttpWebResponse) request.GetResponse();
@@ -791,23 +852,26 @@ namespace Piwik.Tracker
 		    return response;
         }
 
+        /// <summary>
+        /// Returns the base URL for the piwik server.
+        /// </summary>
+        protected string getBaseUrl()
+        {
+            if (String.IsNullOrEmpty(URL))
+            {
+                throw new Exception("You must first set the Piwik Tracker URL by calling PiwikTracker.URL = \"http://your-website.org/piwik/\";");
+            }
+            if (!URL.Contains("/piwik.php")
+                && !URL.Contains("/proxy-piwik.php"))
+            {
+                URL += "/piwik.php";
+            }
+            return URL;
+        }
 
         private string getRequest( int idSite )
-        {
-            if(String.IsNullOrEmpty(URL))
-            {
-    	        throw new Exception("You must first set the Piwik Tracker URL by calling PiwikTracker.URL = \"http://your-website.org/piwik/\";");
-            }
-
-            string absoluteURI = URL;      
-
-            if(!absoluteURI.Contains("/piwik.php") && !absoluteURI.Contains("/proxy-piwik.php"))
-            {
-    	        absoluteURI += "/piwik.php";
-            }
-    	
-            string url =
-                absoluteURI +
+        {   	
+            var url = this.getBaseUrl() +
                 "?idsite=" + idSite +
 		        "&rec=1" +
 		        "&apiv=" + VERSION + 
@@ -817,7 +881,7 @@ namespace Piwik.Tracker
 		        (!String.IsNullOrEmpty(ip) ? "&cip=" + ip : "") +
     	        (!String.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + visitorId) +
                 (!forcedDatetime.Equals(DateTimeOffset.MinValue) ? "&cdt=" + formatDateValue(forcedDatetime) : "") +
-                (!String.IsNullOrEmpty(token_auth) ? "&token_auth=" + urlEncode(token_auth) : "") +
+                (!String.IsNullOrEmpty(token_auth) && !this.doBulkRequests ? "&token_auth=" + urlEncode(token_auth) : "") +
 	        
 		        // These parameters are set by the JS, but optional when using API
 	            (!String.IsNullOrEmpty(plugins) ? plugins : "") +

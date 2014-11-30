@@ -44,9 +44,11 @@ namespace Piwik.Tracker.Samples
 //            RecordECommerceOrder();
 //            RecordTwoECommerceOrders();
 
+            // ** Bulk Tracking **
+//            BulkTrackTwoRequests();
+
             Console.ReadKey(true);
         }
-
 
         /// <summary>
         /// Triggers a Goal conversion
@@ -392,6 +394,21 @@ namespace Piwik.Tracker.Samples
                 );
 
             displayHttpWebReponse(response);
+        }
+
+        private static void BulkTrackTwoRequests()
+        {
+            var piwikTracker = new PiwikTracker(1);
+
+            piwikTracker.setUserAgent(UA);
+            piwikTracker.setTokenAuth("YOUR TOKEN");
+
+            piwikTracker.enableBulkTracking();
+
+            piwikTracker.doTrackPageView("Tracking Request 1");
+            piwikTracker.doTrackPageView("Tracking Request 2");
+
+            displayHttpWebReponse(piwikTracker.doBulkTrack());
         }
 
         /// <summary>
