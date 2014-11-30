@@ -44,19 +44,19 @@ namespace Piwik.Tracker
         public static string URL;
 
         private string DEBUG_APPEND_URL;
-        private bool cookieSupport = true;
+        private bool cookieSupport;
         private string userAgent;
         private DateTimeOffset localTime;
         private bool hasCookies;
         private string plugins;
-        private Dictionary<string, string[]> visitorCustomVar = new Dictionary<string, string[]>();
-        private Dictionary<string, string[]> pageCustomVar = new Dictionary<string, string[]>();
+        private Dictionary<string, string[]> visitorCustomVar;
+        private Dictionary<string, string[]> pageCustomVar;
         private string customData;
         private DateTimeOffset forcedDatetime;
         private string token_auth;
         private AttributionInfo attributionInfo;
         private DateTimeOffset ecommerceLastOrderTimestamp;
-        private Dictionary<string, object[]> ecommerceItems = new Dictionary<string, object[]>();
+        private Dictionary<string, object[]> ecommerceItems;
         private Cookie requestCookie;
         private int idSite;
         private string urlReferrer;
@@ -81,36 +81,40 @@ namespace Piwik.Tracker
         /// <param name="apiUrl">"http://example.org/piwik/" or "http://piwik.example.org/". If set, will overwrite PiwikTracker.URL</param>
         public PiwikTracker(int idSite, string apiUrl = null)
         {
+            this.cookieSupport = false;
+            this.userAgent = null;
+            this.localTime = DateTimeOffset.MinValue;
+            this.hasCookies = false;
+            this.plugins = null;
+            this.visitorCustomVar = new Dictionary<string, string[]>();
+            this.pageCustomVar =  new Dictionary<string, string[]>();
+            this.customData = null;
+            this.forcedDatetime = DateTimeOffset.MinValue;
+            this.token_auth = null;
+            this.attributionInfo = null;
+            this.ecommerceLastOrderTimestamp = DateTimeOffset.MinValue;
+            this.ecommerceItems =  new Dictionary<string, object[]>();
+            this.requestCookie = null;
             this.idSite = idSite;
+            
+            var currentContext = HttpContext.Current;
+            if (currentContext != null)
+            {
+                if (currentContext.Request.UrlReferrer != null)
+                {
+                    this.urlReferrer = currentContext.Request.UrlReferrer.AbsoluteUri;
+                }
 
+                this.pageUrl = currentContext.Request.Url.AbsoluteUri;
+                this.ip = currentContext.Request.UserHostAddress;
+                this.acceptLanguage = currentContext.Request.UserLanguages;
+                this.userAgent = currentContext.Request.UserAgent;
+            }
             if (!String.IsNullOrEmpty(apiUrl))
             {
                 URL = apiUrl;
             }
-
-            HttpContext currentContext = HttpContext.Current;
-            if (currentContext != null)
-            {
-                HttpRequest currentRequest = currentContext.Request;
-
-                if (currentRequest.UrlReferrer != null)
-                {
-                    urlReferrer = currentRequest.UrlReferrer.AbsoluteUri;
-                }
-
-                if (currentRequest.Url != null)
-                {
-                    pageUrl = currentRequest.Url.AbsoluteUri;
-                }
-
-                ip = currentRequest.UserHostAddress;
-                acceptLanguage = currentRequest.UserLanguages;
-                userAgent = currentRequest.UserAgent;
-            }
-
-            MD5 md5 = new MD5CryptoServiceProvider();
-            Byte[] encodedGuidBytes = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(System.Guid.NewGuid().ToString()));
-
+            var encodedGuidBytes = new MD5CryptoServiceProvider().ComputeHash(ASCIIEncoding.Default.GetBytes(Guid.NewGuid().ToString()));
             visitorId = BitConverter.ToString(encodedGuidBytes).Replace("-", "").Substring(0, LENGTH_VISITOR_ID);
         }
 
