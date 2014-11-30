@@ -67,6 +67,7 @@ namespace Piwik.Tracker
         private string forcedVisitorId;
         private int width;
         private int height;
+        private int requestTimeout;
 
         public enum ActionType {download, link};
 
@@ -116,6 +117,9 @@ namespace Piwik.Tracker
             }
             var encodedGuidBytes = new MD5CryptoServiceProvider().ComputeHash(ASCIIEncoding.Default.GetBytes(Guid.NewGuid().ToString()));
             visitorId = BitConverter.ToString(encodedGuidBytes).Replace("-", "").Substring(0, LENGTH_VISITOR_ID);
+
+		    // Allow debug while blocking the request
+    	    this.requestTimeout = 600;
         }
 
 
@@ -722,21 +726,42 @@ namespace Piwik.Tracker
         	cookieSupport = false;
         }
 
+        /// <summary>
+        /// Returns the maximum number of seconds the tracker will spend waiting for a response
+        /// from Piwik. Defaults to 600 seconds.
+        /// </summary>   
+        public int getRequestTimeout()
+        {
+    	    return this.requestTimeout;
+        }
+	
+        /// <summary>
+        /// Sets the maximum number of seconds that the tracker will spend waiting for a response
+        /// from Piwik.
+        /// </summary>
+        /// <param name="timeout"></param>
+        public void setRequestTimeout( int timeout )
+        {
+    	    if (timeout < 0)
+    	    {
+    		    throw new Exception("Invalid value supplied for request timeout: $timeout");
+    	    }
+    	
+    	    this.requestTimeout = timeout;
+        }    
 
         private HttpWebResponse sendRequest(string url)
         {
-		    int timeout = 600000; // Allow debug while blocking the request
-
 		    if(!cookieSupport)
 		    {
 			    requestCookie = null;
 		    }
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.UserAgent = userAgent;
-            request.Timeout = timeout;
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.UserAgent = this.userAgent;
+            request.Timeout = this.requestTimeout;
 
-            if (acceptLanguage != null && acceptLanguage.Count() > 0)
+            if (acceptLanguage != null && acceptLanguage.Any())
             {
                 request.Headers.Add("Accept-Language", String.Join(", ", acceptLanguage));
             }
@@ -746,11 +771,11 @@ namespace Piwik.Tracker
                 request.Headers.Add("Cookie", requestCookie.Name + "=" + requestCookie.Value);
             }
 
-            HttpWebResponse response = (HttpWebResponse) request.GetResponse();
-            CookieCollection cookies = response.Cookies;        
+            var response = (HttpWebResponse) request.GetResponse();
+            var cookies = response.Cookies;        
 
             // The cookie in the response will be set in the next request
-            for (int i = 0; i < cookies.Count; i++)
+            for (var i = 0; i < cookies.Count; i++)
             {
                 // in case several cookies returned, we keep only the latest one (ie. XDEBUG puts its cookie first in the list)
                 if (!cookies[i].Name.Contains("XDEBUG"))
