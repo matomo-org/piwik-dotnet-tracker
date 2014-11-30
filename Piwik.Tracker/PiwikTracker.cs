@@ -105,12 +105,12 @@ namespace Piwik.Tracker
                 {
                     this.urlReferrer = currentContext.Request.UrlReferrer.AbsoluteUri;
                 }
-
-                this.pageUrl = currentContext.Request.Url.AbsoluteUri;
+                
                 this.ip = currentContext.Request.UserHostAddress;
                 this.acceptLanguage = currentContext.Request.UserLanguages;
                 this.userAgent = currentContext.Request.UserAgent;
             }
+            this.pageUrl = getCurrentUrl();
             if (!String.IsNullOrEmpty(apiUrl))
             {
                 URL = apiUrl;
@@ -854,6 +854,35 @@ namespace Piwik.Tracker
             return url;
         }
 
+        private HttpCookie getCookieMatchingName(string name)
+        {
+            HttpContext currentContext = HttpContext.Current;
+
+            if (currentContext == null)
+            {
+                throw new Exception("Can not read cookies without an active HttpContext");
+            }
+
+            HttpCookieCollection cookies = currentContext.Request.Cookies;
+
+            for (int i = 0; i < cookies.Count; i++)
+            {
+                if (cookies[i].Name.Contains(name))
+                {
+                    return cookies[i];
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the current full URL (scheme, host, path and query string.
+        /// </summary>   
+        static protected string getCurrentUrl()
+        {
+            return HttpContext.Current != null ? HttpContext.Current.Request.Url.AbsoluteUri : "http://unknown";
+	    }
 
         private string formatDateValue(DateTimeOffset date)
         {
@@ -871,30 +900,7 @@ namespace Piwik.Tracker
         private string formatMonetaryValue(double value)
         {
             return value.ToString("0.##", new CultureInfo("en-US")); 
-        }
-
-
-        private HttpCookie getCookieMatchingName(string name)
-        {
-            HttpContext currentContext = HttpContext.Current;
-
-            if (currentContext == null)
-            {
-                throw new Exception("Can not read cookies without an active HttpContext");
-            }
-
-            HttpCookieCollection cookies = currentContext.Request.Cookies;
-
-            for (int i = 0; i < cookies.Count; i++)
-            {
-                if (cookies[i].Name.Contains(name))
-                {
-                    return cookies[i];                    
-                }
-            }
-
-            return null;
-        }
+        }        
 
         private string urlEncode(string value)
         {
