@@ -28,7 +28,7 @@ We would ideally like to automate this process, we welcome contributions aimed t
 
 To ease the process in the mean time, the following rules are applied to any new code contributions :
 
-* one-to-one commit mapping between the PHP and C# projects
+* a commit in the PHP project implies a commit in the C# project with the same message and content
 * one-to-one tag mapping between the PHP and C# projects
 * the C# code should mirror as close as possible the PHP code
 
