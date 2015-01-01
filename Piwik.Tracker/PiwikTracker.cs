@@ -827,7 +827,7 @@ namespace Piwik.Tracker
 
             if (!string.IsNullOrEmpty(data))
             {
-                request.ContentType = "Content-Type: application/json";
+                request.ContentType = "application/json";
                 using (var streamWriter = new StreamWriter(request.GetRequestStream()))
                 {
                     streamWriter.Write(data);
