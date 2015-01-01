@@ -65,7 +65,7 @@ namespace Piwik.Tracker
         private string urlReferrer;
         private string pageUrl;
         private string ip;
-        private string[] acceptLanguage;
+        private string acceptLanguage;
         private string visitorId;
         private string forcedVisitorId;
         private int width;
@@ -112,7 +112,10 @@ namespace Piwik.Tracker
                 }
                 
                 this.ip = currentContext.Request.UserHostAddress;
-                this.acceptLanguage = currentContext.Request.UserLanguages;
+
+                if (currentContext.Request.UserLanguages != null && currentContext.Request.UserLanguages.Any())
+                    this.acceptLanguage = currentContext.Request.UserLanguages.First();
+
                 this.userAgent = currentContext.Request.UserAgent;
             }
             this.pageUrl = getCurrentUrl();
@@ -120,8 +123,7 @@ namespace Piwik.Tracker
             {
                 URL = apiUrl;
             }
-            var encodedGuidBytes = new MD5CryptoServiceProvider().ComputeHash(ASCIIEncoding.Default.GetBytes(Guid.NewGuid().ToString()));
-            visitorId = BitConverter.ToString(encodedGuidBytes).Replace("-", "").Substring(0, LENGTH_VISITOR_ID);
+            this.setNewVisitorId();
 
 		    // Allow debug while blocking the request
     	    this.requestTimeout = 600;
@@ -230,12 +232,22 @@ namespace Piwik.Tracker
             return new CustomVar(cookieDecoded[stringId][0], cookieDecoded[stringId][1]);
         }
 
+        
+         /// <summary>
+        /// Sets the current visitor ID to a random new one.
+        /// </summary>       
+        public void setNewVisitorId()
+        {
+            var encodedGuidBytes = new MD5CryptoServiceProvider().ComputeHash(ASCIIEncoding.Default.GetBytes(Guid.NewGuid().ToString()));
+            visitorId = BitConverter.ToString(encodedGuidBytes).Replace("-", "").Substring(0, LENGTH_VISITOR_ID);
+        }
+    
 
         /// <summary>
         /// Sets the Browser language. Used to guess visitor countries when GeoIP is not enabled
         /// </summary>       
         /// <param name="acceptLanguage">For example "fr-fr"</param>    
-        public void setBrowserLanguage( string[] acceptLanguage )
+        public void setBrowserLanguage( string acceptLanguage )
         {
             this.acceptLanguage = acceptLanguage;
         }
@@ -800,7 +812,12 @@ namespace Piwik.Tracker
     	    // if doing a bulk request, store the url
     	    if (this.doBulkRequests && !force)
     	    {
-    		    this.storedTrackingActions.Add(url);
+    		    this.storedTrackingActions.Add(
+                    url
+                    + (!String.IsNullOrEmpty(userAgent) ? "&ua=" + urlEncode(userAgent) : "")
+                    + (!String.IsNullOrEmpty(acceptLanguage) ? "&lang=" + urlEncode(acceptLanguage) : "")
+                );
+
     		    return null;
     	    }
 
@@ -813,10 +830,7 @@ namespace Piwik.Tracker
             request.Method = method;
             request.UserAgent = this.userAgent;            
 
-            if (acceptLanguage != null && acceptLanguage.Any())
-            {
-                request.Headers.Add("Accept-Language", String.Join(", ", acceptLanguage));
-            }
+            request.Headers.Add("Accept-Language", acceptLanguage);
             
             if(requestCookie != null)
             {
