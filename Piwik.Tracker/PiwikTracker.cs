@@ -286,6 +286,21 @@ namespace Piwik.Tracker
 
 
         /// <summary>
+        /// Tracks an internal Site Search query, and optionally tracks the Search Category, and Search results Count.
+        /// These are used to populate reports in Actions > Site Search.
+        /// </summary>       
+        /// <param name="keyword">Searched query on the site</param> 
+        /// <param name="category">Optional, Search engine category if applicable</param> 
+        /// <param name="countResults">results displayed on the search result page. Used to track "zero result" keywords.</param> 
+        /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
+	    public HttpWebResponse doTrackSiteSearch( string keyword, string category = null, int countResults = int.MinValue )
+	    {
+		    var url = this.getUrlTrackSiteSearch(keyword, category, countResults);
+		    return this.sendRequest(url);
+	    }
+
+
+        /// <summary>
         /// Records a Goal conversion
         /// </summary>       
         /// <param name="idGoal">Id Goal to record a conversion</param> 
@@ -539,6 +554,21 @@ namespace Piwik.Tracker
 
             return url;
         }
+
+
+	    /// <see>doTrackSiteSearch</see>
+	    public string getUrlTrackSiteSearch(string keyword, string category, int countResults)
+	    {
+		    var url = this.getRequest( this.idSite );
+		    url += "&search=" + urlEncode(keyword);
+		    if(!string.IsNullOrWhiteSpace(category)) {
+			    url += "&search_cat=" + urlEncode(category);
+		    }
+		    if(!countResults.Equals(int.MinValue)) {
+			    url += "&search_count=" + countResults;
+		    }
+		    return url;
+	    }
 
 
         /// <param name="idGoal">Id Goal to record a conversion</param> 

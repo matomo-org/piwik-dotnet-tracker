@@ -47,6 +47,9 @@ namespace Piwik.Tracker.Samples
             // ** Bulk Tracking **
 //            BulkTrackTwoRequests();
 
+            // ** Site Search **
+//            TrackSiteSearch();
+
             Console.ReadKey(true);
         }
 
@@ -409,6 +412,16 @@ namespace Piwik.Tracker.Samples
             piwikTracker.doTrackPageView("Tracking Request 2");
 
             displayHttpWebReponse(piwikTracker.doBulkTrack());
+        }
+
+        static private void TrackSiteSearch()
+        {
+            var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
+
+            var response = piwikTracker.doTrackSiteSearch("keyword1", "category2", 0);
+
+            displayHttpWebReponse(response);
         }
 
         /// <summary>
