@@ -540,7 +540,7 @@ namespace Piwik.Tracker
         }
 
 
-        /// <see>doTrackPageView</see>
+        /// <see cref="doTrackPageView"/>
         /// <param name="documentTitle">Page view name as it will appear in Piwik reports</param> 
         /// <returns>HTTP Response from the server</returns>
         public string getUrlTrackPageView(string documentTitle = null)
@@ -556,7 +556,7 @@ namespace Piwik.Tracker
         }
 
 
-	    /// <see>doTrackSiteSearch</see>
+        /// <see cref="doTrackSiteSearch"/>
 	    public string getUrlTrackSiteSearch(string keyword, string category, int countResults)
 	    {
 		    var url = this.getRequest( this.idSite );
