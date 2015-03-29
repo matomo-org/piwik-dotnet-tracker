@@ -22,6 +22,7 @@ namespace Piwik.Tracker.Samples
             // ** PAGE VIEW **
 //            RecordSimplePageView();
 //            RecordSimplePageViewWithCustomProperties();
+//            RecordSimplePageViewWithCustomGeoLocation();
 
             // ** CUSTOM VARIABLES **
 //            RecordCustomVariables();
@@ -130,6 +131,27 @@ namespace Piwik.Tracker.Samples
 
             piwikTracker.setUrl("http://piwik-1.5/supernova");
             piwikTracker.setUrlReferrer("http://supernovadirectory.org");
+
+            var response = piwikTracker.doTrackPageView("Document title of current page view");
+
+            displayHttpWebReponse(response);
+        }
+
+        /// <summary>
+        /// Records a simple page view with custom geo location parameters
+        /// </summary>
+        static private void RecordSimplePageViewWithCustomGeoLocation()
+        {
+            var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setTokenAuth("XYZ");
+
+            piwikTracker.setUserAgent(UA);
+
+            piwikTracker.setCountry("fr");
+            piwikTracker.setRegion("A8");
+            piwikTracker.setCity("Paris");
+            piwikTracker.setLatitude(48.2F);
+            piwikTracker.setLongitude(2.1F);
 
             var response = piwikTracker.doTrackPageView("Document title of current page view");
 

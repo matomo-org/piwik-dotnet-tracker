@@ -73,6 +73,11 @@ namespace Piwik.Tracker
         private int requestTimeout;
         private bool doBulkRequests;
         private List<string> storedTrackingActions;
+        private string country;
+        private string region;
+        private string city;
+        private float? lat;
+        private float? longitude;
 
         public enum ActionType {download, link};
 
@@ -263,6 +268,57 @@ namespace Piwik.Tracker
         {
             this.userAgent = userAgent;
         }
+
+
+        /// <summary>
+        /// Sets the country of the visitor. If not used, Piwik will try to find the country
+        /// using either the visitor's IP address or language.
+        /// </summary>       
+        public void setCountry(string country)
+        {
+    	    this.country = country;
+        }
+    
+
+        /// <summary>
+        /// Sets the region of the visitor. If not used, Piwik may try to find the region
+        /// using the visitor's IP address (if configured to do so).
+        /// </summary>       
+        public void setRegion(string region)
+        {
+    	    this.region = region;
+        }
+
+    
+        /// <summary>
+        /// Sets the city of the visitor. If not used, Piwik may try to find the city
+        /// using the visitor's IP address (if configured to do so).
+        /// </summary>       
+        public void setCity(string city)
+        {
+    	    this.city = city;
+        }
+
+    
+        /// <summary>
+        /// Sets the latitude of the visitor. If not used, Piwik may try to find the visitor's
+        /// latitude using the visitor's IP address (if configured to do so).
+        /// </summary>  
+        public void setLatitude(float lat)
+        {
+    	    this.lat = lat;
+        }
+    
+
+        /// <summary>
+        /// Sets the longitude of the visitor. If not used, Piwik may try to find the visitor's
+        /// longitude using the visitor's IP address (if configured to do so).
+        /// </summary>  
+        public void setLongitude(float longitude)
+        {
+    	    this.longitude = longitude;
+        }
+    
         
         /// <summary>
         /// Enables the bulk request feature. When used, each tracking action is stored until the
@@ -954,6 +1010,13 @@ namespace Piwik.Tracker
                 ((attributionInfo != null && !attributionInfo.referrerTimestamp.Equals(DateTimeOffset.MinValue)) ? "&_refts=" + formatTimestamp(attributionInfo.referrerTimestamp) : "") +
     	        // Referrer URL
                 ((attributionInfo != null && !String.IsNullOrEmpty(attributionInfo.referrerUrl)) ? "&_ref=" + urlEncode(attributionInfo.referrerUrl) : "") +
+    		
+    		    // custom location info
+    		    (!String.IsNullOrEmpty(this.country) ? "&country=" + urlEncode(this.country) : "") +
+    		    (!String.IsNullOrEmpty(this.region) ? "&region=" + urlEncode(this.region) : "") +
+    		    (!String.IsNullOrEmpty(this.city) ? "&city=" + urlEncode(this.city) : "") +
+                (this.lat != null ? "&lat=" + formatGeoLocationValue((float) this.lat) : "") +
+                (this.longitude != null ? "&long=" + formatGeoLocationValue((float) this.longitude) : "") +
 
     	        // DEBUG 
 	            DEBUG_APPEND_URL;
@@ -1010,6 +1073,11 @@ namespace Piwik.Tracker
         private string formatMonetaryValue(double value)
         {
             return value.ToString("0.##", new CultureInfo("en-US")); 
+        }        
+
+        private string formatGeoLocationValue(float value)
+        {
+            return value.ToString(new CultureInfo("en-US")); 
         }        
 
         private string urlEncode(string value)
