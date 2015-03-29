@@ -19,7 +19,6 @@ using System.Web.Script.Serialization;
 namespace Piwik.Tracker
 {
     using System.IO;
-    using System.Web.Routing;
 
     /// <summary>
     /// Piwik - Open source web analytics
