@@ -722,10 +722,13 @@ namespace Piwik.Tracker
         /// <param name="visitorId">16 hexadecimal characters visitor ID, eg. "33c31e01394bdc63"</param>          
         public void setVisitorId(string visitorId)
         {
-
-        	if(visitorId.Length != LENGTH_VISITOR_ID)
+            if (visitorId.Length != LENGTH_VISITOR_ID || !System.Text.RegularExpressions.Regex.IsMatch(visitorId, @"\A\b[0-9a-fA-F]+\b\Z"))
     	    {
-        		throw new Exception("setVisitorId() expects a " + LENGTH_VISITOR_ID + " characters ID");
+        		throw new Exception("setVisitorId() expects a "
+                                +LENGTH_VISITOR_ID
+                                +" characters hexadecimal string (containing only the following: "
+                                +"01234567890abcdefABCDEF"
+                                +")");
         	}
 
     	    this.forcedVisitorId = visitorId;
