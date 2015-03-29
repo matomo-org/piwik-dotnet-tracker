@@ -181,6 +181,7 @@ namespace Piwik.Tracker
         /// properly attributed to the right Referrer URL, timestamp, Campaign Name & Keyword.
         /// </summary>       
         /// <param name="attributionInfo">Attribution info for the visit</param>
+        /// <see>function getAttributionInfo() in "https://github.com/piwik/piwik/blob/master/js/piwik.js"</see>
         public void setAttributionInfo(AttributionInfo attributionInfo)
         {
             this.attributionInfo = attributionInfo;
