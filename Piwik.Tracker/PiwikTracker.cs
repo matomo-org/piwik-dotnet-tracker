@@ -41,6 +41,11 @@ namespace Piwik.Tracker
         private const int LENGTH_VISITOR_ID = 16;
 
         /// <summary>
+        /// By default, Piwik expects utf-8 encoded values, for example for the page URL parameter values, Page Title, etc.
+        /// </summary>
+	    private const string DEFAULT_CHARSET_PARAMETER_VALUES = "utf-8";
+
+        /// <summary>
         /// Piwik base URL, for example http://example.org/piwik/
         /// Must be set before using the class by calling PiwikTracker.URL = 'http://yourwebsite.org/piwik/'
         /// </summary>
@@ -63,6 +68,7 @@ namespace Piwik.Tracker
         private Cookie requestCookie;
         private int idSite;
         private string urlReferrer;
+        private string pageCharset;
         private string pageUrl;
         private string ip;
         private string acceptLanguage;
@@ -123,6 +129,7 @@ namespace Piwik.Tracker
 
                 this.userAgent = currentContext.Request.UserAgent;
             }
+            this.pageCharset = DEFAULT_CHARSET_PARAMETER_VALUES;
             this.pageUrl = getCurrentUrl();
             if (!String.IsNullOrEmpty(apiUrl))
             {
@@ -135,6 +142,12 @@ namespace Piwik.Tracker
     	    this.doBulkRequests = false;
     	    this.storedTrackingActions = new List<string>();
         }
+
+
+	    public void setPageCharset(string charset)
+	    {
+		    this.pageCharset = charset;
+	    }
 
 
         /// <summary>
@@ -1000,6 +1013,7 @@ namespace Piwik.Tracker
 	            // URL parameters
                 (!String.IsNullOrEmpty(pageUrl) ? "&url=" + urlEncode(pageUrl) : "") +
                 (!String.IsNullOrEmpty(urlReferrer) ? "&urlref=" + urlEncode(urlReferrer) : "") +
+                (!String.IsNullOrEmpty(this.pageCharset) && !this.pageCharset.Equals(DEFAULT_CHARSET_PARAMETER_VALUES) ? "&cs=" + this.pageCharset : "") +
 	        
 	            // Attribution information, so that Goal conversions are attributed to the right referrer or campaign
 	            // Campaign name
