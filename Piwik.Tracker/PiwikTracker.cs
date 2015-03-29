@@ -439,7 +439,7 @@ namespace Piwik.Tracker
     	
     	    if (!this.storedTrackingActions.Any())
     	    {
-    		    return null;
+                throw new Exception("Error:  you must call the function doTrackPageView or doTrackGoal from this class, before calling this method doBulkTrack()");
     	    }
     	
     	    var data = new Dictionary<string, Object>();
