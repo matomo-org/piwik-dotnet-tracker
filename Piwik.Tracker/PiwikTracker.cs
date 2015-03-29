@@ -41,7 +41,8 @@ namespace Piwik.Tracker
         private const int LENGTH_VISITOR_ID = 16;
 
         /// <summary>
-        /// By default, Piwik expects utf-8 encoded values, for example for the page URL parameter values, Page Title, etc.
+        /// Charset
+        /// <see cref="setPageCharset"/>
         /// </summary>
 	    private const string DEFAULT_CHARSET_PARAMETER_VALUES = "utf-8";
 
@@ -144,6 +145,12 @@ namespace Piwik.Tracker
         }
 
 
+        /// <summary>
+        /// By default, Piwik expects utf-8 encoded values, for example
+        /// for the page URL parameter values, Page Title, etc.
+        /// It is recommended to only send UTF-8 data to Piwik.
+        /// If required though, you can also specify another charset using this function.
+        /// </summary>       
 	    public void setPageCharset(string charset)
 	    {
 		    this.pageCharset = charset;
@@ -286,6 +293,8 @@ namespace Piwik.Tracker
         /// <summary>
         /// Sets the country of the visitor. If not used, Piwik will try to find the country
         /// using either the visitor's IP address or language.
+        /// 
+        /// Allowed only for Admin/Super User, must be used along with setTokenAuth().
         /// </summary>       
         public void setCountry(string country)
         {
@@ -296,6 +305,8 @@ namespace Piwik.Tracker
         /// <summary>
         /// Sets the region of the visitor. If not used, Piwik may try to find the region
         /// using the visitor's IP address (if configured to do so).
+        /// 
+        /// Allowed only for Admin/Super User, must be used along with setTokenAuth().
         /// </summary>       
         public void setRegion(string region)
         {
@@ -306,6 +317,8 @@ namespace Piwik.Tracker
         /// <summary>
         /// Sets the city of the visitor. If not used, Piwik may try to find the city
         /// using the visitor's IP address (if configured to do so).
+        /// 
+        /// Allowed only for Admin/Super User, must be used along with setTokenAuth().
         /// </summary>       
         public void setCity(string city)
         {
@@ -316,6 +329,8 @@ namespace Piwik.Tracker
         /// <summary>
         /// Sets the latitude of the visitor. If not used, Piwik may try to find the visitor's
         /// latitude using the visitor's IP address (if configured to do so).
+        /// 
+        /// Allowed only for Admin/Super User, must be used along with setTokenAuth().
         /// </summary>  
         public void setLatitude(float lat)
         {
@@ -326,6 +341,8 @@ namespace Piwik.Tracker
         /// <summary>
         /// Sets the longitude of the visitor. If not used, Piwik may try to find the visitor's
         /// longitude using the visitor's IP address (if configured to do so).
+        /// 
+        /// Allowed only for Admin/Super User, must be used along with setTokenAuth().
         /// </summary>  
         public void setLongitude(float longitude)
         {
@@ -700,7 +717,7 @@ namespace Piwik.Tracker
         /// 
         /// This is typically used with the Javascript getVisitorId() function.
         /// 
-        /// Allowed only for Super User, must be used along with setTokenAuth()
+        /// Allowed only for Admin/Super User, must be used along with setTokenAuth().
         /// </summary>       
         /// <param name="visitorId">16 hexadecimal characters visitor ID, eg. "33c31e01394bdc63"</param>          
         public void setVisitorId(string visitorId)
