@@ -658,9 +658,7 @@
 		    if(!string.IsNullOrWhiteSpace(category)) {
 			    url += "&search_cat=" + urlEncode(category);
 		    }
-		    if(!countResults.Equals(0)) {
-			    url += "&search_count=" + countResults;
-		    }
+			url += "&search_count=" + countResults;
 		    return url;
 	    }
 
