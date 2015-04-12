@@ -880,7 +880,7 @@
         /// </summary> 
         public void setDebugStringAppend(string debugString)
         {
-            this.DEBUG_APPEND_URL = debugString;
+            this.DEBUG_APPEND_URL = "&" + debugString;
         }
 
 
