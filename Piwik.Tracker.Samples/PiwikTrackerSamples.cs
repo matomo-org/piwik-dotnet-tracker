@@ -23,6 +23,7 @@ namespace Piwik.Tracker.Samples
 //            RecordSimplePageView();
 //            RecordSimplePageViewWithCustomProperties();
 //            RecordSimplePageViewWithCustomGeoLocation();
+//            RecordSimplePageViewWithGenerationTime();
 
             // ** CUSTOM VARIABLES **
 //            RecordCustomVariables();
@@ -158,6 +159,20 @@ namespace Piwik.Tracker.Samples
             displayHttpWebReponse(response);
         }
 
+        /// <summary>
+        /// Records a simple page view with generation time metric
+        /// </summary>
+        static private void RecordSimplePageViewWithGenerationTime()
+        {
+            var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
+
+            piwikTracker.setGenerationTime(10000);
+
+            var response = piwikTracker.doTrackPageView("Document title of current page view");
+
+            displayHttpWebReponse(response); 
+        }
 
         /// <summary>
         /// Triggers a Goal conversion with advanced attribution properties

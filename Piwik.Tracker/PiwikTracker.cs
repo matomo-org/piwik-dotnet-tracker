@@ -61,6 +61,7 @@
         private AttributionInfo attributionInfo;
         private DateTimeOffset ecommerceLastOrderTimestamp;
         private Dictionary<string, object[]> ecommerceItems;
+        private int? generationTime;
         private Cookie requestCookie;
         private int idSite;
         private string urlReferrer;
@@ -107,6 +108,8 @@
             this.attributionInfo = null;
             this.ecommerceLastOrderTimestamp = DateTimeOffset.MinValue;
             this.ecommerceItems =  new Dictionary<string, object[]>();
+            this.generationTime = null;
+
             this.requestCookie = null;
             this.idSite = idSite;
             
@@ -170,6 +173,16 @@
         {
             urlReferrer = url;
         }
+
+
+        /// <summary>
+        /// Sets the time that generating the document on the server side took.
+        /// </summary>       
+        /// <param name="timeMs">Generation time in ms</param>
+	    public void setGenerationTime( int timeMs )
+	    {
+		    this.generationTime = timeMs;
+	    }
 
 
         /// <summary>
@@ -1057,6 +1070,7 @@
 	            (!String.IsNullOrEmpty(customData) ? "&data=" + customData : "") +
                 (visitorCustomVar.Count() > 0 ? "&_cvar=" + urlEncode(new JavaScriptSerializer().Serialize(visitorCustomVar)) : "") +
                 (pageCustomVar.Count() > 0 ? "&cvar=" + urlEncode(new JavaScriptSerializer().Serialize(pageCustomVar)) : "") +
+                (this.generationTime != null ? "&generation_time_ms=" + this.generationTime : "") +
 	        
 	            // URL parameters
                 (!String.IsNullOrEmpty(pageUrl) ? "&url=" + urlEncode(pageUrl) : "") +
