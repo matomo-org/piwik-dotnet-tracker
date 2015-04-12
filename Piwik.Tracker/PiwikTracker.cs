@@ -264,6 +264,16 @@
             var encodedGuidBytes = new MD5CryptoServiceProvider().ComputeHash(ASCIIEncoding.Default.GetBytes(Guid.NewGuid().ToString()));
             visitorId = BitConverter.ToString(encodedGuidBytes).Replace("-", "").Substring(0, LENGTH_VISITOR_ID);
         }
+
+    
+        /// <summary>
+        /// Sets the current site ID.
+        /// </summary>       
+        /// <param name="idSite"/>
+        public void setIdSite( int idSite )
+        {
+    	    this.idSite = idSite;
+        }
     
 
         /// <summary>
