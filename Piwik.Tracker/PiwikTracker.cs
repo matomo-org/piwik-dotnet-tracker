@@ -646,7 +646,7 @@
         {
             var url = getRequest(idSite);
 
-            if (!string.IsNullOrEmpty(documentTitle))
+            if (!string.IsNullOrWhiteSpace(documentTitle))
             {
                 url += "&action_name=" + urlEncode(documentTitle);
             }
