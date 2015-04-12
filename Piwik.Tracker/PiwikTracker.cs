@@ -114,10 +114,8 @@
             this.idSite = idSite;
             
             var currentContext = HttpContext.Current;
-            if (currentContext != null)
-            {
-                if (currentContext.Request.UrlReferrer != null)
-                {
+            if (currentContext != null) {
+                if (currentContext.Request.UrlReferrer != null) {
                     this.urlReferrer = currentContext.Request.UrlReferrer.AbsoluteUri;
                 }
                 
@@ -130,8 +128,7 @@
             }
             this.pageCharset = DEFAULT_CHARSET_PARAMETER_VALUES;
             this.pageUrl = getCurrentUrl();
-            if (!String.IsNullOrEmpty(apiUrl))
-            {
+            if (!String.IsNullOrEmpty(apiUrl)) {
                 URL = apiUrl;
             }
             this.setNewVisitorId();
@@ -179,7 +176,7 @@
         /// Sets the time that generating the document on the server side took.
         /// </summary>       
         /// <param name="timeMs">Generation time in ms</param>
-	    public void setGenerationTime( int timeMs )
+	    public void setGenerationTime(int timeMs)
 	    {
 		    this.generationTime = timeMs;
 	    }
@@ -241,28 +238,23 @@
         {
             var stringId = Convert.ToString(id);
 
-            if (scope.Equals(CustomVar.Scopes.page))
-            {
+            if (scope.Equals(CustomVar.Scopes.page)) {
                 return pageCustomVar.ContainsKey(stringId) ? new CustomVar(pageCustomVar[stringId][0], pageCustomVar[stringId][1]) : null;
             }
-            else if (!scope.Equals(CustomVar.Scopes.visit))
-            {
+            else if (!scope.Equals(CustomVar.Scopes.visit)) {
                 throw new Exception("Invalid 'scope' parameter value");
             }
-            if (visitorCustomVar.ContainsKey(stringId))
-            {
+            if (visitorCustomVar.ContainsKey(stringId)) {
                 return new CustomVar(visitorCustomVar[stringId][0], visitorCustomVar[stringId][1]);
             }
             var customVariablesCookie = "cvar." + idSite + ".";
             var cookie = getCookieMatchingName(customVariablesCookie);
-            if (cookie == null)
-            {
+            if (cookie == null) {
                 return null;
             }
             var cookieDecoded = new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value));
-            if(!cookieDecoded.ContainsKey(stringId)    		
-    		    || cookieDecoded[stringId].Count() != 2)
-    	    {
+            if (!cookieDecoded.ContainsKey(stringId)    		
+    		    || cookieDecoded[stringId].Count() != 2) {
     		    return null;
     	    }
             return new CustomVar(cookieDecoded[stringId][0], cookieDecoded[stringId][1]);
@@ -283,7 +275,7 @@
         /// Sets the current site ID.
         /// </summary>       
         /// <param name="idSite"/>
-        public void setIdSite( int idSite )
+        public void setIdSite(int idSite)
         {
     	    this.idSite = idSite;
         }
@@ -293,7 +285,7 @@
         /// Sets the Browser language. Used to guess visitor countries when GeoIP is not enabled
         /// </summary>       
         /// <param name="acceptLanguage">For example "fr-fr"</param>    
-        public void setBrowserLanguage( string acceptLanguage )
+        public void setBrowserLanguage(string acceptLanguage)
         {
             this.acceptLanguage = acceptLanguage;
         }
@@ -400,7 +392,7 @@
         /// <param name="category">Optional, Search engine category if applicable</param> 
         /// <param name="countResults">results displayed on the search result page. Used to track "zero result" keywords.</param> 
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-	    public HttpWebResponse doTrackSiteSearch( string keyword, string category = "", int? countResults = null )
+	    public HttpWebResponse doTrackSiteSearch(string keyword, string category = "", int? countResults = null)
 	    {
 		    var url = this.getUrlTrackSiteSearch(keyword, category, countResults);
 		    return this.sendRequest(url);
@@ -450,8 +442,7 @@
         /// <exception cref="Exception"/>
         public void addEcommerceItem(string sku, string name = "", List<string> categories = null, double price = 0, ulong quantity = 1)
         {
-    	    if(string.IsNullOrEmpty(sku))
-    	    {
+    	    if (string.IsNullOrEmpty(sku)) {
     		    throw new Exception("You must specify a SKU for the Ecommerce item");
     	    }
 
@@ -486,13 +477,11 @@
         /// <returns>Response</returns>
         public HttpWebResponse doBulkTrack()
         {
-            if (string.IsNullOrWhiteSpace(this.token_auth))
-    	    {
+            if (string.IsNullOrWhiteSpace(this.token_auth)) {
     		    throw new Exception("Token auth is required for bulk tracking.");
     	    }
     	
-    	    if (!this.storedTrackingActions.Any())
-    	    {
+    	    if (!this.storedTrackingActions.Any()) {
                 throw new Exception("Error:  you must call the function doTrackPageView or doTrackGoal from this class, before calling this method doBulkTrack()");
     	    }
     	
@@ -549,28 +538,23 @@
         public void setEcommerceView(string sku = "", string name = "", List<string> categories = null, double price = 0)
         {
             var serializedCategories = "";
-            if (categories != null)
-            {
+            if (categories != null) {
                 serializedCategories = new JavaScriptSerializer().Serialize(categories);
             }
             setCustomVariable(5, "_pkc", serializedCategories, CustomVar.Scopes.page);
 
-            if (!price.Equals(0))
-            {
+            if (!price.Equals(0)) {
                 setCustomVariable(2, "_pkp", formatMonetaryValue(price), CustomVar.Scopes.page);
             }
 
             // On a category page, do not record "Product name not defined" 
-            if (String.IsNullOrEmpty(sku) && String.IsNullOrEmpty(name))
-            {
+            if (String.IsNullOrEmpty(sku) && String.IsNullOrEmpty(name)) {
                 return;
             }
-            if (!String.IsNullOrEmpty(sku))
-            {
+            if (!String.IsNullOrEmpty(sku)) {
                 setCustomVariable(3, "_pks", sku, CustomVar.Scopes.page);
             }
-            if (String.IsNullOrEmpty(name))
-            {
+            if (String.IsNullOrEmpty(name)) {
                 name = "";
             }
             setCustomVariable(4, "_pkn", name, CustomVar.Scopes.page);
@@ -595,8 +579,7 @@
         /// </summary>  
         public string getUrlTrackEcommerceOrder(string orderId, double grandTotal, double subTotal = 0, double tax = 0, double shipping = 0, double discount = 0)
         {
-    	    if(String.IsNullOrEmpty(orderId))
-    	    {
+    	    if (String.IsNullOrEmpty(orderId)) {
     		    throw new Exception("You must specifiy an orderId for the Ecommerce order");
     	    }
 
@@ -617,30 +600,25 @@
         protected string getUrlTrackEcommerce(double grandTotal, double subTotal = 0, double tax = 0, double shipping = 0, double discount = 0)
         {
     	
-    	    string url = getRequest( idSite ) + "&idgoal=0&revenue="  + formatMonetaryValue(grandTotal);
+    	    string url = getRequest(idSite) + "&idgoal=0&revenue="  + formatMonetaryValue(grandTotal);
 
-            if (!subTotal.Equals(0))
-    	    {
+            if (!subTotal.Equals(0)) {
     		    url += "&ec_st=" + formatMonetaryValue(subTotal);
     	    }
 
-            if (!tax.Equals(0))
-    	    {
+            if (!tax.Equals(0)) {
     		    url += "&ec_tx=" + formatMonetaryValue(tax);
     	    }
 
-            if (!shipping.Equals(0))
-    	    {
+            if (!shipping.Equals(0)) {
     		    url += "&ec_sh="  + formatMonetaryValue(shipping);
     	    }
 
-            if (!discount.Equals(0))
-    	    {
+            if (!discount.Equals(0)) {
     		    url += "&ec_dt=" + formatMonetaryValue(discount);
     	    }
 
-    	    if(ecommerceItems.Count > 0)
-    	    {
+    	    if (ecommerceItems.Count > 0) {
     		    url += "&ec_items=" + urlEncode(new JavaScriptSerializer().Serialize(ecommerceItems.Values));                
     	    }
 
@@ -659,8 +637,7 @@
         {
             var url = getRequest(idSite);
 
-            if (!string.IsNullOrWhiteSpace(documentTitle))
-            {
+            if (!string.IsNullOrWhiteSpace(documentTitle)) {
                 url += "&action_name=" + urlEncode(documentTitle);
             }
 
@@ -676,9 +653,9 @@
         /// <param name="countResults"/>
         public string getUrlTrackSiteSearch(string keyword, string category, int? countResults)
 	    {
-		    var url = this.getRequest( this.idSite );
+		    var url = this.getRequest(this.idSite);
 		    url += "&search=" + urlEncode(keyword);
-		    if(!string.IsNullOrWhiteSpace(category)) {
+		    if (!string.IsNullOrWhiteSpace(category)) {
 			    url += "&search_cat=" + urlEncode(category);
 		    }
             if (countResults != null) {
@@ -697,14 +674,11 @@
         /// <returns>URL to piwik.php with all parameters set to track the goal conversion</returns>
         public string getUrlTrackGoal(int idGoal, float revenue = 0)
         {
-    	    string url = getRequest( idSite );
-
+    	    var url = getRequest(idSite);
             url += "&idgoal=" + idGoal;
-
-    	    if(!revenue.Equals(0)) {
+    	    if (!revenue.Equals(0)) {
                 url += "&revenue=" + formatMonetaryValue(revenue);
     	    }
-
     	    return url;
         }
 
@@ -718,7 +692,7 @@
         /// <returns>URL to piwik.php with all parameters set to track an action</returns>
         public string getUrlTrackAction(string actionUrl, ActionType actionType)
         {
-    	    var url = getRequest( idSite );
+    	    var url = getRequest(idSite);
 		    url += "&" + actionType + "=" + urlEncode(actionUrl);		
     	    return url;
         }
@@ -762,13 +736,14 @@
         /// <exception cref="Exception"/>
         public void setVisitorId(string visitorId)
         {
-            if (visitorId.Length != LENGTH_VISITOR_ID || !System.Text.RegularExpressions.Regex.IsMatch(visitorId, @"\A\b[0-9a-fA-F]+\b\Z"))
-    	    {
+            if (visitorId.Length != LENGTH_VISITOR_ID
+                || !System.Text.RegularExpressions.Regex.IsMatch(visitorId, @"\A\b[0-9a-fA-F]+\b\Z")
+            ) {
         		throw new Exception("setVisitorId() expects a "
-                                +LENGTH_VISITOR_ID
-                                +" characters hexadecimal string (containing only the following: "
-                                +"01234567890abcdefABCDEF"
-                                +")");
+                                + LENGTH_VISITOR_ID
+                                + " characters hexadecimal string (containing only the following: "
+                                + "01234567890abcdefABCDEF"
+                                + ")");
         	}
 
     	    this.forcedVisitorId = visitorId;
@@ -788,23 +763,18 @@
         /// <returns>16 hex chars visitor ID string</returns>
         public string getVisitorId()
         {
-    	    if(!String.IsNullOrEmpty(forcedVisitorId))
-    	    {
+    	    if (!string.IsNullOrEmpty(forcedVisitorId)) {
     		    return forcedVisitorId;
     	    }
     	
-    	    HttpCookie idCookie = getCookieMatchingName("id." + idSite + ".");
-
-    	    if(idCookie != null)
-    	    {
+    	    var idCookie = getCookieMatchingName("id." + idSite + ".");
+    	    if (idCookie != null) {
                 string cookieVal = idCookie.Value;
     		    string parsedVisitorId = cookieVal.Substring(0, cookieVal.IndexOf("."));
-    		    if(parsedVisitorId.Length == LENGTH_VISITOR_ID)
-    		    {
+    		    if (parsedVisitorId.Length == LENGTH_VISITOR_ID) {
     			    return parsedVisitorId;
     		    }
     	    }
-
     	    return visitorId;
         }
 
@@ -818,39 +788,39 @@
         /// <returns>Referer information for Goal conversion attribution</returns>        
         public AttributionInfo getAttributionInfo()
         {
-            HttpCookie refCookie = getCookieMatchingName("ref." + idSite + ".");
+            var refCookie = getCookieMatchingName("ref." + idSite + ".");
 
-            if(refCookie == null) {
+            if (refCookie == null) {
                 return null;
             }
 
             string[] cookieDecoded = new JavaScriptSerializer().Deserialize<string[]>(HttpUtility.UrlDecode(refCookie.Value));
 
-            if(cookieDecoded == null) {
+            if (cookieDecoded == null) {
                 return null;
             }
 
             int arraySize = cookieDecoded.Length;
 
-            if(arraySize == 0) {
+            if (arraySize == 0) {
                 return null;
             }
 
             AttributionInfo attributionInfo = new AttributionInfo();
 
-            if(!String.IsNullOrEmpty(cookieDecoded[0])) {
+            if (!String.IsNullOrEmpty(cookieDecoded[0])) {
                 attributionInfo.campaignName = cookieDecoded[0];
             }
 
-            if(arraySize > 1 && !String.IsNullOrEmpty(cookieDecoded[1])) {
+            if (arraySize > 1 && !String.IsNullOrEmpty(cookieDecoded[1])) {
                 attributionInfo.campaignKeyword = cookieDecoded[1];
             }
 
-            if(arraySize > 2 && !String.IsNullOrEmpty(cookieDecoded[2])) {
+            if (arraySize > 2 && !String.IsNullOrEmpty(cookieDecoded[2])) {
                 attributionInfo.referrerTimestamp = new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(Convert.ToInt32(cookieDecoded[2]));
             }
 
-            if(arraySize > 3 && !String.IsNullOrEmpty(cookieDecoded[3])) {
+            if (arraySize > 3 && !String.IsNullOrEmpty(cookieDecoded[3])) {
                 attributionInfo.referrerUrl = cookieDecoded[3];
             }
 
@@ -899,7 +869,7 @@
         /// Sets if the browser supports cookies 
         /// This is reported in "List of plugins" report in Piwik.
         /// </summary>  
-        public void setBrowserHasCookies( bool hasCookies )
+        public void setBrowserHasCookies(bool hasCookies)
         {
             this.hasCookies = hasCookies;
         }
@@ -908,7 +878,7 @@
         /// <summary>
         /// Will append a custom string at the end of the Tracking request. 
         /// </summary> 
-        public void setDebugStringAppend( string debugString )
+        public void setDebugStringAppend(string debugString)
         {
             this.DEBUG_APPEND_URL = debugString;
         }
@@ -957,10 +927,9 @@
         /// </summary>
         /// <param name="timeout"></param>
         /// <exception cref="Exception"/>
-        public void setRequestTimeout( int timeout )
+        public void setRequestTimeout(int timeout)
         {
-    	    if (timeout < 0)
-    	    {
+    	    if (timeout < 0) {
     		    throw new Exception("Invalid value supplied for request timeout: $timeout");
     	    }
     	
@@ -970,8 +939,7 @@
         private HttpWebResponse sendRequest(string url, string method = "GET", string data = null, bool force = false)
         {
     	    // if doing a bulk request, store the url
-    	    if (this.doBulkRequests && !force)
-    	    {
+    	    if (this.doBulkRequests && !force) {
     		    this.storedTrackingActions.Add(
                     url
                     + (!String.IsNullOrEmpty(userAgent) ? "&ua=" + urlEncode(userAgent) : "")
@@ -981,8 +949,7 @@
     		    return null;
     	    }
 
-		    if(!cookieSupport)
-		    {
+		    if (!cookieSupport) {
 			    requestCookie = null;
 		    }
 
@@ -992,18 +959,15 @@
 
             request.Headers.Add("Accept-Language", acceptLanguage);
             
-            if(requestCookie != null)
-            {
+            if (requestCookie != null) {
                 request.Headers.Add("Cookie", requestCookie.Name + "=" + requestCookie.Value);
             }
 
             request.Timeout = this.requestTimeout;
 
-            if (!string.IsNullOrEmpty(data))
-            {
+            if (!string.IsNullOrEmpty(data)) {
                 request.ContentType = "application/json";
-                using (var streamWriter = new StreamWriter(request.GetRequestStream()))
-                {
+                using (var streamWriter = new StreamWriter(request.GetRequestStream())) {
                     streamWriter.Write(data);
                 }
             }
@@ -1012,14 +976,11 @@
             var cookies = response.Cookies;
 
             // The cookie in the response will be set in the next request
-            if (cookies != null)
-            {
+            if (cookies != null) {
                 // in case several cookies returned, we keep only the latest one (ie. XDEBUG puts its cookie first in the list)
-                for (var i = 0; i < cookies.Count; i++)
-                {                    
+                for (var i = 0; i < cookies.Count; i++) {                    
                     // XDEBUG is a PHP Debugger
-                    if (!cookies[i].Name.Contains("XDEBUG"))
-                    {
+                    if (!cookies[i].Name.Contains("XDEBUG")) {
                         requestCookie = cookies[i];
                     }
                 }   
@@ -1033,19 +994,18 @@
         /// </summary>
         protected string getBaseUrl()
         {
-            if (String.IsNullOrEmpty(URL))
-            {
+            if (string.IsNullOrEmpty(URL)) {
                 throw new Exception("You must first set the Piwik Tracker URL by calling PiwikTracker.URL = \"http://your-website.org/piwik/\";");
             }
             if (!URL.Contains("/piwik.php")
-                && !URL.Contains("/proxy-piwik.php"))
-            {
+                && !URL.Contains("/proxy-piwik.php")
+            ) {
                 URL += "/piwik.php";
             }
             return URL;
         }
 
-        private string getRequest( int idSite )
+        private string getRequest(int idSite)
         {   	
             var url = this.getBaseUrl() +
                 "?idsite=" + idSite +
@@ -1054,43 +1014,43 @@
 	            "&r=" + new Random().Next(0, 1000000).ToString("000000") +
 
                 // Only allowed for Super User, token_auth required,
-		        (!String.IsNullOrEmpty(ip) ? "&cip=" + ip : "") +
-    	        (!String.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + visitorId) +
+		        (!string.IsNullOrEmpty(ip) ? "&cip=" + ip : "") +
+    	        (!string.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + visitorId) +
                 (!forcedDatetime.Equals(DateTimeOffset.MinValue) ? "&cdt=" + formatDateValue(forcedDatetime) : "") +
-                (!String.IsNullOrEmpty(token_auth) && !this.doBulkRequests ? "&token_auth=" + urlEncode(token_auth) : "") +
+                (!string.IsNullOrEmpty(token_auth) && !this.doBulkRequests ? "&token_auth=" + urlEncode(token_auth) : "") +
 	        
 		        // These parameters are set by the JS, but optional when using API
-	            (!String.IsNullOrEmpty(plugins) ? plugins : "") +
+	            (!string.IsNullOrEmpty(plugins) ? plugins : "") +
                 (!localTime.Equals(DateTimeOffset.MinValue) ? "&h=" + localTime.Hour + "&m=" + localTime.Minute + "&s=" + localTime.Second : "") +
 	            ((width != 0 && height != 0) ? "&res=" + width + "x" + height : "") +
 	            (hasCookies ? "&cookie=1" : "") +
                 (!ecommerceLastOrderTimestamp.Equals(DateTimeOffset.MinValue) ? "&_ects=" + formatTimestamp(ecommerceLastOrderTimestamp) : "") +
 	        
 	            // Various important attributes
-	            (!String.IsNullOrEmpty(customData) ? "&data=" + customData : "") +
+	            (!string.IsNullOrEmpty(customData) ? "&data=" + customData : "") +
                 (visitorCustomVar.Count() > 0 ? "&_cvar=" + urlEncode(new JavaScriptSerializer().Serialize(visitorCustomVar)) : "") +
                 (pageCustomVar.Count() > 0 ? "&cvar=" + urlEncode(new JavaScriptSerializer().Serialize(pageCustomVar)) : "") +
                 (this.generationTime != null ? "&generation_time_ms=" + this.generationTime : "") +
 	        
 	            // URL parameters
-                (!String.IsNullOrEmpty(pageUrl) ? "&url=" + urlEncode(pageUrl) : "") +
-                (!String.IsNullOrEmpty(urlReferrer) ? "&urlref=" + urlEncode(urlReferrer) : "") +
-                (!String.IsNullOrEmpty(this.pageCharset) && !this.pageCharset.Equals(DEFAULT_CHARSET_PARAMETER_VALUES) ? "&cs=" + this.pageCharset : "") +
+                (!string.IsNullOrEmpty(pageUrl) ? "&url=" + urlEncode(pageUrl) : "") +
+                (!string.IsNullOrEmpty(urlReferrer) ? "&urlref=" + urlEncode(urlReferrer) : "") +
+                (!string.IsNullOrEmpty(this.pageCharset) && !this.pageCharset.Equals(DEFAULT_CHARSET_PARAMETER_VALUES) ? "&cs=" + this.pageCharset : "") +
 	        
 	            // Attribution information, so that Goal conversions are attributed to the right referrer or campaign
 	            // Campaign name
-                ((attributionInfo != null && !String.IsNullOrEmpty(attributionInfo.campaignName)) ? "&_rcn=" + urlEncode(attributionInfo.campaignName) : "") +
+                ((attributionInfo != null && !string.IsNullOrEmpty(attributionInfo.campaignName)) ? "&_rcn=" + urlEncode(attributionInfo.campaignName) : "") +
     	        // Campaign keyword
-                ((attributionInfo != null && !String.IsNullOrEmpty(attributionInfo.campaignKeyword)) ? "&_rck=" + urlEncode(attributionInfo.campaignKeyword) : "") +
+                ((attributionInfo != null && !string.IsNullOrEmpty(attributionInfo.campaignKeyword)) ? "&_rck=" + urlEncode(attributionInfo.campaignKeyword) : "") +
     	        // Timestamp at which the referrer was set
                 ((attributionInfo != null && !attributionInfo.referrerTimestamp.Equals(DateTimeOffset.MinValue)) ? "&_refts=" + formatTimestamp(attributionInfo.referrerTimestamp) : "") +
     	        // Referrer URL
-                ((attributionInfo != null && !String.IsNullOrEmpty(attributionInfo.referrerUrl)) ? "&_ref=" + urlEncode(attributionInfo.referrerUrl) : "") +
+                ((attributionInfo != null && !string.IsNullOrEmpty(attributionInfo.referrerUrl)) ? "&_ref=" + urlEncode(attributionInfo.referrerUrl) : "") +
     		
     		    // custom location info
-    		    (!String.IsNullOrEmpty(this.country) ? "&country=" + urlEncode(this.country) : "") +
-    		    (!String.IsNullOrEmpty(this.region) ? "&region=" + urlEncode(this.region) : "") +
-    		    (!String.IsNullOrEmpty(this.city) ? "&city=" + urlEncode(this.city) : "") +
+    		    (!string.IsNullOrEmpty(this.country) ? "&country=" + urlEncode(this.country) : "") +
+    		    (!string.IsNullOrEmpty(this.region) ? "&region=" + urlEncode(this.region) : "") +
+    		    (!string.IsNullOrEmpty(this.city) ? "&city=" + urlEncode(this.city) : "") +
                 (this.lat != null ? "&lat=" + formatGeoLocationValue((float) this.lat) : "") +
                 (this.longitude != null ? "&long=" + formatGeoLocationValue((float) this.longitude) : "") +
 
@@ -1105,23 +1065,17 @@
 
         private HttpCookie getCookieMatchingName(string name)
         {
-            HttpContext currentContext = HttpContext.Current;
-
-            if (currentContext == null)
-            {
+            var currentContext = HttpContext.Current;
+            if (currentContext == null) {
                 throw new Exception("Can not read cookies without an active HttpContext");
             }
 
-            HttpCookieCollection cookies = currentContext.Request.Cookies;
-
-            for (int i = 0; i < cookies.Count; i++)
-            {
-                if (cookies[i].Name.Contains(name))
-                {
+            var cookies = currentContext.Request.Cookies;
+            for (int i = 0; i < cookies.Count; i++) {
+                if (cookies[i].Name.Contains(name)) {
                     return cookies[i];
                 }
             }
-
             return null;
         }
 
