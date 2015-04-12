@@ -1041,7 +1041,7 @@
 	            (!string.IsNullOrEmpty(customData) ? "&data=" + customData : "") +
                 (visitorCustomVar.Count() > 0 ? "&_cvar=" + urlEncode(new JavaScriptSerializer().Serialize(visitorCustomVar)) : "") +
                 (pageCustomVar.Count() > 0 ? "&cvar=" + urlEncode(new JavaScriptSerializer().Serialize(pageCustomVar)) : "") +
-                (this.generationTime != null ? "&generation_time_ms=" + this.generationTime : "") +
+                (this.generationTime != null ? "&gt_ms=" + this.generationTime : "") +
 	        
 	            // URL parameters
                 (!string.IsNullOrEmpty(pageUrl) ? "&url=" + urlEncode(pageUrl) : "") +
