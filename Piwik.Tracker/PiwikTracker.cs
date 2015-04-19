@@ -732,15 +732,10 @@
         /// 
         /// Allowed only for Admin/Super User, must be used along with setTokenAuth().
         /// 
-        /// For example, on your website if you use the Javascript tracker in some pages
-        /// and the PHP tracker in other pages, you can write:
-        ///      $v->setVisitorId( $v->getVisitorId() );
-        ///
-        /// This will set this visitor's ID to the ID found in the 1st party Piwik cookies
-        /// (created earlier by the Javascript tracker).
-        ///
-        /// Alternatively you can set the Visitor ID based on a user attribute, for example the user email:
+        /// You may set the Visitor ID based on a user attribute, for example the user email:
         ///      $v->setVisitorId( substr(md5( $userEmail ), 0, 16));
+        /// 
+        /// If not set, the visitor ID will be fetched from the 1st party cookie, or will be set to a random UUID.
         ///
         /// </summary>       
         /// <param name="visitorId">16 hexadecimal characters visitor ID, eg. "33c31e01394bdc63"</param>          
@@ -1027,7 +1022,7 @@
 
                 // Only allowed for Super User, token_auth required,
 		        (!string.IsNullOrEmpty(ip) ? "&cip=" + ip : "") +
-    	        (!string.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + visitorId) +
+    	        (!string.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + this.getVisitorId()) +
                 (!forcedDatetime.Equals(DateTimeOffset.MinValue) ? "&cdt=" + formatDateValue(forcedDatetime) : "") +
                 (!string.IsNullOrEmpty(token_auth) && !this.doBulkRequests ? "&token_auth=" + urlEncode(token_auth) : "") +
 	        
