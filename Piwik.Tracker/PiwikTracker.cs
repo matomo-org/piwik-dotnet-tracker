@@ -796,7 +796,8 @@
         /// This function will only work if the user is initiating the current request, and his cookies
         /// can be read from an active HttpContext.
         /// </summary>       
-        /// <returns>Referer information for Goal conversion attribution</returns>        
+        /// <returns>Referrer information for Goal conversion attribution. Will return null if the cookie could not be found</returns>        
+        /// <see>Piwik.js getAttributionInfo()</see>
         public AttributionInfo getAttributionInfo()
         {
             var refCookie = getCookieMatchingName("ref." + idSite + ".");
