@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("PiwikTracker")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Julien Moumné")]
+[assembly: AssemblyCompany("Piwik")]
 [assembly: AssemblyProduct("PiwikTracker")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
