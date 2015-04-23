@@ -10,5 +10,6 @@
     <projectUrl>https://piwik.org/</projectUrl>
     <licenseUrl>https://raw.githubusercontent.com/piwik/piwik-dotnet-tracker/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>analytics tracking</tags>
   </metadata>
 </package>
