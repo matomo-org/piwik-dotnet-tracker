@@ -115,7 +115,7 @@
             this.localTime = DateTimeOffset.MinValue;
             this.hasCookies = false;
             this.plugins = null;
-            this.visitorCustomVar = new Dictionary<string, string[]>();
+            this.visitorCustomVar =  this.getCustomVariablesFromCookie();
             this.pageCustomVar =  new Dictionary<string, string[]>();
             this.customData = null;
             this.forcedDatetime = DateTimeOffset.MinValue;
@@ -285,15 +285,10 @@
             else if (!scope.Equals(CustomVar.Scopes.visit)) {
                 throw new Exception("Invalid 'scope' parameter value");
             }
-            if (visitorCustomVar.ContainsKey(stringId)) {
+            if (this.visitorCustomVar.ContainsKey(stringId)) {
                 return new CustomVar(visitorCustomVar[stringId][0], visitorCustomVar[stringId][1]);
             }
-            var customVariablesCookie = this.getCookieName("cvar");
-            var cookie = getCookieMatchingName(customVariablesCookie);
-            if (cookie == null) {
-                return null;
-            }
-            var cookieDecoded = new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value));
+            var cookieDecoded = this.getCustomVariablesFromCookie();
             if (!cookieDecoded.ContainsKey(stringId)    		
     		    || cookieDecoded[stringId].Count() != 2) {
     		    return null;
@@ -884,8 +879,7 @@
         /// <returns>True if cookie exists and is valid, False otherwise</returns>
         protected bool loadVisitorIdCookie() 
         {
-            var idCookieName = this.getCookieName("id");
-            var idCookie = this.getCookieMatchingName(idCookieName);
+            var idCookie = this.getCookieMatchingName("id");
             if (idCookie == null) {
                 return false;
             }
@@ -937,8 +931,7 @@
             if(this.attributionInfo != null) {
                 return this.attributionInfo;
             }
-            var attributionCookieName = this.getCookieName("ref");
-            var refCookie = getCookieMatchingName(attributionCookieName);
+            var refCookie = getCookieMatchingName("ref");
 
             if (refCookie == null) {
                 return null;
@@ -1202,6 +1195,8 @@
             if(this.configCookiesDisabled) {
                 return null;
             }
+            name = this.getCookieName(name);
+
             if (HttpContext.Current != null) {
                 var cookies = HttpContext.Current.Request.Cookies;
                 for (var i = 0; i < cookies.Count; i++) {
@@ -1299,8 +1294,7 @@
             }
 
             // Set the 'ses' cookie
-            var sesname = this.getCookieName("ses");
-            if (this.getCookieMatchingName(sesname) == null) {
+            if (this.getCookieMatchingName("ses") == null) {
                 // new session (new visit)
                 this.visitCount++;
                 this.lastVisitTs = this.currentVisitTs;
@@ -1311,14 +1305,14 @@
                     this.setCookie("ref", this.urlEncode(new JavaScriptSerializer().Serialize(attributionInfo.toArray())), this.configReferralCookieTimeout);
                 }
             }
-            this.setCookie(sesname, "*", this.configSessionCookieTimeout);
+            this.setCookie("ses", "*", this.configSessionCookieTimeout);
 
             // Set the 'id' cookie
             var cookieValue = this.getVisitorId() + "." + this.createTs + "." + this.visitCount + "." + this.currentTs + "." + this.lastVisitTs + "." + this.lastEcommerceOrderTs;
             this.setCookie("id", cookieValue, this.configVisitorCookieTimeout);
 
             // Set the 'cvar' cookie
-
+            this.setCookie("cvar", this.urlEncode(new JavaScriptSerializer().Serialize(this.visitorCustomVar)), this.configSessionCookieTimeout);
         }
 
 
@@ -1336,6 +1330,16 @@
                 var cookieExpire = this.createTs + cookieTTL;
                 HttpContext.Current.Response.Cookies.Add(new HttpCookie(this.getCookieName(cookieName), cookieValue) { Expires = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(cookieExpire), Path = this.configCookiePath, Domain = this.configCookieDomain });
             }
+        }
+
+
+        protected Dictionary<string, string[]> getCustomVariablesFromCookie()
+        {
+            var cookie = getCookieMatchingName("cvar");
+            if (cookie == null) {
+                return new Dictionary<string, string[]>();
+            }
+            return new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value));
         }
 
 

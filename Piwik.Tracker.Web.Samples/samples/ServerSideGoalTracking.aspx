@@ -21,6 +21,8 @@ This page tracks a goal conversion with the Server Side tracking API and display
     attributionInfo.referrerUrl = "http://www.example.org/test/really?q=yes";
 
     piwikTracker.setAttributionInfo(attributionInfo);
+    
+    piwikTracker.setCustomVariable(1, "custom-variable1", "custom-variable1-value");
 
     var response = piwikTracker.doTrackGoal(1, 42.69F);
 
