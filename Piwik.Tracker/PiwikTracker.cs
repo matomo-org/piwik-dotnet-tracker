@@ -1051,7 +1051,7 @@
         /// from the request and write updated cookies in the response (using setrawcookie).
         /// This can be disabled by calling this function.
         /// </summary>      
-        public void disableCookies()
+        public void disableCookiesSupport()
         {
         	this.configCookiesDisabled = true;
         }
