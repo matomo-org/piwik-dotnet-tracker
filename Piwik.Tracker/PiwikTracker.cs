@@ -114,8 +114,7 @@
             this.userAgent = null;
             this.localTime = DateTimeOffset.MinValue;
             this.hasCookies = false;
-            this.plugins = null;
-            this.visitorCustomVar =  this.getCustomVariablesFromCookie();
+            this.plugins = null;            
             this.pageCustomVar =  new Dictionary<string, string[]>();
             this.customData = null;
             this.forcedDatetime = DateTimeOffset.MinValue;
@@ -175,6 +174,8 @@
     	    this.requestTimeout = 600;
     	    this.doBulkRequests = false;
     	    this.storedTrackingActions = new List<string>();
+
+            this.visitorCustomVar = this.getCustomVariablesFromCookie();
         }
 
 
