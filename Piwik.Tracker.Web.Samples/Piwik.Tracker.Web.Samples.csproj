@@ -20,6 +20,10 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>4.0</OldToolsVersion>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -57,12 +61,13 @@
     <Reference Include="System.Web.ApplicationServices" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AttributionInfoServerRead.aspx" />
-    <Content Include="ServerSideGoalTracking.aspx" />
-    <Content Include="JavascriptGoalTracking.aspx" />
-    <Content Include="VisitorIdServerRead.aspx" />
-    <Content Include="VisitScopedCustomVariableServerRead.aspx" />
-    <Content Include="JavascriptVisitScopedCustomVariable.aspx" />
+    <Content Include="samples\AttributionInfoServerRead.aspx" />
+    <Content Include="samples\ServerSideDeleteCookies.aspx" />
+    <Content Include="samples\ServerSideGoalTracking.aspx" />
+    <Content Include="samples\JavascriptGoalTracking.aspx" />
+    <Content Include="samples\VisitorIdServerRead.aspx" />
+    <Content Include="samples\VisitScopedCustomVariableServerRead.aspx" />
+    <Content Include="samples\JavascriptVisitScopedCustomVariable.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -73,46 +78,53 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AttributionInfoServerRead.aspx.cs">
+    <Compile Include="samples\AttributionInfoServerRead.aspx.cs">
       <DependentUpon>AttributionInfoServerRead.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="AttributionInfoServerRead.aspx.designer.cs">
+    <Compile Include="samples\AttributionInfoServerRead.aspx.designer.cs">
       <DependentUpon>AttributionInfoServerRead.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ServerSideGoalTracking.aspx.cs">
+    <Compile Include="samples\ServerSideDeleteCookies.aspx.cs">
+      <DependentUpon>ServerSideDeleteCookies.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="samples\ServerSideDeleteCookies.aspx.designer.cs">
+      <DependentUpon>ServerSideDeleteCookies.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="samples\ServerSideGoalTracking.aspx.cs">
       <DependentUpon>ServerSideGoalTracking.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ServerSideGoalTracking.aspx.designer.cs">
+    <Compile Include="samples\ServerSideGoalTracking.aspx.designer.cs">
       <DependentUpon>ServerSideGoalTracking.aspx</DependentUpon>
     </Compile>
-    <Compile Include="JavascriptGoalTracking.aspx.cs">
+    <Compile Include="samples\JavascriptGoalTracking.aspx.cs">
       <DependentUpon>JavascriptGoalTracking.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="JavascriptGoalTracking.aspx.designer.cs">
+    <Compile Include="samples\JavascriptGoalTracking.aspx.designer.cs">
       <DependentUpon>JavascriptGoalTracking.aspx</DependentUpon>
     </Compile>
-    <Compile Include="VisitorIdServerRead.aspx.cs">
+    <Compile Include="samples\VisitorIdServerRead.aspx.cs">
       <DependentUpon>VisitorIdServerRead.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="VisitorIdServerRead.aspx.designer.cs">
+    <Compile Include="samples\VisitorIdServerRead.aspx.designer.cs">
       <DependentUpon>VisitorIdServerRead.aspx</DependentUpon>
     </Compile>
-    <Compile Include="VisitScopedCustomVariableServerRead.aspx.cs">
+    <Compile Include="samples\VisitScopedCustomVariableServerRead.aspx.cs">
       <DependentUpon>VisitScopedCustomVariableServerRead.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="VisitScopedCustomVariableServerRead.aspx.designer.cs">
+    <Compile Include="samples\VisitScopedCustomVariableServerRead.aspx.designer.cs">
       <DependentUpon>VisitScopedCustomVariableServerRead.aspx</DependentUpon>
     </Compile>
-    <Compile Include="JavascriptVisitScopedCustomVariable.aspx.cs">
+    <Compile Include="samples\JavascriptVisitScopedCustomVariable.aspx.cs">
       <DependentUpon>JavascriptVisitScopedCustomVariable.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="JavascriptVisitScopedCustomVariable.aspx.designer.cs">
+    <Compile Include="samples\JavascriptVisitScopedCustomVariable.aspx.designer.cs">
       <DependentUpon>JavascriptVisitScopedCustomVariable.aspx</DependentUpon>
     </Compile>
     <Compile Include="Default.aspx.cs">

@@ -42,13 +42,17 @@
 	    private const string DEFAULT_CHARSET_PARAMETER_VALUES = "utf-8";
 
         /// <summary>
+        /// <see cref="piwik.js"/>
+        /// </summary>
+        private const string FIRST_PARTY_COOKIES_PREFIX = "_pk_";
+
+        /// <summary>
         /// Piwik base URL, for example http://example.org/piwik/
         /// Must be set before using the class by calling PiwikTracker.URL = 'http://yourwebsite.org/piwik/'
         /// </summary>
         public static string URL;
 
         private string DEBUG_APPEND_URL;
-        private bool cookieSupport;
         private string userAgent;
         private DateTimeOffset localTime;
         private bool hasCookies;
@@ -62,15 +66,15 @@
         private DateTimeOffset ecommerceLastOrderTimestamp;
         private Dictionary<string, object[]> ecommerceItems;
         private int? generationTime;
-        private Cookie requestCookie;
         private int idSite;
         private string urlReferrer;
         private string pageCharset;
         private string pageUrl;
         private string ip;
         private string acceptLanguage;
-        private string visitorId;
         private string forcedVisitorId;
+        private string cookieVisitorId;
+        private string randomVisitorId;
         private int width;
         private int height;
         private int requestTimeout;
@@ -81,6 +85,18 @@
         private string city;
         private float? lat;
         private float? longitude;
+        private int configVisitorCookieTimeout;
+        private int configSessionCookieTimeout;
+        private int configReferralCookieTimeout;
+        private bool configCookiesDisabled;
+        private string configCookiePath;
+        private string configCookieDomain;
+        private long currentTs;
+        private long createTs;
+        private long? visitCount;
+        private long? currentVisitTs;
+        private long? lastVisitTs;
+        private long? lastEcommerceOrderTs;
 
         public enum ActionType {download, link};
 
@@ -95,7 +111,6 @@
         /// <param name="apiUrl">"http://example.org/piwik/" or "http://piwik.example.org/". If set, will overwrite PiwikTracker.URL</param>
         public PiwikTracker(int idSite, string apiUrl = "")
         {
-            this.cookieSupport = false;
             this.userAgent = null;
             this.localTime = DateTimeOffset.MinValue;
             this.hasCookies = false;
@@ -110,7 +125,6 @@
             this.ecommerceItems =  new Dictionary<string, object[]>();
             this.generationTime = null;
 
-            this.requestCookie = null;
             this.idSite = idSite;
             
             var currentContext = HttpContext.Current;
@@ -131,7 +145,31 @@
             if (!String.IsNullOrEmpty(apiUrl)) {
                 URL = apiUrl;
             }
+
+            // Life of the visitor cookie (in sec)
+            this.configVisitorCookieTimeout = 63072000; // 2 years
+            // Life of the session cookie (in sec)
+            this.configSessionCookieTimeout = 1800; // 30 minutes
+            // Life of the session cookie (in sec)
+            this.configReferralCookieTimeout = 15768000; // 6 months
+
+            // Visitor Ids in order
+            this.forcedVisitorId = null;
+            this.cookieVisitorId = null;
+            this.randomVisitorId = null;
+
             this.setNewVisitorId();
+
+            this.configCookiesDisabled = true;
+            this.configCookiePath = "/";
+            this.configCookieDomain = "";
+
+            this.currentTs = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
+            this.createTs = this.currentTs;
+            this.visitCount = null;
+            this.currentVisitTs = null;
+            this.lastVisitTs = null;
+            this.lastEcommerceOrderTs = null;
 
 		    // Allow debug while blocking the request
     	    this.requestTimeout = 600;
@@ -185,6 +223,9 @@
         /// <summary>
         /// Sets the attribution information to the visit, so that subsequent Goal conversions are 
         /// properly attributed to the right Referrer URL, timestamp, Campaign Name & Keyword.
+        /// 
+        /// If you call enableCookies() then these referral attribution values will be set
+        /// to the 'ref' first party cookie storing referral information.
         /// </summary>       
         /// <param name="attributionInfo">Attribution info for the visit</param>        
         /// <see>function getAttributionInfo() in "https://github.com/piwik/piwik/blob/master/js/piwik.js"</see>
@@ -247,7 +288,7 @@
             if (visitorCustomVar.ContainsKey(stringId)) {
                 return new CustomVar(visitorCustomVar[stringId][0], visitorCustomVar[stringId][1]);
             }
-            var customVariablesCookie = "cvar." + idSite + ".";
+            var customVariablesCookie = this.getCookieName("cvar");
             var cookie = getCookieMatchingName(customVariablesCookie);
             if (cookie == null) {
                 return null;
@@ -266,9 +307,10 @@
         /// </summary>       
         public void setNewVisitorId()
         {
-            var encodedGuidBytes = new MD5CryptoServiceProvider().ComputeHash(ASCIIEncoding.Default.GetBytes(Guid.NewGuid().ToString()));
-            this.visitorId = BitConverter.ToString(encodedGuidBytes).Replace("-", "").Substring(0, LENGTH_VISITOR_ID);
+            var encodedGuidBytes = new MD5CryptoServiceProvider().ComputeHash(Encoding.Default.GetBytes(Guid.NewGuid().ToString()));
+            this.randomVisitorId = BitConverter.ToString(encodedGuidBytes).Replace("-", "").Substring(0, LENGTH_VISITOR_ID).ToLower();
             this.forcedVisitorId = null;
+            this.cookieVisitorId = null;
         }
 
     
@@ -373,6 +415,63 @@
 		    this.doBulkRequests = true;
 	    }
 
+
+        /// <summary>
+        /// Enable Cookie Creation - this will cause a first party VisitorId cookie to be set when the VisitorId is set or reset
+        /// </summary>       
+        /// <param name="domain">(optional) Set first-party cookie domain. Accepted values: example.com, *.example.com (same as .example.com) or subdomain.example.com</param>    
+        /// <param name="path">(optional) Set first-party cookie path</param>    
+        public void enableCookies(string domain = "", string path = "/" )
+        {
+            this.configCookiesDisabled = false;
+            this.configCookieDomain = domainFixup(domain);
+            this.configCookiePath = path;
+        }
+
+
+        /// <summary>
+        /// Fix-up domain
+        /// </summary>  
+        static protected string domainFixup(string domain)
+        {
+            if (string.IsNullOrWhiteSpace(domain)){
+                return domain;
+            }
+            var dl = domain.Length - 1;
+            // remove trailing '.'
+            if (domain[dl].Equals('.'))
+            {
+                domain = domain.Substring(0, dl);
+            }
+            // remove leading '*'
+            if (domain.Substring(0, 2).Equals("*."))
+            {
+                domain = domain.Substring(1);
+            }
+            return domain;
+        }
+
+
+        /// <summary>
+        /// Get cookie name with prefix and domain hash
+        /// <summary>
+        protected string getCookieName(string cookieName) {
+            // NOTE: If the cookie name is changed, we must also update the method in piwik.js with the same name.
+            var hash = getHexStringFromBytes(new SHA1CryptoServiceProvider().ComputeHash(Encoding.UTF8.GetBytes((string.IsNullOrWhiteSpace(this.configCookieDomain) ? getCurrentHost() : this.configCookieDomain) + this.configCookiePath))).Substring(0, 4);
+            return FIRST_PARTY_COOKIES_PREFIX + cookieName + "." + this.idSite + "." + hash;
+        }
+
+        protected string getHexStringFromBytes(byte[] bytes)
+        {
+            var sb = new StringBuilder();
+            foreach (byte b in bytes)
+            {
+                var hex = b.ToString("x2");
+                sb.Append(hex);
+            }
+            return sb.ToString();
+        } 
+
         /// <summary>
         /// Tracks a page view
         /// </summary>       
@@ -390,8 +489,8 @@
         /// These are used to populate reports in Actions > Site Search.
         /// </summary>       
         /// <param name="keyword">Searched query on the site</param> 
-        /// <param name="category">Optional, Search engine category if applicable</param> 
-        /// <param name="countResults">results displayed on the search result page. Used to track "zero result" keywords.</param> 
+        /// <param name="category">(optional) Search engine category if applicable</param> 
+        /// <param name="countResults">(optional) results displayed on the search result page. Used to track "zero result" keywords.</param> 
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
 	    public HttpWebResponse doTrackSiteSearch(string keyword, string category = "", int? countResults = null)
 	    {
@@ -772,17 +871,56 @@
         {
     	    if (!string.IsNullOrEmpty(forcedVisitorId)) {
     		    return forcedVisitorId;
-    	    }
-    	
-    	    var idCookie = getCookieMatchingName("id." + idSite + ".");
-    	    if (idCookie != null) {
-                string cookieVal = idCookie.Value;
-    		    string parsedVisitorId = cookieVal.Substring(0, cookieVal.IndexOf("."));
-    		    if (parsedVisitorId.Length == LENGTH_VISITOR_ID) {
-    			    return parsedVisitorId;
-    		    }
-    	    }
-    	    return visitorId;
+    	    } else if (this.loadVisitorIdCookie()) {
+                return this.cookieVisitorId;
+            } else {
+                return this.randomVisitorId;
+            }
+        }
+
+        /// <summary>
+        /// Loads values from the VisitorId Cookie
+        /// </summary>       
+        /// <returns>True if cookie exists and is valid, False otherwise</returns>
+        protected bool loadVisitorIdCookie() 
+        {
+            var idCookieName = this.getCookieName("id");
+            var idCookie = this.getCookieMatchingName(idCookieName);
+            if (idCookie == null) {
+                return false;
+            }
+            var parts = idCookie.Value.Split('.');
+            if (parts[0].Length != LENGTH_VISITOR_ID) {
+                return false;
+            }
+            this.cookieVisitorId = parts[0]; // provides backward compatibility since getVisitorId() didn't change any existing VisitorId value
+            this.createTs = long.Parse(parts[1]);
+            if (!string.IsNullOrWhiteSpace(parts[2])) {
+                this.visitCount = long.Parse(parts[2]);
+            }            
+            this.currentVisitTs = long.Parse(parts[3]);
+            if (!string.IsNullOrWhiteSpace(parts[4])) {
+                this.lastVisitTs = long.Parse(parts[4]);
+            }
+            if (!string.IsNullOrWhiteSpace(parts[5])) {
+                this.lastEcommerceOrderTs = long.Parse(parts[5]);
+            }
+            return true;
+        }
+
+
+        /// <summary>
+        /// Deletes all first party cookies from the client
+        /// </summary> 
+        public void deleteCookies() 
+        {
+            if (HttpContext.Current != null) {
+                var expire = this.currentTs - 86400;
+                var cookies = new[] {"id", "ses", "cvar", "ref"};
+                foreach(var cookie in cookies) {
+                    this.setCookie(cookie, "", expire);
+                }
+            }
         }
 
 
@@ -796,27 +934,31 @@
         /// <see>Piwik.js getAttributionInfo()</see>
         public AttributionInfo getAttributionInfo()
         {
-            var refCookie = getCookieMatchingName("ref." + idSite + ".");
+            if(this.attributionInfo != null) {
+                return this.attributionInfo;
+            }
+            var attributionCookieName = this.getCookieName("ref");
+            var refCookie = getCookieMatchingName(attributionCookieName);
 
             if (refCookie == null) {
                 return null;
             }
 
-            string[] cookieDecoded = new JavaScriptSerializer().Deserialize<string[]>(HttpUtility.UrlDecode(refCookie.Value));
+            var cookieDecoded = new JavaScriptSerializer().Deserialize<string[]>(HttpUtility.UrlDecode(refCookie.Value));
 
             if (cookieDecoded == null) {
                 return null;
             }
 
-            int arraySize = cookieDecoded.Length;
+            var arraySize = cookieDecoded.Length;
 
             if (arraySize == 0) {
                 return null;
             }
 
-            AttributionInfo attributionInfo = new AttributionInfo();
+            var attributionInfo = new AttributionInfo();
 
-            if (!String.IsNullOrEmpty(cookieDecoded[0])) {
+            if (!string.IsNullOrEmpty(cookieDecoded[0])) {
                 attributionInfo.campaignName = cookieDecoded[0];
             }
 
@@ -911,13 +1053,13 @@
 
 
         /// <summary>
-        /// By default, PiwikTracker will read third party cookies 
-        /// from the response and sets them in the next request.
+        /// By default, PiwikTracker will read first party cookies
+        /// from the request and write updated cookies in the response (using setrawcookie).
         /// This can be disabled by calling this function.
         /// </summary>      
-        public void disableCookieSupport()
+        public void disableCookies()
         {
-        	cookieSupport = false;
+        	this.configCookiesDisabled = true;
         }
 
         /// <summary>
@@ -957,20 +1099,10 @@
     		    return null;
     	    }
 
-		    if (!cookieSupport) {
-			    requestCookie = null;
-		    }
-
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = method;
             request.UserAgent = this.userAgent;            
-
             request.Headers.Add("Accept-Language", acceptLanguage);
-            
-            if (requestCookie != null) {
-                request.Headers.Add("Cookie", requestCookie.Name + "=" + requestCookie.Value);
-            }
-
             request.Timeout = this.requestTimeout;
 
             if (!string.IsNullOrEmpty(data)) {
@@ -980,21 +1112,7 @@
                 }
             }
 
-            var response = (HttpWebResponse) request.GetResponse();
-            var cookies = response.Cookies;
-
-            // The cookie in the response will be set in the next request
-            if (cookies != null) {
-                // in case several cookies returned, we keep only the latest one (ie. XDEBUG puts its cookie first in the list)
-                for (var i = 0; i < cookies.Count; i++) {                    
-                    // XDEBUG is a PHP Debugger
-                    if (!cookies[i].Name.Contains("XDEBUG")) {
-                        requestCookie = cookies[i];
-                    }
-                }   
-            }
-
-		    return response;
+            return (HttpWebResponse) request.GetResponse();
         }
 
         /// <summary>
@@ -1015,6 +1133,8 @@
 
         private string getRequest(int idSite)
         {   	
+            this.setFirstPartyCookies();
+
             var url = this.getBaseUrl() +
                 "?idsite=" + idSite +
 		        "&rec=1" +
@@ -1026,6 +1146,12 @@
     	        (!string.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + this.getVisitorId()) +
                 (!forcedDatetime.Equals(DateTimeOffset.MinValue) ? "&cdt=" + formatDateValue(forcedDatetime) : "") +
                 (!string.IsNullOrEmpty(token_auth) && !this.doBulkRequests ? "&token_auth=" + urlEncode(token_auth) : "") +
+
+                // Values collected from cookie
+                "&_idts=" + this.createTs +
+                "&_idvc=" + this.visitCount +
+                ((this.lastVisitTs != null) ? "&_viewts=" + this.lastVisitTs : "" ) +
+                ((this.lastEcommerceOrderTs != null) ? "&_ects=" + this.lastEcommerceOrderTs : "" ) +
 	        
 		        // These parameters are set by the JS, but optional when using API
 	            (!string.IsNullOrEmpty(plugins) ? plugins : "") +
@@ -1073,27 +1199,145 @@
 
         private HttpCookie getCookieMatchingName(string name)
         {
-            var currentContext = HttpContext.Current;
-            if (currentContext == null) {
-                throw new Exception("Can not read cookies without an active HttpContext");
+            if(this.configCookiesDisabled) {
+                return null;
             }
-
-            var cookies = currentContext.Request.Cookies;
-            for (int i = 0; i < cookies.Count; i++) {
-                if (cookies[i].Name.Contains(name)) {
-                    return cookies[i];
+            if (HttpContext.Current != null) {
+                var cookies = HttpContext.Current.Request.Cookies;
+                for (var i = 0; i < cookies.Count; i++) {
+                    if (cookies[i].Name.Contains(name)) {
+                        return cookies[i];
+                    }
                 }
             }
             return null;
         }
+
+
+        /// <summary>
+        /// If current URL is "http://example.org/dir1/dir2/index.php?param1=value1&param2=value2"
+        /// will return "/dir1/dir2/index.php"
+        /// </summary>   
+        static protected string getCurrentScriptName()
+        {
+            if (HttpContext.Current != null)
+            {
+                return HttpContext.Current.Request.Url.AbsolutePath;
+            }
+            return "";
+        }
+
+
+        /// <summary>
+        /// If the current URL is 'http://example.org/dir1/dir2/index.php?param1=value1&param2=value2"
+        /// will return 'http'
+        /// </summary>   
+        /// <returns>string 'https' or 'http'</returns>        
+        static protected string getCurrentScheme()
+        {
+            if (HttpContext.Current != null)
+            {
+                return HttpContext.Current.Request.Url.Scheme;
+            }
+            return "http";
+        }
+
+
+        /// <summary>
+        /// If current URL is "http://example.org/dir1/dir2/index.php?param1=value1&param2=value2"
+        /// will return "http://example.org"
+        /// </summary>   
+        /// <returns>string 'https' or 'http'</returns>  
+        static protected string getCurrentHost()
+        {
+            if (HttpContext.Current != null)
+            {
+                return HttpContext.Current.Request.Url.Host;
+            }
+            return "unknown";
+        }
+
+
+        /// <summary>
+        /// If current URL is "http://example.org/dir1/dir2/index.php?param1=value1&param2=value2"
+        /// will return "?param1=value1&param2=value2"
+        /// </summary>   
+        static protected string getCurrentQueryString()
+        {
+            if (HttpContext.Current != null)
+            {
+                return HttpContext.Current.Request.Url.Query;
+            }
+            return "";
+        }
+
 
         /// <summary>
         /// Returns the current full URL (scheme, host, path and query string.
         /// </summary>   
         static protected string getCurrentUrl()
         {
-            return HttpContext.Current != null ? HttpContext.Current.Request.Url.AbsoluteUri : "http://unknown";
+            return getCurrentScheme() + "://"
+                + getCurrentHost()
+                + getCurrentScriptName()
+                + getCurrentQueryString();
 	    }
+
+
+        /// <summary>
+        /// Sets the first party cookies as would the piwik.js
+        /// All cookies are supported: 'id' and 'ses' and 'ref' and 'cvar' cookies.
+        /// </summary>  
+        protected void setFirstPartyCookies()
+        {
+            if (this.configCookiesDisabled) {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(this.cookieVisitorId)) {
+                this.loadVisitorIdCookie();
+            }
+
+            // Set the 'ses' cookie
+            var sesname = this.getCookieName("ses");
+            if (this.getCookieMatchingName(sesname) == null) {
+                // new session (new visit)
+                this.visitCount++;
+                this.lastVisitTs = this.currentVisitTs;
+
+                // Set the 'ref' cookie
+                var attributionInfo = this.getAttributionInfo();
+                if(attributionInfo != null) {
+                    this.setCookie("ref", this.urlEncode(new JavaScriptSerializer().Serialize(attributionInfo.toArray())), this.configReferralCookieTimeout);
+                }
+            }
+            this.setCookie(sesname, "*", this.configSessionCookieTimeout);
+
+            // Set the 'id' cookie
+            var cookieValue = this.getVisitorId() + "." + this.createTs + "." + this.visitCount + "." + this.currentTs + "." + this.lastVisitTs + "." + this.lastEcommerceOrderTs;
+            this.setCookie("id", cookieValue, this.configVisitorCookieTimeout);
+
+            // Set the 'cvar' cookie
+
+        }
+
+
+        /// <summary>
+        /// Sets a first party cookie to the client to improve dual JS-PHP tracking.
+        /// 
+        /// This replicates the piwik.js tracker algorithms for consistency and better accuracy.
+        /// </summary>       
+        /// <param name="cookieName"/>
+        /// <param name="cookieValue"/>
+        /// <param name="cookieTTL"/>
+        protected void setCookie( string cookieName, string cookieValue, long cookieTTL)
+        {
+            if (HttpContext.Current != null) {
+                var cookieExpire = this.createTs + cookieTTL;
+                HttpContext.Current.Response.Cookies.Add(new HttpCookie(this.getCookieName(cookieName), cookieValue) { Expires = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(cookieExpire), Path = this.configCookiePath, Domain = this.configCookieDomain });
+            }
+        }
+
 
         private string formatDateValue(DateTimeOffset date)
         {

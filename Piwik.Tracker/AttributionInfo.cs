@@ -26,5 +26,15 @@ namespace Piwik.Tracker
         public DateTimeOffset referrerTimestamp { get; set; }
 
         public string referrerUrl { get; set; }
+
+        public string[] toArray()
+        {
+            var infos = new string[4];
+            infos[0] = campaignName;
+            infos[1] = campaignKeyword;
+            infos[2] = (referrerTimestamp - new DateTime(1970, 1, 1)).TotalSeconds.ToString();
+            infos[3] = referrerUrl;
+            return infos;
+        }
     }
 }

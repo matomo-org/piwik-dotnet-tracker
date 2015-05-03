@@ -1,16 +1,18 @@
 ﻿<%--http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later--%>
 
 <%@ Page Language="C#" %>
-<%@ Import Namespace="Piwik" %>
+<%@ Import Namespace="Piwik.Tracker" %>
 
 
-This page displays visit scoped custom variables (index 1 & 2) using the Server Side Tracking API (ie. the C# Tracking API). <br/><br/>
+This page displays visit scoped custom variables (index 1 & 2) using the Server Side Tracking API. <br/><br/>
 
 <% 
-    PiwikTracker.URL = "http://piwik-1.5";
+    PiwikTracker.URL = ConfigurationSettings.AppSettings["PiwikURL"];
     var piwikTracker = new PiwikTracker(1);
-    CustomVar customVar1 = piwikTracker.getCustomVariable(1);
-    CustomVar customVar2 = piwikTracker.getCustomVariable(2);   
+    piwikTracker.enableCookies();
+    
+    var customVar1 = piwikTracker.getCustomVariable(1);
+    var customVar2 = piwikTracker.getCustomVariable(2);   
     
     if (customVar1 != null)
     {
@@ -37,4 +39,4 @@ This page displays visit scoped custom variables (index 1 & 2) using the Server 
 
 <br />
 
-<a href="Default.aspx">Back</a>
+<a href="../Default.aspx">Back</a>

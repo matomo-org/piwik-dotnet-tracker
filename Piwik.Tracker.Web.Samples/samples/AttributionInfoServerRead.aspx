@@ -1,15 +1,16 @@
 ﻿<%--http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later--%>
 
 <%@ Page Language="C#" %>
-<%@ Import Namespace="Piwik" %>
+<%@ Import Namespace="Piwik.Tracker" %>
 
 This page displays the result of the getAttributionInfo() method. <br/><br/>
 
-Under special conditions, If a tracking request has been sent via javascript, this method will output the content of the piwik ref cookie. <br/><br/>
+If a tracking request has been sent via javascript, this method will output the content of the piwik ref cookie. <br/><br/>
 
 <% 
-    PiwikTracker.URL = "http://piwik-1.5";
+    PiwikTracker.URL = ConfigurationSettings.AppSettings["PiwikURL"];
     var piwikTracker = new PiwikTracker(1);
+    piwikTracker.enableCookies();
 
     var attributionInfo = piwikTracker.getAttributionInfo();
     
@@ -30,4 +31,4 @@ Under special conditions, If a tracking request has been sent via javascript, th
 
 <br />
 
-<a href="Default.aspx">Back</a>
+<a href="../Default.aspx">Back</a>
