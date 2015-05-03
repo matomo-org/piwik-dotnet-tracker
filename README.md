@@ -40,4 +40,22 @@ To mirror as close as possible the PHP code, we copy-paste the PHP code in the C
 
 This can lead in a loss of C# best practices. We consider the time savings an acceptable trade-off.
 
+## Publishing the project to NuGet
+
+### Requirements
+
+1. The process detailed in this section must be executed right before adding a
+   release tag to git.
+2. Publishing the project to NuGet must be done by a member of the Piwik team,
+   holder of the private NuGet Key.
+
+### Steps
+
+1. Validate tests (requires #7)
+2. Update and commit `AssemblyInfo.cs` with new version
+3. Create git tag
+4. Build the project using the Release solution configuration
+5. Create NuGet package using `nuget_pack.bat`
+6. Publish the package using `nuget_push.bat`
+
 # [License](LICENSE)

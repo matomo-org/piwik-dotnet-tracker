@@ -3,4 +3,4 @@
 *.suo
 *.sln.dotsettings.user
 */*.csproj.dotsettings.user
-
+*.nupkg
