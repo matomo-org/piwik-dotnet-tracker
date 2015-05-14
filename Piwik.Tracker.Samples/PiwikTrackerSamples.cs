@@ -55,7 +55,6 @@ namespace Piwik.Tracker.Samples
             // ** Event Tracking **
 //            TrackSongPlayback();
 
-
             Console.ReadKey(true);
         }
 
@@ -69,7 +68,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackGoal(1, 42.69F);
 
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
 
@@ -89,7 +88,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackPageView("Document title of current page view");
 
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
 
@@ -103,7 +102,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackPageView("Document title of current page view");
 
-            displayHttpWebReponse(response); 
+            displayDebugInfo(response); 
         }
 
 
@@ -139,7 +138,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackPageView("Document title of current page view");
 
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
         /// <summary>
@@ -160,7 +159,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackPageView("Document title of current page view");
 
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
         /// <summary>
@@ -175,7 +174,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackPageView("Document title of current page view");
 
-            displayHttpWebReponse(response); 
+            displayDebugInfo(response); 
         }
 
         /// <summary>
@@ -197,7 +196,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackGoal(1, 42.69F);
 
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
 
@@ -211,7 +210,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackAction("http://dev.piwik.org/svn", PiwikTracker.ActionType.link);
 
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
 
@@ -225,7 +224,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackAction("http://piwik.org/path/again/latest.zip", PiwikTracker.ActionType.download);
 
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
 
@@ -239,7 +238,7 @@ namespace Piwik.Tracker.Samples
 
             piwikTracker.setEcommerceView("", "", new List<string> { "Electronics & Cameras" });
             var response = piwikTracker.doTrackPageView("Looking at Electronics & Cameras page with a page level custom variable");
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
 
@@ -254,7 +253,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.setEcommerceView("SKU2", "PRODUCT name", new List<string> { "Electronics & Cameras", "Clothes" });
 
             var response = piwikTracker.doTrackPageView("incredible title!");
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
 
@@ -269,7 +268,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.setEcommerceView("SKU VERY nice indeed", "PRODUCT name");
 
             var response = piwikTracker.doTrackPageView("another incredible title!");
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
         /// <summary>
@@ -289,7 +288,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackEcommerceCartUpdate(1000.4);
             
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
         /// <summary>
@@ -305,7 +304,7 @@ namespace Piwik.Tracker.Samples
             );
 
             var response = piwikTracker.doTrackEcommerceCartUpdate(1000.2);
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
         /// <summary>
@@ -343,7 +342,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackEcommerceCartUpdate(1000);
 
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
         
         /// <summary>
@@ -382,7 +381,7 @@ namespace Piwik.Tracker.Samples
                     666
                 );
 
-            displayHttpWebReponse(response);   
+            displayDebugInfo(response);   
 
             // Second Order
 
@@ -403,7 +402,7 @@ namespace Piwik.Tracker.Samples
                 0
             );
 
-            displayHttpWebReponse(response);  
+            displayDebugInfo(response);  
         }
 
         static private void RecordECommerceOrder()
@@ -437,7 +436,7 @@ namespace Piwik.Tracker.Samples
                     666
                 );
 
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
         private static void BulkTrackTwoRequests()
@@ -452,7 +451,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.doTrackPageView("Tracking Request 1");
             piwikTracker.doTrackPageView("Tracking Request 2");
 
-            displayHttpWebReponse(piwikTracker.doBulkTrack());
+            displayDebugInfo(piwikTracker.doBulkTrack());
         }
 
         static private void TrackSiteSearch()
@@ -462,7 +461,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.doTrackSiteSearch("keyword1", "category2", 0);
 
-            displayHttpWebReponse(response);
+            displayDebugInfo(response);
         }
 
         static private void TrackSongPlayback()
@@ -471,6 +470,16 @@ namespace Piwik.Tracker.Samples
             piwikTracker.setUserAgent(UA);
 
             var response = piwikTracker.doTrackEvent("music", "play", "Eye Of The Tiger");
+
+            displayDebugInfo(response);
+        }
+
+        static private void displayDebugInfo(HttpWebResponse response)
+        {
+            
+            Console.WriteLine("DEBUG_LAST_REQUESTED_URL :");
+            Console.WriteLine(PiwikTracker.DEBUG_LAST_REQUESTED_URL);
+            Console.Write("\r\n");
 
             displayHttpWebReponse(response);
         }

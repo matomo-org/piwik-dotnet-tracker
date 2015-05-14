@@ -1143,8 +1143,15 @@
     	    this.requestTimeout = timeout;
         }
 
+        /// <summary>
+        /// Used in tests to output useful error messages.
+        /// </summary>
+        static public string DEBUG_LAST_REQUESTED_URL;
+
         private HttpWebResponse sendRequest(string url, string method = "GET", string data = null, bool force = false)
         {
+            DEBUG_LAST_REQUESTED_URL = url;
+
     	    // if doing a bulk request, store the url
     	    if (this.doBulkRequests && !force) {
     		    this.storedTrackingActions.Add(
