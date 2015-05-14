@@ -47,6 +47,14 @@
         private const string FIRST_PARTY_COOKIES_PREFIX = "_pk_";
 
         /// <summary>
+        /// Ecommerce item page view tracking stores item's metadata in these Custom Variables slots.
+        /// </summary>
+        private const int CVAR_INDEX_ECOMMERCE_ITEM_PRICE = 2;
+        private const int CVAR_INDEX_ECOMMERCE_ITEM_SKU = 3;
+        private const int CVAR_INDEX_ECOMMERCE_ITEM_NAME = 4;
+        private const int CVAR_INDEX_ECOMMERCE_ITEM_CATEGORY = 5;
+
+        /// <summary>
         /// Piwik base URL, for example http://example.org/piwik/
         /// Must be set before using the class by calling PiwikTracker.URL = 'http://yourwebsite.org/piwik/'
         /// </summary>
@@ -659,23 +667,23 @@
             if (categories != null) {
                 serializedCategories = new JavaScriptSerializer().Serialize(categories);
             }
-            setCustomVariable(5, "_pkc", serializedCategories, CustomVar.Scopes.page);
+            this.setCustomVariable(CVAR_INDEX_ECOMMERCE_ITEM_CATEGORY, "_pkc", serializedCategories, CustomVar.Scopes.page);
 
             if (!price.Equals(0)) {
-                setCustomVariable(2, "_pkp", formatMonetaryValue(price), CustomVar.Scopes.page);
+                this.setCustomVariable(CVAR_INDEX_ECOMMERCE_ITEM_PRICE, "_pkp", this.formatMonetaryValue(price), CustomVar.Scopes.page);
             }
 
             // On a category page, do not record "Product name not defined" 
-            if (String.IsNullOrEmpty(sku) && String.IsNullOrEmpty(name)) {
+            if (string.IsNullOrEmpty(sku) && string.IsNullOrEmpty(name)) {
                 return;
             }
-            if (!String.IsNullOrEmpty(sku)) {
-                setCustomVariable(3, "_pks", sku, CustomVar.Scopes.page);
+            if (!string.IsNullOrEmpty(sku)) {
+                this.setCustomVariable(CVAR_INDEX_ECOMMERCE_ITEM_SKU, "_pks", sku, CustomVar.Scopes.page);
             }
-            if (String.IsNullOrEmpty(name)) {
+            if (string.IsNullOrEmpty(name)) {
                 name = "";
             }
-            setCustomVariable(4, "_pkn", name, CustomVar.Scopes.page);
+            this.setCustomVariable(CVAR_INDEX_ECOMMERCE_ITEM_NAME, "_pkn", name, CustomVar.Scopes.page);
         }
 
 
