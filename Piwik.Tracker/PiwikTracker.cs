@@ -1351,22 +1351,18 @@
                 this.loadVisitorIdCookie();
             }
 
-            // Set the 'ses' cookie
-            if (this.getCookieMatchingName("ses") == null) {
-                // new session (new visit)
-                this.visitCount++;
-                this.lastVisitTs = this.currentVisitTs;
-
-                // Set the 'ref' cookie
-                var attributionInfo = this.getAttributionInfo();
-                if(attributionInfo != null) {
-                    this.setCookie("ref", this.urlEncode(new JavaScriptSerializer().Serialize(attributionInfo.toArray())), this.configReferralCookieTimeout);
-                }
+            // Set the 'ref' cookie
+            var attributionInfo = this.getAttributionInfo();
+            if(attributionInfo != null) {
+                this.setCookie("ref", this.urlEncode(new JavaScriptSerializer().Serialize(attributionInfo.toArray())), this.configReferralCookieTimeout);
             }
+
+            // Set the 'ses' cookie
             this.setCookie("ses", "*", this.configSessionCookieTimeout);
 
             // Set the 'id' cookie
-            var cookieValue = this.getVisitorId() + "." + this.createTs + "." + this.visitCount + "." + this.currentTs + "." + this.lastVisitTs + "." + this.lastEcommerceOrderTs;
+            var visitCount = this.visitCount + 1;
+            var cookieValue = this.getVisitorId() + "." + this.createTs + "." + visitCount + "." + this.currentTs + "." + this.lastVisitTs + "." + this.lastEcommerceOrderTs;
             this.setCookie("id", cookieValue, this.configVisitorCookieTimeout);
 
             // Set the 'cvar' cookie
