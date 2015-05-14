@@ -52,6 +52,10 @@ namespace Piwik.Tracker.Samples
             // ** Site Search **
 //            TrackSiteSearch();
 
+            // ** Event Tracking **
+//            TrackSongPlayback();
+
+
             Console.ReadKey(true);
         }
 
@@ -457,6 +461,16 @@ namespace Piwik.Tracker.Samples
             piwikTracker.setUserAgent(UA);
 
             var response = piwikTracker.doTrackSiteSearch("keyword1", "category2", 0);
+
+            displayHttpWebReponse(response);
+        }
+
+        static private void TrackSongPlayback()
+        {
+            var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
+
+            var response = piwikTracker.doTrackEvent("music", "play", "Eye Of The Tiger");
 
             displayHttpWebReponse(response);
         }

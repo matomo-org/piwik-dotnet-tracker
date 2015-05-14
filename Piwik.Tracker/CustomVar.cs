@@ -14,7 +14,7 @@ namespace Piwik.Tracker
     /// </summary>
     public class CustomVar
     {
-        public enum Scopes {visit, page};
+        public enum Scopes {visit, page, _event};
 
         public string name { get; set; }
         public string value { get; set; }

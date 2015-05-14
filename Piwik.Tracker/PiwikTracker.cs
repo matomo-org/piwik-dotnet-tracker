@@ -59,6 +59,7 @@
         private string plugins;
         private Dictionary<string, string[]> visitorCustomVar;
         private Dictionary<string, string[]> pageCustomVar;
+        private Dictionary<string, string[]> eventCustomVar;
         private string customData;
         private DateTimeOffset forcedDatetime;
         private string token_auth;
@@ -116,6 +117,7 @@
             this.hasCookies = false;
             this.plugins = null;            
             this.pageCustomVar =  new Dictionary<string, string[]>();
+            this.eventCustomVar = new Dictionary<string, string[]>();
             this.customData = null;
             this.forcedDatetime = DateTimeOffset.MinValue;
             this.token_auth = null;
@@ -125,7 +127,6 @@
             this.generationTime = null;
 
             this.idSite = idSite;
-            
             var currentContext = HttpContext.Current;
             if (currentContext != null) {
                 if (currentContext.Request.UrlReferrer != null) {
@@ -243,7 +244,7 @@
         /// <param name="id">Custom variable slot ID from 1-5</param>
         /// <param name="name">Custom variable name</param>
         /// <param name="value">Custom variable value</param>
-        /// <param name="scope">Custom variable scope. Possible values: CustomVar.Scopes</param>
+        /// <param name="scope">Custom variable scope. Possible values: visit, page, event</param>
         /// <exception cref="Exception"/>
         public void setCustomVariable(int id, string name, string value, CustomVar.Scopes scope = CustomVar.Scopes.visit)
         {
@@ -260,20 +261,23 @@
                     visitorCustomVar.Add(stringId, customVar);
                     break;
 
+                case CustomVar.Scopes._event:
+                    eventCustomVar.Add(stringId, customVar);
+                    break;
+
                 default:
-                    throw new Exception("Unimplemented scope");
+                    throw new Exception("Invalid 'scope' parameter value");
             }
         }
 
 
         /// <summary>
-        /// Returns the currently assigned Custom Variable stored in a first party cookie.
+        /// Returns the currently assigned Custom Variable.
         /// 
-        /// This function will only work if the user is initiating the current request, and his cookies
-        /// can be read from an active HttpContext.
+        /// If scope is 'visit', it will attempt to read the value set in the first party cookie created by Piwik Tracker ($_COOKIE array).
         /// </summary>       
         /// <param name="id">Custom Variable integer index to fetch from cookie. Should be a value from 1 to 5</param>
-        /// <param name="scope">Custom variable scope. Possible values: visit, page</param> 
+        /// <param name="scope">Custom variable scope. Possible values: visit, page, event</param> 
         /// <exception cref="Exception"/>
         /// <returns>The requested custom variable</returns>
         public CustomVar getCustomVariable(int id, CustomVar.Scopes scope = CustomVar.Scopes.visit)
@@ -282,6 +286,9 @@
 
             if (scope.Equals(CustomVar.Scopes.page)) {
                 return pageCustomVar.ContainsKey(stringId) ? new CustomVar(pageCustomVar[stringId][0], pageCustomVar[stringId][1]) : null;
+            }
+            else if (!scope.Equals(CustomVar.Scopes._event)) {
+                return eventCustomVar.ContainsKey(stringId) ? new CustomVar(eventCustomVar[stringId][0], eventCustomVar[stringId][1]) : null;
             }
             else if (!scope.Equals(CustomVar.Scopes.visit)) {
                 throw new Exception("Invalid 'scope' parameter value");
@@ -477,6 +484,21 @@
         {
             string url = getUrlTrackPageView(documentTitle);
             return sendRequest(url);
+        }
+
+
+        /// <summary>
+        /// Tracks an event
+        /// </summary>       
+        /// <param name="category">The Event Category (Videos, Music, Games...)</param> 
+        /// <param name="action">The Event's Action (Play, Pause, Duration, Add Playlist, Downloaded, Clicked...)</param> 
+        /// <param name="name">(optional) The Event's object Name (a particular Movie name, or Song name, or File name...)</param> 
+        /// <param name="value">(optional) The Event's value</param> 
+        /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        public HttpWebResponse doTrackEvent(string category, string action, string name = "", string value = "")
+        {
+            var url = this.getUrlTrackEvent(category, action, name, value);
+            return this.sendRequest(url);
         }
 
 
@@ -739,6 +761,39 @@
 
             return url;
         }
+
+
+        /// <summary>
+        /// Builds URL to track a custom event.
+        /// </summary>
+        /// <see cref="doTrackEvent"/>
+        /// <param name="category">The Event Category (Videos, Music, Games...)</param> 
+        /// <param name="action">The Event's Action (Play, Pause, Duration, Add Playlist, Downloaded, Clicked...)</param> 
+        /// <param name="name">(optional) The Event's object Name (a particular Movie name, or Song name, or File name...)</param> 
+        /// <param name="value">(optional) The Event's value</param> 
+        /// <returns>URL to piwik.php with all parameters set to track the pageview</returns>
+        public string getUrlTrackEvent(string category, string action, string name = "", string value = "")
+        {
+            var url = this.getRequest(this.idSite);
+            if(string.IsNullOrWhiteSpace(category)) {
+                throw new Exception("You must specify an Event Category name (Music, Videos, Games...).");
+            }
+            if(string.IsNullOrWhiteSpace(action)) {
+                throw new Exception("You must specify an Event action (click, view, add...).");
+            }
+
+            url += "&e_c=" + urlEncode(category);
+            url += "&e_a=" + urlEncode(action);
+
+            if(!string.IsNullOrWhiteSpace(name)) {
+                url += "&e_n=" + urlEncode(name);
+            }
+            if(!string.IsNullOrWhiteSpace(value)) {
+                url += "&e_v=" + value;
+            }
+            return url;
+        }
+
 
         /// <summary>
         /// Builds URL to track a site search.
@@ -1156,8 +1211,9 @@
 	        
 	            // Various important attributes
 	            (!string.IsNullOrEmpty(customData) ? "&data=" + customData : "") +
-                (visitorCustomVar.Count() > 0 ? "&_cvar=" + urlEncode(new JavaScriptSerializer().Serialize(visitorCustomVar)) : "") +
-                (pageCustomVar.Count() > 0 ? "&cvar=" + urlEncode(new JavaScriptSerializer().Serialize(pageCustomVar)) : "") +
+                (this.visitorCustomVar.Any() ? "&_cvar=" + this.urlEncode(new JavaScriptSerializer().Serialize(this.visitorCustomVar)) : "") +
+                (this.pageCustomVar.Any() ? "&cvar=" + this.urlEncode(new JavaScriptSerializer().Serialize(this.pageCustomVar)) : "") +
+                (this.eventCustomVar.Any() ? "&e_cvar=" + this.urlEncode(new JavaScriptSerializer().Serialize(this.eventCustomVar)) : "") +
                 (this.generationTime != null ? "&gt_ms=" + this.generationTime : "") +
 	        
 	            // URL parameters
@@ -1187,6 +1243,7 @@
 
             // Reset page level custom variables after this page view
             pageCustomVar = new Dictionary<string ,string[]>();
+            eventCustomVar = new Dictionary<string ,string[]>();
     	
             return url;
         }
