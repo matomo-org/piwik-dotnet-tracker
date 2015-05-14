@@ -55,7 +55,7 @@ This can lead in a loss of C# best practices. We consider the time savings an ac
 2. Update and commit `AssemblyInfo.cs` with new version
 3. Create git tag
 4. Build the project using the Release solution configuration
-5. Create NuGet package using `nuget_pack.bat`
-6. Publish the package using `nuget_push.bat`
+5. Create NuGet packages using `nuget pack Piwik.Tracker\Piwik.Tracker.csproj -Prop Configuration=Release -Symbols`
+6. Publish packages using `nuget push Piwik.Tracker.VERSION.nupkg`
 
 # [License](LICENSE)
