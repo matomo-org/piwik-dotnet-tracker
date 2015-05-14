@@ -166,7 +166,7 @@
 
             this.currentTs = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
             this.createTs = this.currentTs;
-            this.visitCount = null;
+            this.visitCount = 0;
             this.currentVisitTs = null;
             this.lastVisitTs = null;
             this.lastEcommerceOrderTs = null;
