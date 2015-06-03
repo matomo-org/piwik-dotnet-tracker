@@ -337,15 +337,15 @@ namespace Piwik.Tracker
             switch (scope)
             {
                 case CustomVar.Scopes.page:
-                    pageCustomVar.Add(stringId, customVar);
+                    pageCustomVar[stringId] = customVar;
                     break;
 
                 case CustomVar.Scopes.visit:
-                    visitorCustomVar.Add(stringId, customVar);
+                    visitorCustomVar[stringId] = customVar;
                     break;
 
                 case CustomVar.Scopes._event:
-                    eventCustomVar.Add(stringId, customVar);
+                    eventCustomVar[stringId] = customVar;
                     break;
 
                 default:
