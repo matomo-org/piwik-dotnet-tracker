@@ -181,6 +181,7 @@ namespace Piwik.Tracker
         private long? currentVisitTs;
         private long? lastVisitTs;
         private long? lastEcommerceOrderTs;
+        private string userId;
 
         public enum ActionType {download, link};
 
@@ -1195,6 +1196,25 @@ namespace Piwik.Tracker
         }
 
         /// <summary>
+        /// Will append a user id to the Tracking request.
+        /// See http://piwik.org/docs/user-id/#user-id-with-another-tracker-api-client 
+        /// </summary> 
+        public void setUserId(string userId)
+        {
+            this.userId = userId;
+        }
+
+
+        /// <summary>
+        /// Returns user id. 
+        /// See http://piwik.org/docs/user-id/#user-id-with-another-tracker-api-client
+        /// </summary> 
+        public string getUserId()
+        {
+            return userId;
+        }
+
+        /// <summary>
         /// Returns the maximum number of seconds the tracker will spend waiting for a response
         /// from Piwik. Defaults to 600 seconds.
         /// </summary>   
@@ -1310,7 +1330,8 @@ namespace Piwik.Tracker
                 (!string.IsNullOrEmpty(pageUrl) ? "&url=" + urlEncode(pageUrl) : "") +
                 (!string.IsNullOrEmpty(urlReferrer) ? "&urlref=" + urlEncode(urlReferrer) : "") +
                 (!string.IsNullOrEmpty(this.pageCharset) && !this.pageCharset.Equals(DEFAULT_CHARSET_PARAMETER_VALUES) ? "&cs=" + this.pageCharset : "") +
-	        
+                (!string.IsNullOrEmpty(userId) ? "&uid=" + urlEncode(userId) : "") +
+
 	            // Attribution information, so that Goal conversions are attributed to the right referrer or campaign
 	            // Campaign name
                 ((attributionInfo != null && !string.IsNullOrEmpty(attributionInfo.campaignName)) ? "&_rcn=" + urlEncode(attributionInfo.campaignName) : "") +
