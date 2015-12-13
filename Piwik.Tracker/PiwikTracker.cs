@@ -607,6 +607,36 @@ namespace Piwik.Tracker
 
 
         /// <summary>
+        /// Tracks a content impression
+        /// </summary>       
+        /// <param name="contentName">The name of the content. For instance 'Ad Foo Bar'</param> 
+        /// <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param> 
+        /// <param name="contentTarget">(optional) The target of the content. For instance the URL of a landing page.</param> 
+        /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        public HttpWebResponse doTrackContentImpression(string contentName, string contentPiece = "Unknown", string contentTarget = null)
+        {
+            var url = this.getUrlTrackContentImpression(contentName, contentPiece, contentTarget);
+            return this.sendRequest(url);
+        }
+
+
+        /// <summary>
+        /// Tracks a content interaction. Make sure you have tracked a content impression using the same content name and
+        /// content piece, otherwise it will not count. To do so you should call the method doTrackContentImpression();
+        /// </summary>       
+        /// <param name="interaction">The name of the interaction with the content. For instance a 'click'</param> 
+        /// <param name="contentName">The name of the content. For instance 'Ad Foo Bar'</param> 
+        /// <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param> 
+        /// <param name="contentTarget">(optional) The target the content leading to when an interaction occurs. For instance the URL of a landing page.</param> 
+        /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        public HttpWebResponse doTrackContentInteraction(string interaction, string contentName, string contentPiece = "Unknown", string contentTarget = null)
+        {
+            var url = this.getUrlTrackContentInteraction(interaction, contentName, contentPiece, contentTarget);
+            return this.sendRequest(url);
+        }
+
+    
+        /// <summary>
         /// Tracks an internal Site Search query, and optionally tracks the Search Category, and Search results Count.
         /// These are used to populate reports in Actions > Site Search.
         /// </summary>       
@@ -895,6 +925,72 @@ namespace Piwik.Tracker
             if(!string.IsNullOrWhiteSpace(value)) {
                 url += "&e_v=" + value;
             }
+            return url;
+        }
+
+
+        /// <summary>
+        /// Builds URL to track a content impression.
+        /// </summary>       
+        /// <see cref="doTrackContentImpression"/>
+        /// <param name="contentName">The name of the content. For instance 'Ad Foo Bar'</param> 
+        /// <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param> 
+        /// <param name="contentTarget">(optional) The target of the content. For instance the URL of a landing page.</param> 
+        /// <exception cref="Exception">In case $contentName is empty</exception>
+        /// <returns>URL to piwik.php with all parameters set to track the pageview</returns>        
+        public string getUrlTrackContentImpression(string contentName, string contentPiece, string contentTarget)
+        {
+            var url = this.getRequest(this.idSite);
+
+            if (string.IsNullOrWhiteSpace(contentName)) {
+                throw new Exception("You must specify a content name");
+            }
+
+            url += "c_n=" + this.urlEncode(contentName);
+
+            if (!string.IsNullOrWhiteSpace(contentPiece)) {
+                url += "&c_p=" + this.urlEncode(contentPiece);
+            }
+            if (!string.IsNullOrWhiteSpace(contentTarget)) {
+                url += "&c_t=" + this.urlEncode(contentTarget);
+            }
+
+            return url;
+        }
+
+
+        /// <summary>
+        /// Builds URL to track a content impression.
+        /// </summary>       
+        /// <see cref="doTrackContentImpression"/>
+        /// <param name="interaction">The name of the interaction with the content. For instance a 'click'</param> 
+        /// <param name="contentName">The name of the content. For instance 'Ad Foo Bar'</param> 
+        /// <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param> 
+        /// <param name="contentTarget">(optional) The target the content leading to when an interaction occurs. For instance the URL of a landing page.</param> 
+        /// <exception cref="Exception">In case $interaction or $contentName is empty</exception>
+        /// <returns>URL to piwik.php with all parameters set to track the pageview</returns>        
+        public string getUrlTrackContentInteraction(string interaction, string contentName, string contentPiece, string contentTarget)
+        {
+            var url = this.getRequest(this.idSite);
+
+            if (string.IsNullOrWhiteSpace(interaction)) {
+                throw new Exception("You must specify a name for the interaction");
+            }
+
+            if (string.IsNullOrWhiteSpace(contentName)) {
+                throw new Exception("You must specify a content name");
+            }
+
+            url += "c_i=" + this.urlEncode(interaction);
+            url += "c_n=" + this.urlEncode(contentName);
+
+            if (!string.IsNullOrWhiteSpace(contentPiece)) {
+                url += "&c_p=" + this.urlEncode(contentPiece);
+            }
+            if (!string.IsNullOrWhiteSpace(contentTarget)) {
+                url += "&c_t=" + this.urlEncode(contentTarget);
+            }
+
             return url;
         }
 
