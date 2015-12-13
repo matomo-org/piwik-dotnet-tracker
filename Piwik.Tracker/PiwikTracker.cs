@@ -159,6 +159,7 @@ namespace Piwik.Tracker
         private string pageUrl;
         private string ip;
         private string acceptLanguage;
+        private string userId;
         private string forcedVisitorId;
         private string cookieVisitorId;
         private string randomVisitorId;
@@ -184,7 +185,6 @@ namespace Piwik.Tracker
         private long? currentVisitTs;
         private long? lastVisitTs;
         private long? lastEcommerceOrderTs;
-        private string userId;
 
         public enum ActionType {download, link};
 
@@ -242,6 +242,7 @@ namespace Piwik.Tracker
             this.configReferralCookieTimeout = 15768000; // 6 months
 
             // Visitor Ids in order
+            this.userId = null;
             this.forcedVisitorId = null;
             this.cookieVisitorId = null;
             this.randomVisitorId = null;
@@ -414,6 +415,7 @@ namespace Piwik.Tracker
         {
             var encodedGuidBytes = new MD5CryptoServiceProvider().ComputeHash(Encoding.Default.GetBytes(Guid.NewGuid().ToString()));
             this.randomVisitorId = BitConverter.ToString(encodedGuidBytes).Replace("-", "").Substring(0, LENGTH_VISITOR_ID).ToLower();
+            this.userId = null;
             this.forcedVisitorId = null;
             this.cookieVisitorId = null;
         }
@@ -1037,14 +1039,24 @@ namespace Piwik.Tracker
         /// <returns>16 hex chars visitor ID string</returns>
         public string getVisitorId()
         {
-    	    if (!string.IsNullOrEmpty(forcedVisitorId)) {
-    		    return forcedVisitorId;
-    	    } else if (this.loadVisitorIdCookie()) {
-                return this.cookieVisitorId;
-            } else {
-                return this.randomVisitorId;
+            if (!string.IsNullOrEmpty(this.userId)) {
+                return getIdHashed(this.userId);
             }
+    	    if (!string.IsNullOrEmpty(this.forcedVisitorId)) {
+    		    return this.forcedVisitorId;
+    	    }
+            if (this.loadVisitorIdCookie()) {
+                return this.cookieVisitorId;
+            }
+            return this.randomVisitorId;
         }
+
+
+        public string getUserId()
+        {
+            return this.userId;
+        }
+
 
         /// <summary>
         /// Loads values from the VisitorId Cookie
@@ -1228,24 +1240,24 @@ namespace Piwik.Tracker
         	this.configCookiesDisabled = true;
         }
 
-        /// <summary>
-        /// Will append a user id to the Tracking request.
-        /// See http://piwik.org/docs/user-id/#user-id-with-another-tracker-api-client 
-        /// </summary> 
+        /// <param name="userId">Any user ID string (eg. email address, ID, username). Must be non empty. Set to false to de-assign a user id previously set.</param>
+        /// <exception cref="Exception"/>
         public void setUserId(string userId)
         {
+            if(string.IsNullOrEmpty(this.userId)) {
+                throw new Exception("User ID cannot be empty.");
+            }
             this.userId = userId;
         }
 
 
-        /// <summary>
-        /// Returns user id. 
-        /// See http://piwik.org/docs/user-id/#user-id-with-another-tracker-api-client
-        /// </summary> 
-        public string getUserId()
+        static public string getIdHashed(string id)
         {
-            return userId;
+
+            var encodedGuidBytes = new MD5CryptoServiceProvider().ComputeHash(Encoding.Default.GetBytes(id));
+            return BitConverter.ToString(encodedGuidBytes).Replace("-", "").Substring(0, 16).ToLower();
         }
+
 
         /// <summary>
         /// Returns the maximum number of seconds the tracker will spend waiting for a response
@@ -1339,6 +1351,7 @@ namespace Piwik.Tracker
 
                 // Only allowed for Super User, token_auth required,
 		        (!string.IsNullOrEmpty(ip) ? "&cip=" + ip : "") +
+                (!string.IsNullOrEmpty(this.userId) ? "&uid=" + this.userId : "") +
     	        (!string.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + this.getVisitorId()) +
                 (!forcedDatetime.Equals(DateTimeOffset.MinValue) ? "&cdt=" + formatDateValue(forcedDatetime) : "") +
                 (this.forcedNewVisit ? "&new_visit=1" : "") +
@@ -1368,7 +1381,6 @@ namespace Piwik.Tracker
                 (!string.IsNullOrEmpty(pageUrl) ? "&url=" + urlEncode(pageUrl) : "") +
                 (!string.IsNullOrEmpty(urlReferrer) ? "&urlref=" + urlEncode(urlReferrer) : "") +
                 (!string.IsNullOrEmpty(this.pageCharset) && !this.pageCharset.Equals(DEFAULT_CHARSET_PARAMETER_VALUES) ? "&cs=" + this.pageCharset : "") +
-                (!string.IsNullOrEmpty(userId) ? "&uid=" + urlEncode(userId) : "") +
 
 	            // Attribution information, so that Goal conversions are attributed to the right referrer or campaign
 	            // Campaign name
