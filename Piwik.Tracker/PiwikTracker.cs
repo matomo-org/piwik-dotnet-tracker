@@ -1473,7 +1473,7 @@ namespace Piwik.Tracker
         protected void setCookie( string cookieName, string cookieValue, long cookieTTL)
         {
             if (HttpContext.Current != null) {
-                var cookieExpire = this.createTs + cookieTTL;
+                var cookieExpire = this.currentTs + cookieTTL;
                 HttpContext.Current.Response.Cookies.Add(new HttpCookie(this.getCookieName(cookieName), cookieValue) { Expires = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(cookieExpire), Path = this.configCookiePath, Domain = this.configCookieDomain });
             }
         }
