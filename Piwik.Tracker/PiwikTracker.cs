@@ -513,9 +513,6 @@ namespace Piwik.Tracker
         /// <summary>
         /// Enables the bulk request feature. When used, each tracking action is stored until the
         /// doBulkTrack method is called. This method will send all tracking data at once.
-        /// 
-        /// Note: when you enable bulk tracking, consider calling clearCustomVariables() before setting other
-        /// attributes to your visitors and requests to track.
         /// </summary>     
 	    public void enableBulkTracking()
 	    {
@@ -1271,6 +1268,8 @@ namespace Piwik.Tracker
                     + (!String.IsNullOrEmpty(acceptLanguage) ? "&lang=" + urlEncode(acceptLanguage) : "")
                 );
 
+                // Clear custom variables so they don't get copied over to other users in the bulk request
+                this.clearCustomVariables();
     		    return null;
     	    }
 
