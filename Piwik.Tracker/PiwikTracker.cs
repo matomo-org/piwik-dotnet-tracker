@@ -1351,11 +1351,11 @@ namespace Piwik.Tracker
 
                 // Only allowed for Super User, token_auth required,
 		        (!string.IsNullOrEmpty(ip) ? "&cip=" + ip : "") +
-                (!string.IsNullOrEmpty(this.userId) ? "&uid=" + this.userId : "") +
+                (!string.IsNullOrEmpty(this.userId) ? "&uid=" + this.urlEncode(this.userId) : "") +
     	        (!string.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + this.getVisitorId()) +
                 (!forcedDatetime.Equals(DateTimeOffset.MinValue) ? "&cdt=" + formatDateValue(forcedDatetime) : "") +
                 (this.forcedNewVisit ? "&new_visit=1" : "") +
-                (!string.IsNullOrEmpty(token_auth) && !this.doBulkRequests ? "&token_auth=" + urlEncode(token_auth) : "") +
+                (!string.IsNullOrEmpty(token_auth) && !this.doBulkRequests ? "&token_auth=" + this.urlEncode(token_auth) : "") +
 
                 // Values collected from cookie
                 "&_idts=" + this.createTs +
