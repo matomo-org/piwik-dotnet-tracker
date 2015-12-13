@@ -53,8 +53,8 @@ namespace Piwik.Tracker
     ///      $t->setIp( "134.10.22.1" );
     ///      $t->setForceVisitDateTime( '2011-04-05 23:55:02' );
     ///
-    ///      // if you wanted to force to record the page view or conversion to a specific visitorId
-    ///      // $t->setVisitorId( "33c31e01394bdc63" );
+    ///      // if you wanted to force to record the page view or conversion to a specific User ID
+    ///      // $t->setUserId( "username@example.org" );
     ///      // Mandatory: set the URL being tracked
     ///      $t->setUrl( $url = 'http://example.org/store/list-category-toys/' );
     ///
@@ -991,25 +991,52 @@ namespace Piwik.Tracker
         public void setIp(string ip)
         {
             this.ip = ip;
-        }     
+        }
+
+        /// <summary>
+        /// The User ID is a string representing a given user in your system.
+        /// 
+        /// A User ID can be a username, UUID or an email address, or any number or string that uniquely identifies a user or client.
+        /// </summary>
+        /// <param name="userId">Any user ID string (eg. email address, ID, username). Must be non empty. Set to false to de-assign a user id previously set.</param>
+        /// <exception cref="Exception"/>
+        public void setUserId(string userId)
+        {
+            if (userId == null) {
+                this.setNewVisitorId();
+                return;
+            }
+            if (string.IsNullOrEmpty(this.userId)) {
+                throw new Exception("User ID cannot be empty.");
+            }
+            this.userId = userId;
+        }
 
 
         /// <summary>
-        /// Forces the requests to be recorded for the specified Visitor ID
-        /// rather than using the heuristics based on IP and other attributes.
+        /// Hash function used internally by Piwik to hash a User ID into the Visitor ID.
+        /// </summary>
+        static public string getUserIdHashed(string id)
+        {
+            var encodedIdBytes = new SHA1CryptoServiceProvider().ComputeHash(Encoding.Default.GetBytes(id));
+            return BitConverter.ToString(encodedIdBytes).Substring(0, 16);
+        }
+
+
+        /// <summary>
+        /// Forces the requests to be recorded for the specified Visitor ID.
+        /// Note: it is recommended to use ->setUserId($userId); instead.
         /// 
-        /// This is typically used with the Javascript getVisitorId() function.
+        /// Rather than letting Piwik attribute the user with a heuristic based on IP and other user fingeprinting attributes,
+        /// force the action to be recorded for a particular visitor.
         /// 
-        /// Allowed only for Admin/Super User, must be used along with setTokenAuth().
-        /// 
-        /// You may set the Visitor ID based on a user attribute, for example the user email:
-        ///      $v->setVisitorId( substr(md5( $userEmail ), 0, 16));
-        /// 
+        /// If you use both setVisitorId and setUserId, setUserId will take precedence.
         /// If not set, the visitor ID will be fetched from the 1st party cookie, or will be set to a random UUID.
         ///
         /// </summary>       
         /// <param name="visitorId">16 hexadecimal characters visitor ID, eg. "33c31e01394bdc63"</param>          
         /// <exception cref="Exception"/>
+        [Obsolete("We recommend to use  ->setUserId($userId).")]
         public void setVisitorId(string visitorId)
         {
             if (visitorId.Length != LENGTH_VISITOR_ID
@@ -1040,7 +1067,7 @@ namespace Piwik.Tracker
         public string getVisitorId()
         {
             if (!string.IsNullOrEmpty(this.userId)) {
-                return getIdHashed(this.userId);
+                return getUserIdHashed(this.userId);
             }
     	    if (!string.IsNullOrEmpty(this.forcedVisitorId)) {
     		    return this.forcedVisitorId;
@@ -1052,6 +1079,10 @@ namespace Piwik.Tracker
         }
 
 
+        /// <summary>
+        /// Returns the User ID string, which may have been set via:
+        ///     $v->setUserId('username@example.org');
+        /// </summary>
         public string getUserId()
         {
             return this.userId;
@@ -1238,24 +1269,6 @@ namespace Piwik.Tracker
         public void disableCookieSupport()
         {
         	this.configCookiesDisabled = true;
-        }
-
-        /// <param name="userId">Any user ID string (eg. email address, ID, username). Must be non empty. Set to false to de-assign a user id previously set.</param>
-        /// <exception cref="Exception"/>
-        public void setUserId(string userId)
-        {
-            if(string.IsNullOrEmpty(this.userId)) {
-                throw new Exception("User ID cannot be empty.");
-            }
-            this.userId = userId;
-        }
-
-
-        static public string getIdHashed(string id)
-        {
-
-            var encodedGuidBytes = new MD5CryptoServiceProvider().ComputeHash(Encoding.Default.GetBytes(id));
-            return BitConverter.ToString(encodedGuidBytes).Replace("-", "").Substring(0, 16).ToLower();
         }
 
 
