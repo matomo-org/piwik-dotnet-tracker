@@ -147,6 +147,7 @@ namespace Piwik.Tracker
         private Dictionary<string, string[]> eventCustomVar;
         private string customData;
         private DateTimeOffset forcedDatetime;
+        private bool forcedNewVisit;
         private string token_auth;
         private AttributionInfo attributionInfo;
         private DateTimeOffset ecommerceLastOrderTimestamp;
@@ -205,6 +206,7 @@ namespace Piwik.Tracker
             this.eventCustomVar = new Dictionary<string, string[]>();
             this.customData = null;
             this.forcedDatetime = DateTimeOffset.MinValue;
+            this.forcedNewVisit = false;
             this.token_auth = null;
             this.attributionInfo = null;
             this.ecommerceLastOrderTimestamp = DateTimeOffset.MinValue;
@@ -949,6 +951,21 @@ namespace Piwik.Tracker
 
 
         /// <summary>
+        /// Forces Piwik to create a new visit for the tracking request.
+        /// 
+        /// By default, Piwik will create a new visit if the last request by this user was more than 30 minutes ago.
+        /// If you call setForceNewVisit() before calling doTrack*, then a new visit will be created for this request.
+        /// 
+        /// Allowed only for Super User, must be used along with setTokenAuth()
+        /// </summary>
+        /// <see cref="setTokenAuth"/>
+        public void setForceNewVisit()
+        {
+            this.forcedNewVisit = true;
+        }
+
+
+        /// <summary>
         /// Overrides IP address
         /// 
         /// Allowed only for Super User, must be used along with setTokenAuth()
@@ -1286,6 +1303,7 @@ namespace Piwik.Tracker
 		        (!string.IsNullOrEmpty(ip) ? "&cip=" + ip : "") +
     	        (!string.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + this.getVisitorId()) +
                 (!forcedDatetime.Equals(DateTimeOffset.MinValue) ? "&cdt=" + formatDateValue(forcedDatetime) : "") +
+                (this.forcedNewVisit ? "&new_visit=1" : "") +
                 (!string.IsNullOrEmpty(token_auth) && !this.doBulkRequests ? "&token_auth=" + urlEncode(token_auth) : "") +
 
                 // Values collected from cookie
@@ -1336,6 +1354,9 @@ namespace Piwik.Tracker
             // Reset page level custom variables after this page view
             pageCustomVar = new Dictionary<string ,string[]>();
             eventCustomVar = new Dictionary<string ,string[]>();
+
+            // force new visit only once, user must call again setForceNewVisit()
+            this.forcedNewVisit = false;
     	
             return url;
         }
