@@ -202,7 +202,7 @@ namespace Piwik.Tracker
             this.localTime = DateTimeOffset.MinValue;
             this.hasCookies = false;
             this.plugins = null;            
-            this.pageCustomVar =  new Dictionary<string, string[]>();
+            this.pageCustomVar = new Dictionary<string, string[]>();
             this.eventCustomVar = new Dictionary<string, string[]>();
             this.customData = null;
             this.forcedDatetime = DateTimeOffset.MinValue;
@@ -391,6 +391,20 @@ namespace Piwik.Tracker
             return new CustomVar(cookieDecoded[stringId][0], cookieDecoded[stringId][1]);
         }
 
+
+        /// <summary>
+        /// Clears any Custom Variable that may be have been set.
+        /// 
+        /// This can be useful when you have enabled bulk requests,
+        /// and you wish to clear Custom Variables of 'visit' scope.
+        /// </summary> 
+        public void clearCustomVariables()
+        {
+            this.visitorCustomVar = new Dictionary<string, string[]>();
+            this.pageCustomVar = new Dictionary<string, string[]>();
+            this.eventCustomVar = new Dictionary<string, string[]>();
+        }
+
         
          /// <summary>
         /// Sets the current visitor ID to a random new one.
@@ -499,6 +513,9 @@ namespace Piwik.Tracker
         /// <summary>
         /// Enables the bulk request feature. When used, each tracking action is stored until the
         /// doBulkTrack method is called. This method will send all tracking data at once.
+        /// 
+        /// Note: when you enable bulk tracking, consider calling clearCustomVariables() before setting other
+        /// attributes to your visitors and requests to track.
         /// </summary>     
 	    public void enableBulkTracking()
 	    {
@@ -1350,6 +1367,7 @@ namespace Piwik.Tracker
 
     	        // DEBUG 
 	            DEBUG_APPEND_URL;
+
 
             // Reset page level custom variables after this page view
             pageCustomVar = new Dictionary<string ,string[]>();
