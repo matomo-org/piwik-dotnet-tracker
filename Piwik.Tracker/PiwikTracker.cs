@@ -129,6 +129,8 @@ namespace Piwik.Tracker
         private const int CVAR_INDEX_ECOMMERCE_ITEM_NAME = 4;
         private const int CVAR_INDEX_ECOMMERCE_ITEM_CATEGORY = 5;
 
+        private const string DEFAULT_COOKIE_PATH = "/";
+
         /// <summary>
         /// Piwik base URL, for example http://example.org/piwik/
         /// Must be set before using the class by calling PiwikTracker.URL = 'http://yourwebsite.org/piwik/'
@@ -244,7 +246,7 @@ namespace Piwik.Tracker
             this.setNewVisitorId();
 
             this.configCookiesDisabled = false;
-            this.configCookiePath = "/";
+            this.configCookiePath = DEFAULT_COOKIE_PATH;
             this.configCookieDomain = "";
 
             this.currentTs = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
