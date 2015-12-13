@@ -680,17 +680,17 @@ namespace Piwik.Tracker
         /// <returns>Response</returns>
         public HttpWebResponse doBulkTrack()
         {
-            if (string.IsNullOrWhiteSpace(this.token_auth)) {
-    		    throw new Exception("Token auth is required for bulk tracking.");
-    	    }
-    	
     	    if (!this.storedTrackingActions.Any()) {
                 throw new Exception("Error:  you must call the function doTrackPageView or doTrackGoal from this class, before calling this method doBulkTrack()");
     	    }
     	
     	    var data = new Dictionary<string, Object>();
             data["requests"] = this.storedTrackingActions;
-            data["token_auth"] = this.token_auth;
+
+            // token_auth is not required by default, except if bulk_requests_require_authentication=1
+            if(!string.IsNullOrWhiteSpace(this.token_auth)) {
+                data["token_auth"] = this.token_auth;
+            }            
     	
     	    var postData = new JavaScriptSerializer().Serialize(data);
     	    var response = this.sendRequest(this.getBaseUrl(), "POST", postData, true);
