@@ -946,7 +946,7 @@ namespace Piwik.Tracker
                 throw new Exception("You must specify a content name");
             }
 
-            url += "c_n=" + this.urlEncode(contentName);
+            url += "&c_n=" + this.urlEncode(contentName);
 
             if (!string.IsNullOrWhiteSpace(contentPiece)) {
                 url += "&c_p=" + this.urlEncode(contentPiece);
@@ -981,8 +981,8 @@ namespace Piwik.Tracker
                 throw new Exception("You must specify a content name");
             }
 
-            url += "c_i=" + this.urlEncode(interaction);
-            url += "c_n=" + this.urlEncode(contentName);
+            url += "&c_i=" + this.urlEncode(interaction);
+            url += "&c_n=" + this.urlEncode(contentName);
 
             if (!string.IsNullOrWhiteSpace(contentPiece)) {
                 url += "&c_p=" + this.urlEncode(contentPiece);
