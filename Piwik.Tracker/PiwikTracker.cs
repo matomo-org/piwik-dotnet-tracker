@@ -198,20 +198,9 @@ namespace Piwik.Tracker
         /// <param name="apiUrl">"http://example.org/piwik/" or "http://piwik.example.org/". If set, will overwrite PiwikTracker.URL</param>
         public PiwikTracker(int idSite, string apiUrl = "")
         {
-            this.userAgent = null;
-            this.localTime = DateTimeOffset.MinValue;
-            this.hasCookies = false;
-            this.plugins = null;            
-            this.pageCustomVar =  new Dictionary<string, string[]>();
-            this.eventCustomVar = new Dictionary<string, string[]>();
-            this.customData = null;
-            this.forcedDatetime = DateTimeOffset.MinValue;
-            this.forcedNewVisit = false;
             this.token_auth = null;
-            this.attributionInfo = null;
-            this.ecommerceLastOrderTimestamp = DateTimeOffset.MinValue;
-            this.ecommerceItems =  new Dictionary<string, object[]>();
-            this.generationTime = null;
+
+            this.init();
 
             this.idSite = idSite;
             var currentContext = HttpContext.Current;
@@ -229,7 +218,7 @@ namespace Piwik.Tracker
             }
             this.pageCharset = DEFAULT_CHARSET_PARAMETER_VALUES;
             this.pageUrl = getCurrentUrl();
-            if (!String.IsNullOrEmpty(apiUrl)) {
+            if (!string.IsNullOrEmpty(apiUrl)) {
                 URL = apiUrl;
             }
 
@@ -240,23 +229,11 @@ namespace Piwik.Tracker
             // Life of the session cookie (in sec)
             this.configReferralCookieTimeout = 15768000; // 6 months
 
-            // Visitor Ids in order
-            this.forcedVisitorId = null;
-            this.cookieVisitorId = null;
-            this.randomVisitorId = null;
-
             this.setNewVisitorId();
 
             this.configCookiesDisabled = false;
             this.configCookiePath = DEFAULT_COOKIE_PATH;
             this.configCookieDomain = "";
-
-            this.currentTs = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
-            this.createTs = this.currentTs;
-            this.visitCount = 0;
-            this.currentVisitTs = null;
-            this.lastVisitTs = null;
-            this.lastEcommerceOrderTs = null;
 
 		    // Allow debug while blocking the request
     	    this.requestTimeout = 600;
@@ -1254,6 +1231,10 @@ namespace Piwik.Tracker
                     + (!String.IsNullOrEmpty(acceptLanguage) ? "&lang=" + urlEncode(acceptLanguage) : "")
                 );
 
+                // if we run in bulk tracking mode, the next tracking request
+                // may be from a completely different visitor, so we clean up properties
+                this.init();
+
     		    return null;
     	    }
 
@@ -1509,6 +1490,38 @@ namespace Piwik.Tracker
             return new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value));
         }
 
+        /// <summary>
+        /// Initializes properties
+        /// </summary>   
+        protected void init()
+        {
+            this.userAgent = null;
+            this.localTime = DateTimeOffset.MinValue;
+            this.hasCookies = false;
+            this.plugins = null;            
+            this.pageCustomVar =  new Dictionary<string, string[]>();
+            this.eventCustomVar = new Dictionary<string, string[]>();
+            this.customData = null;
+            this.forcedDatetime = DateTimeOffset.MinValue;
+            this.forcedNewVisit = false;
+            this.attributionInfo = null;
+            this.ecommerceLastOrderTimestamp = DateTimeOffset.MinValue;
+            this.ecommerceItems =  new Dictionary<string, object[]>();
+            this.generationTime = null;
+
+            // Visitor Ids in order
+            this.forcedVisitorId = null;
+            this.cookieVisitorId = null;
+            this.randomVisitorId = null;
+
+            // Times
+            this.currentTs = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
+            this.createTs = this.currentTs;
+            this.visitCount = 0;
+            this.currentVisitTs = null;
+            this.lastVisitTs = null;
+            this.lastEcommerceOrderTs = null;
+        }
 
         private string formatDateValue(DateTimeOffset date)
         {
