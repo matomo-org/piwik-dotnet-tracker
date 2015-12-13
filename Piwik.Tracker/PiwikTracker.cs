@@ -1194,7 +1194,6 @@ namespace Piwik.Tracker
         /// The following features require access:
         /// - force the visitor IP
         /// - force the date & time of the tracking requests rather than track for the current datetime
-        /// - force Piwik to track the requests to a specific VisitorId rather than use the standard visitor matching heuristic
         /// 
         /// </summary>
         /// <param name="token_auth">32 chars token_auth string</param>
@@ -1364,8 +1363,7 @@ namespace Piwik.Tracker
 
                 // Only allowed for Super User, token_auth required,
 		        (!string.IsNullOrEmpty(ip) ? "&cip=" + ip : "") +
-                (!string.IsNullOrEmpty(this.userId) ? "&uid=" + this.urlEncode(this.userId) : "") +
-    	        (!string.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + this.getVisitorId()) +
+                (!string.IsNullOrEmpty(this.userId) ? "&uid=" + this.urlEncode(this.userId) : "") +    	        
                 (!forcedDatetime.Equals(DateTimeOffset.MinValue) ? "&cdt=" + formatDateValue(forcedDatetime) : "") +
                 (this.forcedNewVisit ? "&new_visit=1" : "") +
                 (!string.IsNullOrEmpty(token_auth) && !this.doBulkRequests ? "&token_auth=" + this.urlEncode(token_auth) : "") +
@@ -1389,6 +1387,7 @@ namespace Piwik.Tracker
                 (this.pageCustomVar.Any() ? "&cvar=" + this.urlEncode(new JavaScriptSerializer().Serialize(this.pageCustomVar)) : "") +
                 (this.eventCustomVar.Any() ? "&e_cvar=" + this.urlEncode(new JavaScriptSerializer().Serialize(this.eventCustomVar)) : "") +
                 (this.generationTime != null ? "&gt_ms=" + this.generationTime : "") +
+                (!string.IsNullOrEmpty(forcedVisitorId) ? "&cid=" + forcedVisitorId : "&_id=" + this.getVisitorId()) +
 	        
 	            // URL parameters
                 (!string.IsNullOrEmpty(pageUrl) ? "&url=" + urlEncode(pageUrl) : "") +
