@@ -1109,6 +1109,8 @@ namespace Piwik.Tracker
 
         /// <summary>
         /// Hash function used internally by Piwik to hash a User ID into the Visitor ID.
+        /// 
+        /// Note: matches implementation of Tracker\Request->getUserIdHashed()
         /// </summary>
         static public string getUserIdHashed(string id)
         {
