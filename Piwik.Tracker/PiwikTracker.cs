@@ -1100,7 +1100,7 @@ namespace Piwik.Tracker
                 this.setNewVisitorId();
                 return;
             }
-            if (string.IsNullOrEmpty(this.userId)) {
+            if (string.IsNullOrEmpty(userId)) {
                 throw new Exception("User ID cannot be empty.");
             }
             this.userId = userId;
