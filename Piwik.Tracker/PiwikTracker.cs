@@ -1419,7 +1419,7 @@ namespace Piwik.Tracker
             request.Method = method;
             request.UserAgent = this.userAgent;            
             request.Headers.Add("Accept-Language", acceptLanguage);
-            request.Timeout = this.requestTimeout*100;
+            request.Timeout = this.requestTimeout*1000;
 
             if (!string.IsNullOrEmpty(data)) {
                 request.ContentType = "application/json";
