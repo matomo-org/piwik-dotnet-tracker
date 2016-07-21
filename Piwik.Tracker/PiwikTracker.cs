@@ -145,6 +145,7 @@ namespace Piwik.Tracker
         private Dictionary<string, string[]> visitorCustomVar;
         private Dictionary<string, string[]> pageCustomVar;
         private Dictionary<string, string[]> eventCustomVar;
+        private Dictionary<string, string> customParameters;
         private string customData;
         private DateTimeOffset forcedDatetime;
         private bool forcedNewVisit;
@@ -205,6 +206,7 @@ namespace Piwik.Tracker
             this.plugins = null;            
             this.pageCustomVar = new Dictionary<string, string[]>();
             this.eventCustomVar = new Dictionary<string, string[]>();
+            this.customParameters = new Dictionary<string, string>();
             this.customData = null;
             this.forcedDatetime = DateTimeOffset.MinValue;
             this.forcedNewVisit = false;
@@ -359,6 +361,19 @@ namespace Piwik.Tracker
             }
         }
 
+        /// <summary>
+        /// Sets a custom tracking parameter
+        /// <para></para>
+        /// To track custom dimensions use 'dimension{#}' as the value for
+        /// <paramref name="trackingApiParameter"/>, e.g. dimension1.
+        /// </summary>
+        /// <param name="trackingApiParameter">The name of the custom tracking parameter. Use dimension{#} for custom dimensions, e.g. dimension1 for dimension 1.</param>
+        /// <param name="value">The value of the custom parameter</param>
+        public void setCustomTrackingParameter(string trackingApiParameter, string value)
+        {
+            customParameters[trackingApiParameter] = value;
+        }
+
 
         /// <summary>
         /// Returns the currently assigned Custom Variable.
@@ -393,6 +408,16 @@ namespace Piwik.Tracker
             return new CustomVar(cookieDecoded[stringId][0], cookieDecoded[stringId][1]);
         }
 
+        /// <summary>
+        /// Returns the currently assigned value for the given custom tracking parameter
+        /// </summary>
+        /// <param name="trackingApiParameter">The name of the custom tracking parameter</param>
+        /// <returns>The value of the custom tracking parameter</returns>
+        public string getCustomTrackingParameter(string trackingApiParameter)
+        {
+            return customParameters.ContainsKey(trackingApiParameter) ? customParameters[trackingApiParameter] : "";
+        }
+
 
         /// <summary>
         /// Clears any Custom Variable that may be have been set.
@@ -405,6 +430,14 @@ namespace Piwik.Tracker
             this.visitorCustomVar = new Dictionary<string, string[]>();
             this.pageCustomVar = new Dictionary<string, string[]>();
             this.eventCustomVar = new Dictionary<string, string[]>();
+        }
+
+        /// <summary>
+        /// Clears any custom tracking parameters that have been set.
+        /// </summary>
+        public void clearCustomTrackingParameters()
+        {
+            this.customParameters = new Dictionary<string, string>();
         }
 
         
@@ -1451,6 +1484,15 @@ namespace Piwik.Tracker
         {   	
             this.setFirstPartyCookies();
 
+            var customFields = "";
+            if (this.customParameters.Any())
+            {
+                foreach (var kvp in customParameters)
+                {
+                    customFields += string.Format("&{0}={1}", this.urlEncode(kvp.Key), this.urlEncode(kvp.Value));
+                }
+            }
+
             var url = this.getBaseUrl() +
                 "?idsite=" + idSite +
 		        "&rec=1" +
@@ -1506,6 +1548,7 @@ namespace Piwik.Tracker
     		    (!string.IsNullOrEmpty(this.city) ? "&city=" + urlEncode(this.city) : "") +
                 (this.lat != null ? "&lat=" + formatGeoLocationValue((float) this.lat) : "") +
                 (this.longitude != null ? "&long=" + formatGeoLocationValue((float) this.longitude) : "") +
+                customFields +
 
     	        // DEBUG 
 	            DEBUG_APPEND_URL;
@@ -1514,6 +1557,7 @@ namespace Piwik.Tracker
             // Reset page level custom variables after this page view
             pageCustomVar = new Dictionary<string ,string[]>();
             eventCustomVar = new Dictionary<string ,string[]>();
+            this.clearCustomTrackingParameters();
 
             // force new visit only once, user must call again setForceNewVisit()
             this.forcedNewVisit = false;
