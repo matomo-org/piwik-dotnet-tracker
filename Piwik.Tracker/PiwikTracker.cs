@@ -185,6 +185,7 @@ namespace Piwik.Tracker
         private long? currentVisitTs;
         private long? lastVisitTs;
         private long? lastEcommerceOrderTs;
+        private IWebProxy proxy;
 
         public enum ActionType {download, link};
 
@@ -1148,6 +1149,14 @@ namespace Piwik.Tracker
     	    this.forcedVisitorId = visitorId;
         }
 
+        /// <summary>
+        /// Sets the proxy used for web-requests.
+        /// </summary>
+        /// <param name="proxy">The proxy.</param>
+        public void setProxy(IWebProxy proxy)
+        {
+            this.proxy = proxy;
+        }
 
         /// <summary>
         /// If the user initiating the request has the Piwik first party cookie, 
@@ -1184,6 +1193,14 @@ namespace Piwik.Tracker
             return this.userId;
         }
 
+        /// <summary>
+        /// Gets the proxy used for web-requests, or <c>null</c> if no proxy is used.
+        /// </summary>
+        /// <returns></returns>
+        public IWebProxy getProxy()
+        {
+            return this.proxy;
+        }
 
         /// <summary>
         /// Loads values from the VisitorId Cookie
@@ -1420,6 +1437,10 @@ namespace Piwik.Tracker
             request.UserAgent = this.userAgent;            
             request.Headers.Add("Accept-Language", acceptLanguage);
             request.Timeout = this.requestTimeout*1000;
+            if (this.proxy !=null)
+            {
+                request.Proxy = this.proxy;
+            }
 
             if (!string.IsNullOrEmpty(data)) {
                 request.ContentType = "application/json";
