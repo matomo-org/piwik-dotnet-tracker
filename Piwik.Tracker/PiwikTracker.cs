@@ -185,6 +185,7 @@ namespace Piwik.Tracker
         private long? currentVisitTs;
         private long? lastVisitTs;
         private long? lastEcommerceOrderTs;
+        private bool sendImageResponse;
 
         public enum ActionType {download, link};
 
@@ -264,6 +265,8 @@ namespace Piwik.Tracker
     	    this.requestTimeout = 600;
     	    this.doBulkRequests = false;
     	    this.storedTrackingActions = new List<string>();
+
+            this.sendImageResponse = true;
 
             this.visitorCustomVar = this.getCustomVariablesFromCookie();
         }
@@ -535,6 +538,13 @@ namespace Piwik.Tracker
             this.configCookiePath = path;
         }
 
+        /// <summary>
+        /// If image response is disabled Piwik will respond with a HTTP 204 header instead of responding with a gif.
+        /// </summary> 
+        public void disableSendImageResponse()
+        {
+            this.sendImageResponse = false;
+        }
 
         /// <summary>
         /// Fix-up domain
@@ -1506,6 +1516,7 @@ namespace Piwik.Tracker
     		    (!string.IsNullOrEmpty(this.city) ? "&city=" + urlEncode(this.city) : "") +
                 (this.lat != null ? "&lat=" + formatGeoLocationValue((float) this.lat) : "") +
                 (this.longitude != null ? "&long=" + formatGeoLocationValue((float) this.longitude) : "") +
+                (!this.sendImageResponse ? "&send_image=0" : "") +
 
     	        // DEBUG 
 	            DEBUG_APPEND_URL;
