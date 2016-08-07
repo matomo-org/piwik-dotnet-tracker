@@ -28,6 +28,9 @@ namespace Piwik.Tracker.Samples
             // ** CUSTOM VARIABLES **
 //            RecordCustomVariables();
 
+            // ** CUSTOM DIMENSIONS **
+//            RecordCustomDimensions();
+
             // ** GOAL CONVERSION **
 //            GoalConversion();
 //            GoalConversionWithAttributionInfo();
@@ -85,6 +88,22 @@ namespace Piwik.Tracker.Samples
 
             piwikTracker.setCustomVariable(1, "pagevar1", "pagevalue1", CustomVar.Scopes.page);
             piwikTracker.setCustomVariable(2, "pagevar2", "pagevalue2", CustomVar.Scopes.page);
+
+            var response = piwikTracker.doTrackPageView("Document title of current page view");
+
+            displayDebugInfo(response);
+        }
+
+        /// <summary>
+        /// Records 2 custom dimensions
+        /// </summary>
+        static private void RecordCustomDimensions()
+        {
+            var piwikTracker = new PiwikTracker(1);
+            piwikTracker.setUserAgent(UA);
+
+            piwikTracker.setCustomTrackingParameter("dimension1", "value1");
+            piwikTracker.setCustomTrackingParameter("dimension2", "value2");
 
             var response = piwikTracker.doTrackPageView("Document title of current page view");
 
