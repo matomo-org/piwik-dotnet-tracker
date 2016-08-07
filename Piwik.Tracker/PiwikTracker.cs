@@ -1469,6 +1469,7 @@ namespace Piwik.Tracker
 
                 // Clear custom variables so they don't get copied over to other users in the bulk request
                 this.clearCustomVariables();
+                this.clearCustomTrackingParameters();
                 this.userAgent = null;
                 this.acceptLanguage = null;
     		    return null;
