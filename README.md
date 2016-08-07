@@ -25,7 +25,7 @@ Translating the project is a manual process and requires
 To ease the process, the following guidelines are applied to code contributions :
 
 * a commit in the PHP project implies a commit in the C# project with the same message and content
-* one-to-one tag mapping between the PHP and C# projects -> not possible anymore since the PHP Tracker was moved to its own repository and the version number was reseted to 1.0.0, solution pending
+* one-to-one tag mapping between the PHP and C# projects **not possible anymore, see #22**
 * the C# code should mirror as close as possible the PHP code
 
 ### Code style
