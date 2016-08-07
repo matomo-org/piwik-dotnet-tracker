@@ -745,7 +745,7 @@ namespace Piwik.Tracker
     	
     	    var data = new Dictionary<string, Object>();
             data["requests"] = this.storedTrackingActions;
-
+    
             // token_auth is not required by default, except if bulk_requests_require_authentication=1
             if(!string.IsNullOrWhiteSpace(this.token_auth)) {
                 data["token_auth"] = this.token_auth;
@@ -777,6 +777,22 @@ namespace Piwik.Tracker
         {
     	    string url = getUrlTrackEcommerceOrder(orderId, grandTotal, subTotal, tax, shipping, discount);
     	    return sendRequest(url); 
+        }
+
+
+        /// <summary>
+        /// Sends a ping request.
+        /// 
+        /// Ping requests do not track new actions. If they are sent within the standard visit length (see global.ini.php),
+        /// they will extend the existing visit and the current last action for the visit. If after the standard visit length,
+        /// ping requests will create a new visit using the last action in the last known visit.
+        /// </summary>
+        /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        public HttpWebResponse doPing()
+        {
+            var url = this.getRequest(this.idSite);
+            url += "&ping=1";
+            return this.sendRequest(url);
         }
 
 
