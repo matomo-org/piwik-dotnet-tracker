@@ -1464,7 +1464,10 @@ namespace Piwik.Tracker
         /// </summary>
         static public string DEBUG_LAST_REQUESTED_URL;
 
-        private HttpWebResponse sendRequest(string url, string method = "GET", string data = null, bool force = false)
+        /// <summary>
+        /// Builds a new request object
+        /// </summary>
+        protected virtual HttpWebRequest buildRequest(string url, string method = "GET", string data = null, bool force = false)
         {
             DEBUG_LAST_REQUESTED_URL = url;
 
@@ -1492,6 +1495,17 @@ namespace Piwik.Tracker
             if (this.proxy != null)
             {
                 request.Proxy = this.proxy;
+            }
+
+            return request;
+        }
+
+        protected HttpWebResponse sendRequest(string url, string method = "GET", string data = null, bool force = false)
+        {
+            var request = buildRequest(url, method, data, force);
+            if (request == null)
+            {
+                return null;
             }
 
             if (!string.IsNullOrEmpty(data)) {
