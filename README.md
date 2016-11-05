@@ -2,9 +2,6 @@
 
 This is the official C# implementation of the [Piwik Tracking API](http://piwik.org/docs/tracking-api/).
 
-Check the [release page](https://github.com/piwik/piwik-dotnet-tracker/releases)
-for supported versions of Piwik.
-
 ## Usage
 
 Three Visual Studio Solutions are provided : 
@@ -13,26 +10,9 @@ Three Visual Studio Solutions are provided :
 * [Piwik.Tracker.Samples.sln](Piwik.Tracker.Samples.sln) : Console Samples project
 * [Piwik.Tracker.Web.Samples.sln](Piwik.Tracker.Web.Samples.sln) : ASP.NET Samples project
 
-## How to contribute
+## Changelog
 
-The Piwik C# Tracking API is a translation of the [official PHP Tracking API](https://github.com/piwik/piwik-php-tracker) in C#.
-
-Translating the project is a manual process and requires
-
-* identifying features that have already been translated
-* merging code
-
-To ease the process, the following guidelines are applied to code contributions :
-
-* a commit in the PHP project implies a commit in the C# project with the same message and content
-* one-to-one tag mapping between the PHP and C# projects **not possible anymore, see #22**
-* the C# code should mirror as close as possible the PHP code
-
-### Code style
-
-To mirror as close as possible the PHP code, we copy-paste the PHP code in the C# class and alter it so it compiles.
-
-This can lead in a loss of C# best practices. We consider the time savings an acceptable trade-off.
+Pending [#22](../../issues/22)
 
 ## Publishing the project to NuGet
 
