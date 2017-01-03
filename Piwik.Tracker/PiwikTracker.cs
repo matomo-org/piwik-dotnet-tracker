@@ -1500,8 +1500,10 @@ namespace Piwik.Tracker
                     streamWriter.Write(data);
                 }
             }
-
-            return (HttpWebResponse) request.GetResponse();
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                return response;
+            }
         }
 
         /// <summary>
