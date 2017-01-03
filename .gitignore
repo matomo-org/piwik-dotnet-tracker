@@ -4,3 +4,5 @@
 *.sln.dotsettings.user
 */*.csproj.dotsettings.user
 *.nupkg
+.vs/
+packages/
