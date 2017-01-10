@@ -628,7 +628,7 @@ namespace Piwik.Tracker
         /// </summary>       
         /// <param name="documentTitle">Page title as it will appear in the Actions > Page titles report</param> 
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public HttpWebResponse doTrackPageView(string documentTitle = null)
+        public TrackingResponse doTrackPageView(string documentTitle = null)
         {
             string url = getUrlTrackPageView(documentTitle);
             return sendRequest(url);
@@ -643,7 +643,7 @@ namespace Piwik.Tracker
         /// <param name="name">(optional) The Event's object Name (a particular Movie name, or Song name, or File name...)</param> 
         /// <param name="value">(optional) The Event's value</param> 
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public HttpWebResponse doTrackEvent(string category, string action, string name = "", string value = "")
+        public TrackingResponse doTrackEvent(string category, string action, string name = "", string value = "")
         {
             var url = this.getUrlTrackEvent(category, action, name, value);
             return this.sendRequest(url);
@@ -657,7 +657,7 @@ namespace Piwik.Tracker
         /// <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param> 
         /// <param name="contentTarget">(optional) The target of the content. For instance the URL of a landing page.</param> 
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public HttpWebResponse doTrackContentImpression(string contentName, string contentPiece = "Unknown", string contentTarget = null)
+        public TrackingResponse doTrackContentImpression(string contentName, string contentPiece = "Unknown", string contentTarget = null)
         {
             var url = this.getUrlTrackContentImpression(contentName, contentPiece, contentTarget);
             return this.sendRequest(url);
@@ -673,13 +673,13 @@ namespace Piwik.Tracker
         /// <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param> 
         /// <param name="contentTarget">(optional) The target the content leading to when an interaction occurs. For instance the URL of a landing page.</param> 
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public HttpWebResponse doTrackContentInteraction(string interaction, string contentName, string contentPiece = "Unknown", string contentTarget = null)
+        public TrackingResponse doTrackContentInteraction(string interaction, string contentName, string contentPiece = "Unknown", string contentTarget = null)
         {
             var url = this.getUrlTrackContentInteraction(interaction, contentName, contentPiece, contentTarget);
             return this.sendRequest(url);
         }
 
-    
+
         /// <summary>
         /// Tracks an internal Site Search query, and optionally tracks the Search Category, and Search results Count.
         /// These are used to populate reports in Actions > Site Search.
@@ -688,7 +688,7 @@ namespace Piwik.Tracker
         /// <param name="category">(optional) Search engine category if applicable</param> 
         /// <param name="countResults">(optional) results displayed on the search result page. Used to track "zero result" keywords.</param> 
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-	    public HttpWebResponse doTrackSiteSearch(string keyword, string category = "", int? countResults = null)
+        public TrackingResponse doTrackSiteSearch(string keyword, string category = "", int? countResults = null)
 	    {
 		    var url = this.getUrlTrackSiteSearch(keyword, category, countResults);
 		    return this.sendRequest(url);
@@ -701,7 +701,7 @@ namespace Piwik.Tracker
         /// <param name="idGoal">Id Goal to record a conversion</param> 
         /// <param name="revenue">Revenue for this conversion</param> 
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public HttpWebResponse doTrackGoal(int idGoal, float revenue = 0)
+        public TrackingResponse doTrackGoal(int idGoal, float revenue = 0)
         {
     	    string url = getUrlTrackGoal(idGoal, revenue);
     	    return sendRequest(url);
@@ -714,7 +714,7 @@ namespace Piwik.Tracker
         /// <param name="actionUrl">URL of the download or outlink</param> 
         /// <param name="actionType">Type of the action: 'download' or 'link'</param> 
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public HttpWebResponse doTrackAction(string actionUrl, ActionType actionType)
+        public TrackingResponse doTrackAction(string actionUrl, ActionType actionType)
         {
             // Referrer could be udpated to be the current URL temporarily (to mimic JS behavior)
     	    string url = getUrlTrackAction(actionUrl, actionType);
@@ -758,7 +758,7 @@ namespace Piwik.Tracker
         /// </summary>       
         /// <param name="grandTotal">Cart grandTotal (typically the sum of all items' prices)</param> 
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public HttpWebResponse doTrackEcommerceCartUpdate(double grandTotal)
+        public TrackingResponse doTrackEcommerceCartUpdate(double grandTotal)
         {
     	    string url = getUrlTrackEcommerceCartUpdate(grandTotal);
     	    return sendRequest(url); 
@@ -771,7 +771,7 @@ namespace Piwik.Tracker
         /// </summary>   
         /// <exception cref="Exception"/>    
         /// <returns>Response</returns>
-        public HttpWebResponse doBulkTrack()
+        public TrackingResponse doBulkTrack()
         {
     	    if (!this.storedTrackingActions.Any()) {
                 throw new Exception("Error:  you must call the function doTrackPageView or doTrackGoal from this class, before calling this method doBulkTrack()");
@@ -807,7 +807,7 @@ namespace Piwik.Tracker
         /// <param name="shipping">Shipping amount for this order</param> 
         /// <param name="discount">Discounted amount in this order</param> 
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public HttpWebResponse doTrackEcommerceOrder(string orderId, double grandTotal, double subTotal = 0, double tax = 0, double shipping = 0, double discount = 0)
+        public TrackingResponse doTrackEcommerceOrder(string orderId, double grandTotal, double subTotal = 0, double tax = 0, double shipping = 0, double discount = 0)
         {
     	    string url = getUrlTrackEcommerceOrder(orderId, grandTotal, subTotal, tax, shipping, discount);
     	    return sendRequest(url); 
@@ -822,7 +822,7 @@ namespace Piwik.Tracker
         /// ping requests will create a new visit using the last action in the last known visit.
         /// </summary>
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public HttpWebResponse doPing()
+        public TrackingResponse doPing()
         {
             var url = this.getRequest(this.idSite);
             url += "&ping=1";
@@ -1464,7 +1464,7 @@ namespace Piwik.Tracker
         /// </summary>
         static public string DEBUG_LAST_REQUESTED_URL;
 
-        private HttpWebResponse sendRequest(string url, string method = "GET", string data = null, bool force = false)
+        private TrackingResponse sendRequest(string url, string method = "GET", string data = null, bool force = false)
         {
             DEBUG_LAST_REQUESTED_URL = url;
 
@@ -1500,8 +1500,10 @@ namespace Piwik.Tracker
                     streamWriter.Write(data);
                 }
             }
-
-            return (HttpWebResponse) request.GetResponse();
+            using (var result = (HttpWebResponse) request.GetResponse())
+            {
+                return new TrackingResponse {HttpStatusCode = result.StatusCode};
+            }
         }
 
         /// <summary>
