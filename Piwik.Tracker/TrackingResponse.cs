@@ -12,5 +12,11 @@ namespace Piwik.Tracker
         /// Gets the HTTP status code recived from the piwik server.
         /// </summary>
         public HttpStatusCode HttpStatusCode { get; internal set; }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{nameof(HttpStatusCode)}: {HttpStatusCode}";
+        }
     }
 }
