@@ -26,27 +26,7 @@ This page tracks a goal conversion with the Server Side tracking API and display
 
     var response = piwikTracker.doTrackGoal(1, 42.69F);
 
-    this.Response.Write(response.StatusCode);
-    var receiveStream = response.GetResponseStream();
-    var encode = Encoding.GetEncoding("utf-8");
-    // Pipes the stream to a higher level stream reader with the required encoding format. 
-    var readStream = new StreamReader(receiveStream, encode);
-    this.Response.Write("\r\nResponse stream received.");
-    var read = new Char[256];
-    // Reads 256 characters at a time.    
-    var count = readStream.Read(read, 0, 256);
-    this.Response.Write("HTML...\r\n");
-    while (count > 0)
-    {
-        // Dumps the 256 characters on a string and displays the string to the console.
-        String str = new String(read, 0, count);
-        Response.Write(str);
-        count = readStream.Read(read, 0, 256);
-    }
-    // Releases the resources of the response.
-    response.Close();
-    // Releases the resources of the Stream.
-    readStream.Close();    
+    this.Response.Write(response.HttpStatusCode);
 %>
 
 <br />
