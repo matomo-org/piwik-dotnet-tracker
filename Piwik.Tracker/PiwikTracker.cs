@@ -1834,7 +1834,7 @@ namespace Piwik.Tracker
             DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
             TimeSpan diff = date - origin;
             double seconds = Convert.ToInt32(diff.TotalSeconds);
-            return seconds.ToString();
+            return seconds.ToString(CultureInfo.InvariantCulture);
         }
 
         private string FormatMonetaryValue(double value)
