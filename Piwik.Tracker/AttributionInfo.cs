@@ -17,23 +17,23 @@ namespace Piwik.Tracker
     public class AttributionInfo
     {
 
-        public string campaignName { get; set; }
-        public string campaignKeyword { get; set; }
+        public string CampaignName { get; set; }
+        public string CampaignKeyword { get; set; }
 
         /// <summary>
         /// Timestamp at which the referrer was set
         /// </summary>  
-        public DateTimeOffset referrerTimestamp { get; set; }
+        public DateTimeOffset ReferrerTimestamp { get; set; }
 
-        public string referrerUrl { get; set; }
+        public string ReferrerUrl { get; set; }
 
-        public string[] toArray()
+        public string[] ToArray()
         {
             var infos = new string[4];
-            infos[0] = campaignName;
-            infos[1] = campaignKeyword;
-            infos[2] = (referrerTimestamp - new DateTime(1970, 1, 1)).TotalSeconds.ToString();
-            infos[3] = referrerUrl;
+            infos[0] = CampaignName;
+            infos[1] = CampaignKeyword;
+            infos[2] = (ReferrerTimestamp - new DateTime(1970, 1, 1)).TotalSeconds.ToString();
+            infos[3] = ReferrerUrl;
             return infos;
         }
     }

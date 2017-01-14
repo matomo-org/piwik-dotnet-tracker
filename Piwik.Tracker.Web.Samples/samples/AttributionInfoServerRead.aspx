@@ -10,9 +10,9 @@ If a tracking request has been sent via javascript, this method will output the 
 <% 
     PiwikTracker.URL = ConfigurationSettings.AppSettings["PiwikURL"];
     var piwikTracker = new PiwikTracker(1);
-    piwikTracker.enableCookies();
+    piwikTracker.EnableCookies();
 
-    var attributionInfo = piwikTracker.getAttributionInfo();
+    var attributionInfo = piwikTracker.GetAttributionInfo();
     
     if(attributionInfo == null)
     {
@@ -20,10 +20,10 @@ If a tracking request has been sent via javascript, this method will output the 
     }
     else
     {
-        Response.Write("campaignName : " + attributionInfo.campaignName + "<br>");
-        Response.Write("campaignKeywork : " + attributionInfo.campaignKeyword + "<br>");
-        Response.Write("referrerTimestamp : " + attributionInfo.referrerTimestamp + "<br>");
-        Response.Write("referrerUrl : " + attributionInfo.referrerUrl + "<br>");
+        Response.Write("campaignName : " + attributionInfo.CampaignName + "<br>");
+        Response.Write("campaignKeywork : " + attributionInfo.CampaignKeyword + "<br>");
+        Response.Write("referrerTimestamp : " + attributionInfo.ReferrerTimestamp + "<br>");
+        Response.Write("referrerUrl : " + attributionInfo.ReferrerUrl + "<br>");
     }
     
     

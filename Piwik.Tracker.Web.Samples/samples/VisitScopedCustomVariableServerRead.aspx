@@ -9,15 +9,15 @@ This page displays visit scoped custom variables (index 1 & 2) using the Server 
 <% 
     PiwikTracker.URL = ConfigurationSettings.AppSettings["PiwikURL"];
     var piwikTracker = new PiwikTracker(1);
-    piwikTracker.enableCookies();
+    piwikTracker.EnableCookies();
     
-    var customVar1 = piwikTracker.getCustomVariable(1);
-    var customVar2 = piwikTracker.getCustomVariable(2);   
+    var customVar1 = piwikTracker.GetCustomVariable(1);
+    var customVar2 = piwikTracker.GetCustomVariable(2);   
     
     if (customVar1 != null)
     {
-        Response.Write("Custom var index 1, name = " + customVar1.name + "<br/>");
-        Response.Write("Custom var index 1, value = " + customVar1.value + "<br/>");    
+        Response.Write("Custom var index 1, name = " + customVar1.Name + "<br/>");
+        Response.Write("Custom var index 1, value = " + customVar1.Value + "<br/>");    
     } else
     {
         Response.Write("No custom var on index 1 <br/>"); 
@@ -27,8 +27,8 @@ This page displays visit scoped custom variables (index 1 & 2) using the Server 
 
     if (customVar2 != null)
     {
-        Response.Write("Custom var index 2, name = " + customVar2.name + "<br/>");
-        Response.Write("Custom var index 2, value = " + customVar2.value + "<br/>");
+        Response.Write("Custom var index 2, name = " + customVar2.Name + "<br/>");
+        Response.Write("Custom var index 2, value = " + customVar2.Value + "<br/>");
     }
     else
     {

@@ -11,20 +11,20 @@ This page tracks a goal conversion with the Server Side tracking API and display
     PiwikTracker.URL = ConfigurationSettings.AppSettings["PiwikURL"];
 
     var piwikTracker = new PiwikTracker(1);
-    piwikTracker.enableCookies();
+    piwikTracker.EnableCookies();
 
     var attributionInfo = new AttributionInfo();
 
-    attributionInfo.campaignName = "CAMPAIGN NAME";
-    attributionInfo.campaignKeyword = "CAMPAIGN KEYWORD";
-    attributionInfo.referrerTimestamp = new DateTime(2011, 04, 08, 23, 48, 24);
-    attributionInfo.referrerUrl = "http://www.example.org/test/really?q=yes";
+    attributionInfo.CampaignName = "CAMPAIGN NAME";
+    attributionInfo.CampaignKeyword = "CAMPAIGN KEYWORD";
+    attributionInfo.ReferrerTimestamp = new DateTime(2011, 04, 08, 23, 48, 24);
+    attributionInfo.ReferrerUrl = "http://www.example.org/test/really?q=yes";
 
-    piwikTracker.setAttributionInfo(attributionInfo);
+    piwikTracker.SetAttributionInfo(attributionInfo);
     
-    piwikTracker.setCustomVariable(1, "custom-variable1", "custom-variable1-value");
+    piwikTracker.SetCustomVariable(1, "custom-variable1", "custom-variable1-value");
 
-    var response = piwikTracker.doTrackGoal(1, 42.69F);
+    var response = piwikTracker.DoTrackGoal(1, 42.69F);
 
     this.Response.Write(response.HttpStatusCode);
 %>

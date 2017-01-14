@@ -14,15 +14,15 @@ namespace Piwik.Tracker
     /// </summary>
     public class CustomVar
     {
-        public enum Scopes {visit, page, _event};
+        public enum Scopes {Visit, Page, Event};
 
-        public string name { get; set; }
-        public string value { get; set; }
+        public string Name { get; set; }
+        public string Value { get; set; }
 
         public CustomVar(string name, string value)
         {
-            this.name = name;
-            this.value = value;
+            this.Name = name;
+            this.Value = value;
         }
     }
 }

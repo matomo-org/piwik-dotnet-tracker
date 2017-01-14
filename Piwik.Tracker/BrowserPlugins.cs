@@ -13,14 +13,14 @@ namespace Piwik.Tracker
     /// </summary>
     public class BrowserPlugins
     {
-        public bool flash { get; set; }
-        public bool java { get; set; }
-        public bool director { get; set; }
-        public bool quickTime { get; set; }
-        public bool realPlayer { get; set; }
-        public bool pdf { get; set; }
-        public bool windowsMedia { get; set; }
-        public bool gears { get; set; }
-        public bool silverlight { get; set; }
+        public bool Flash { get; set; }
+        public bool Java { get; set; }
+        public bool Director { get; set; }
+        public bool QuickTime { get; set; }
+        public bool RealPlayer { get; set; }
+        public bool Pdf { get; set; }
+        public bool WindowsMedia { get; set; }
+        public bool Gears { get; set; }
+        public bool Silverlight { get; set; }
     }
 }
