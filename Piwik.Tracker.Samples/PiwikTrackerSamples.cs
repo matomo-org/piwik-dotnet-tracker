@@ -496,7 +496,7 @@ namespace Piwik.Tracker.Samples
         static private void DisplayDebugInfo(TrackingResponse response)
         {            
             Console.WriteLine("DEBUG_LAST_REQUESTED_URL :");
-            Console.WriteLine(PiwikTracker.DEBUG_LAST_REQUESTED_URL);
+            Console.WriteLine(PiwikTracker.DebugLastRequestedUrl);
             Console.Write("\r\n");
             Console.WriteLine(response.HttpStatusCode);
         }

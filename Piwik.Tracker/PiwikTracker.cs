@@ -137,6 +137,11 @@ namespace Piwik.Tracker
         /// </summary>
         public static string Url;
 
+        /// <summary>
+        /// Used in tests to output useful error messages.
+        /// </summary>
+        public static string DebugLastRequestedUrl;
+
         private string _debugAppendUrl;
         private string _userAgent;
         private DateTimeOffset _localTime;
@@ -583,7 +588,7 @@ namespace Piwik.Tracker
         /// <summary>
         /// Fix-up domain
         /// </summary>  
-        static protected string DomainFixup(string domain)
+        protected static string DomainFixup(string domain)
         {
             if (string.IsNullOrWhiteSpace(domain)){
                 return domain;
@@ -1172,7 +1177,7 @@ namespace Piwik.Tracker
         /// 
         /// Note: matches implementation of Tracker\Request->getUserIdHashed()
         /// </summary>
-        static public string GetUserIdHashed(string id)
+        public static string GetUserIdHashed(string id)
         {
             var encodedIdBytes = new SHA1CryptoServiceProvider().ComputeHash(Encoding.Default.GetBytes(id));
             return BitConverter.ToString(encodedIdBytes).Substring(0, 16);
@@ -1458,15 +1463,11 @@ namespace Piwik.Tracker
 
             _requestTimeout = timeout;
         }
-
-        /// <summary>
-        /// Used in tests to output useful error messages.
-        /// </summary>
-        static public string DEBUG_LAST_REQUESTED_URL;
+  
 
         private TrackingResponse SendRequest(string url, string method = "GET", string data = null, bool force = false)
         {
-            DEBUG_LAST_REQUESTED_URL = url;
+            DebugLastRequestedUrl = url;
 
     	    // if doing a bulk request, store the url
     	    if (_doBulkRequests && !force) {
@@ -1631,7 +1632,7 @@ namespace Piwik.Tracker
         /// If current URL is "http://example.org/dir1/dir2/index.php?param1=value1&param2=value2"
         /// will return "/dir1/dir2/index.php"
         /// </summary>   
-        static protected string GetCurrentScriptName()
+        protected static string GetCurrentScriptName()
         {
             if (HttpContext.Current != null)
             {
@@ -1646,7 +1647,7 @@ namespace Piwik.Tracker
         /// will return 'http'
         /// </summary>   
         /// <returns>string 'https' or 'http'</returns>        
-        static protected string GetCurrentScheme()
+        protected static string GetCurrentScheme()
         {
             if (HttpContext.Current != null)
             {
@@ -1661,7 +1662,7 @@ namespace Piwik.Tracker
         /// will return "http://example.org"
         /// </summary>   
         /// <returns>string 'https' or 'http'</returns>  
-        static protected string GetCurrentHost()
+        protected static string GetCurrentHost()
         {
             if (HttpContext.Current != null)
             {
@@ -1675,7 +1676,7 @@ namespace Piwik.Tracker
         /// If current URL is "http://example.org/dir1/dir2/index.php?param1=value1&param2=value2"
         /// will return "?param1=value1&param2=value2"
         /// </summary>   
-        static protected string GetCurrentQueryString()
+        protected static string GetCurrentQueryString()
         {
             if (HttpContext.Current != null)
             {
@@ -1688,7 +1689,7 @@ namespace Piwik.Tracker
         /// <summary>
         /// Returns the current full URL (scheme, host, path and query string.
         /// </summary>   
-        static protected string GetCurrentUrl()
+        protected static string GetCurrentUrl()
         {
             return GetCurrentScheme() + "://"
                 + GetCurrentHost()
