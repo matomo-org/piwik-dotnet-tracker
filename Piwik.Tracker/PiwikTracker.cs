@@ -366,7 +366,7 @@ namespace Piwik.Tracker
                     break;
 
                 default:
-                    throw new Exception("Invalid 'scope' parameter value");
+                    throw new ArgumentException("Invalid 'scope' parameter value", nameof(scope));
             }
         }
 
@@ -406,8 +406,9 @@ namespace Piwik.Tracker
             }
             else if (!scope.Equals(CustomVar.Scopes.Visit))
             {
-                throw new Exception("Invalid 'scope' parameter value");
+                throw new ArgumentException("Invalid 'scope' parameter value", nameof(scope));
             }
+            // todo: unreachable code, this will newer be called since we return before!
             if (_visitorCustomVar.ContainsKey(stringId))
             {
                 return new CustomVar(_visitorCustomVar[stringId][0], _visitorCustomVar[stringId][1]);
@@ -731,7 +732,7 @@ namespace Piwik.Tracker
         {
             if (string.IsNullOrEmpty(sku))
             {
-                throw new Exception("You must specify a SKU for the Ecommerce item");
+                throw new ArgumentException("You must specify a SKU for the Ecommerce item", nameof(sku));
             }
 
             object[] eCommerceItem = { sku, name, categories, FormatMonetaryValue(price), quantity };
@@ -766,7 +767,7 @@ namespace Piwik.Tracker
         {
             if (!_storedTrackingActions.Any())
             {
-                throw new Exception("Error:  you must call the function doTrackPageView or doTrackGoal from this class, before calling this method doBulkTrack()");
+                throw new InvalidOperationException("Error: you must call the function doTrackPageView or doTrackGoal from this class, before calling this method doBulkTrack()");
             }
 
             var data = new Dictionary<string, object>();
@@ -887,7 +888,7 @@ namespace Piwik.Tracker
         {
             if (string.IsNullOrEmpty(orderId))
             {
-                throw new Exception("You must specifiy an orderId for the Ecommerce order");
+                throw new ArgumentException("You must specifiy an orderId for the Ecommerce order", nameof(orderId));
             }
 
             string url = GetUrlTrackEcommerce(grandTotal, subTotal, tax, shipping, discount);
@@ -966,16 +967,16 @@ namespace Piwik.Tracker
         /// <returns>URL to piwik.php with all parameters set to track the pageview</returns>
         public string GetUrlTrackEvent(string category, string action, string name = "", string value = "")
         {
-            var url = GetRequest(_siteId);
             if (string.IsNullOrWhiteSpace(category))
             {
-                throw new Exception("You must specify an Event Category name (Music, Videos, Games...).");
+                throw new ArgumentException("You must specify an Event Category name (Music, Videos, Games...).", nameof(category));
             }
             if (string.IsNullOrWhiteSpace(action))
             {
-                throw new Exception("You must specify an Event action (click, view, add...).");
+                throw new ArgumentException("You must specify an Event action (click, view, add...).", nameof(action));
             }
 
+            var url = GetRequest(_siteId);
             url += "&e_c=" + UrlEncode(category);
             url += "&e_a=" + UrlEncode(action);
 
@@ -1001,13 +1002,12 @@ namespace Piwik.Tracker
         /// <returns>URL to piwik.php with all parameters set to track the pageview</returns>
         public string GetUrlTrackContentImpression(string contentName, string contentPiece, string contentTarget)
         {
-            var url = GetRequest(_siteId);
-
             if (string.IsNullOrWhiteSpace(contentName))
             {
-                throw new Exception("You must specify a content name");
+                throw new ArgumentException("You must specify a content name", nameof(contentName));
             }
 
+            var url = GetRequest(_siteId);
             url += "&c_n=" + UrlEncode(contentName);
 
             if (!string.IsNullOrWhiteSpace(contentPiece))
@@ -1034,18 +1034,17 @@ namespace Piwik.Tracker
         /// <returns>URL to piwik.php with all parameters set to track the pageview</returns>
         public string GetUrlTrackContentInteraction(string interaction, string contentName, string contentPiece, string contentTarget)
         {
-            var url = GetRequest(_siteId);
-
             if (string.IsNullOrWhiteSpace(interaction))
             {
-                throw new Exception("You must specify a name for the interaction");
+                throw new ArgumentException("You must specify a name for the interaction", nameof(interaction));
             }
 
             if (string.IsNullOrWhiteSpace(contentName))
             {
-                throw new Exception("You must specify a content name");
+                throw new ArgumentException("You must specify a content name", nameof(contentName));
             }
 
+            var url = GetRequest(_siteId);
             url += "&c_i=" + UrlEncode(interaction);
             url += "&c_n=" + UrlEncode(contentName);
 
@@ -1160,6 +1159,7 @@ namespace Piwik.Tracker
         /// <exception cref="Exception"/>
         public void SetUserId(string userId)
         {
+            // todo this is contradicion: (userId == null) / string.IsNullOrEmpty(userId)
             if (userId == null)
             {
                 SetNewVisitorId();
@@ -1167,7 +1167,7 @@ namespace Piwik.Tracker
             }
             if (string.IsNullOrEmpty(userId))
             {
-                throw new Exception("User ID cannot be empty.");
+                throw new ArgumentException("User ID cannot be empty.", nameof(userId));
             }
             _userId = userId;
         }
@@ -1202,11 +1202,10 @@ namespace Piwik.Tracker
             if (visitorId.Length != LengthVisitorId
                 || !System.Text.RegularExpressions.Regex.IsMatch(visitorId, @"\A\b[0-9a-fA-F]+\b\Z"))
             {
-                throw new Exception("setVisitorId() expects a "
-                                + LengthVisitorId
+                throw new ArgumentException("setVisitorId() expects a " + LengthVisitorId
                                 + " characters hexadecimal string (containing only the following: "
                                 + "01234567890abcdefABCDEF"
-                                + ")");
+                                + ")", nameof(visitorId));
             }
 
             _forcedVisitorId = visitorId;
@@ -1280,6 +1279,7 @@ namespace Piwik.Tracker
             {
                 _visitCount = long.Parse(parts[2]);
             }
+            // todo _currentVisitTs is never used (was earlier assigned with null in constructor)
             _currentVisitTs = long.Parse(parts[3]);
             if (!string.IsNullOrWhiteSpace(parts[4]))
             {
@@ -1464,7 +1464,7 @@ namespace Piwik.Tracker
         {
             if (timeout < 0)
             {
-                throw new Exception("Invalid value supplied for request timeout: $timeout");
+                throw new ArgumentOutOfRangeException(nameof(timeout), "Invalid value supplied for request timeout: $timeout");
             }
 
             _requestTimeout = timeout;
@@ -1522,7 +1522,7 @@ namespace Piwik.Tracker
         {
             if (string.IsNullOrEmpty(Url))
             {
-                throw new Exception("You must first set the Piwik Tracker URL by calling PiwikTracker.URL = \"http://your-website.org/piwik/\";");
+                throw new InvalidOperationException("You must first set the Piwik Tracker URL by calling PiwikTracker.URL = \"http://your-website.org/piwik/\";");
             }
             if (!Url.Contains("/piwik.php")
                 && !Url.Contains("/proxy-piwik.php")
@@ -1573,6 +1573,7 @@ namespace Piwik.Tracker
                 (!_ecommerceLastOrderTimestamp.Equals(DateTimeOffset.MinValue) ? "&_ects=" + FormatTimestamp(_ecommerceLastOrderTimestamp) : "") +
 
                 // Various important attributes
+                // todo _customData is never assigned!
                 (!string.IsNullOrEmpty(_customData) ? "&data=" + _customData : "") +
                 (_visitorCustomVar.Any() ? "&_cvar=" + UrlEncode(new JavaScriptSerializer().Serialize(_visitorCustomVar)) : "") +
                 (_pageCustomVar.Any() ? "&cvar=" + UrlEncode(new JavaScriptSerializer().Serialize(_pageCustomVar)) : "") +
