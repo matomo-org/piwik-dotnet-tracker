@@ -87,8 +87,8 @@ namespace Piwik.Tracker.Samples
             piwikTracker.SetCustomVariable(1, "var1", "value1");
             piwikTracker.SetCustomVariable(2, "var2", "value2");
 
-            piwikTracker.SetCustomVariable(1, "pagevar1", "pagevalue1", CustomVar.Scopes.Page);
-            piwikTracker.SetCustomVariable(2, "pagevar2", "pagevalue2", CustomVar.Scopes.Page);
+            piwikTracker.SetCustomVariable(1, "pagevar1", "pagevalue1", Scopes.Page);
+            piwikTracker.SetCustomVariable(2, "pagevar2", "pagevalue2", Scopes.Page);
 
             var response = piwikTracker.DoTrackPageView("Document title of current page view");
 
@@ -225,7 +225,7 @@ namespace Piwik.Tracker.Samples
             var piwikTracker = new PiwikTracker(1);
             piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.DoTrackAction("http://dev.piwik.org/svn", PiwikTracker.ActionType.Link);
+            var response = piwikTracker.DoTrackAction("http://dev.piwik.org/svn", ActionType.Link);
 
             DisplayDebugInfo(response);
         }
@@ -238,7 +238,7 @@ namespace Piwik.Tracker.Samples
             var piwikTracker = new PiwikTracker(1);
             piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.DoTrackAction("http://piwik.org/path/again/latest.zip", PiwikTracker.ActionType.Download);
+            var response = piwikTracker.DoTrackAction("http://piwik.org/path/again/latest.zip", ActionType.Download);
 
             DisplayDebugInfo(response);
         }

@@ -195,8 +195,6 @@ namespace Piwik.Tracker
         private bool _sendImageResponse;
         private IWebProxy _proxy;
 
-        public enum ActionType { Download, Link };
-
         /// <summary>
         /// Builds a PiwikTracker object, used to track visits, pages and Goal conversions
         /// for a specific website, by using the Piwik Tracking API.
@@ -347,22 +345,22 @@ namespace Piwik.Tracker
         /// <param name="value">Custom variable value</param>
         /// <param name="scope">Custom variable scope. Possible values: visit, page, event</param>
         /// <exception cref="ArgumentException">Invalid 'scope' parameter value - scope</exception>
-        public void SetCustomVariable(int id, string name, string value, CustomVar.Scopes scope = CustomVar.Scopes.Visit)
+        public void SetCustomVariable(int id, string name, string value, Scopes scope = Scopes.Visit)
         {
             string stringId = Convert.ToString(id);
             string[] customVar = { name, value };
 
             switch (scope)
             {
-                case CustomVar.Scopes.Page:
+                case Scopes.Page:
                     _pageCustomVar[stringId] = customVar;
                     break;
 
-                case CustomVar.Scopes.Visit:
+                case Scopes.Visit:
                     _visitorCustomVar[stringId] = customVar;
                     break;
 
-                case CustomVar.Scopes.Event:
+                case Scopes.Event:
                     _eventCustomVar[stringId] = customVar;
                     break;
 
@@ -393,19 +391,19 @@ namespace Piwik.Tracker
         /// <param name="scope">Custom variable scope. Possible values: visit, page, event</param>
         /// <exception cref="Exception"/>
         /// <returns>The requested custom variable</returns>
-        public CustomVar GetCustomVariable(int id, CustomVar.Scopes scope = CustomVar.Scopes.Visit)
+        public CustomVar GetCustomVariable(int id, Scopes scope = Scopes.Visit)
         {
             var stringId = Convert.ToString(id);
 
-            if (scope.Equals(CustomVar.Scopes.Page))
+            if (scope.Equals(Scopes.Page))
             {
                 return _pageCustomVar.ContainsKey(stringId) ? new CustomVar(_pageCustomVar[stringId][0], _pageCustomVar[stringId][1]) : null;
             }
-            else if (!scope.Equals(CustomVar.Scopes.Event))
+            else if (!scope.Equals(Scopes.Event))
             {
                 return _eventCustomVar.ContainsKey(stringId) ? new CustomVar(_eventCustomVar[stringId][0], _eventCustomVar[stringId][1]) : null;
             }
-            else if (!scope.Equals(CustomVar.Scopes.Visit))
+            else if (!scope.Equals(Scopes.Visit))
             {
                 throw new ArgumentException("Invalid 'scope' parameter value", nameof(scope));
             }
@@ -856,11 +854,11 @@ namespace Piwik.Tracker
             {
                 serializedCategories = new JavaScriptSerializer().Serialize(categories);
             }
-            SetCustomVariable(CvarIndexEcommerceItemCategory, "_pkc", serializedCategories, CustomVar.Scopes.Page);
+            SetCustomVariable(CvarIndexEcommerceItemCategory, "_pkc", serializedCategories, Scopes.Page);
 
             if (!price.Equals(0))
             {
-                SetCustomVariable(CvarIndexEcommerceItemPrice, "_pkp", FormatMonetaryValue(price), CustomVar.Scopes.Page);
+                SetCustomVariable(CvarIndexEcommerceItemPrice, "_pkp", FormatMonetaryValue(price), Scopes.Page);
             }
 
             // On a category page, do not record "Product name not defined"
@@ -870,13 +868,13 @@ namespace Piwik.Tracker
             }
             if (!string.IsNullOrEmpty(sku))
             {
-                SetCustomVariable(CvarIndexEcommerceItemSku, "_pks", sku, CustomVar.Scopes.Page);
+                SetCustomVariable(CvarIndexEcommerceItemSku, "_pks", sku, Scopes.Page);
             }
             if (string.IsNullOrEmpty(name))
             {
                 name = "";
             }
-            SetCustomVariable(CvarIndexEcommerceItemName, "_pkn", name, CustomVar.Scopes.Page);
+            SetCustomVariable(CvarIndexEcommerceItemName, "_pkn", name, Scopes.Page);
         }
 
         /// <summary>

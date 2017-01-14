@@ -13,11 +13,6 @@ namespace Piwik.Tracker
     public class CustomVar
     {
         /// <summary>
-        /// The possible scopes.
-        /// </summary>
-        public enum Scopes { Visit, Page, Event };
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="CustomVar"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
