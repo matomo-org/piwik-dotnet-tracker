@@ -205,17 +205,17 @@ namespace Piwik.Tracker
         /// <summary>
         /// Builds a PiwikTracker object, used to track visits, pages and Goal conversions
         /// for a specific website, by using the Piwik Tracking API.
-        ///
         /// If the tracker is used within a web page or web controller, the following information are pre-initialised :
         /// URL Referrer, current page URL, remote IP, Accept-Language HTTP header and User-Agent HTTP header.
         /// </summary>
         /// <param name="siteId">Id site to be tracked</param>
         /// <param name="apiUrl">"http://example.org/piwik/" or "http://piwik.example.org/". If set, will overwrite PiwikTracker.URL</param>
+        /// <exception cref="ArgumentException">apiUrl must not be null or empty</exception>
         public PiwikTracker(int siteId, string apiUrl)
         {
             if (string.IsNullOrEmpty(PiwikBaseUrl))
             {
-                throw new ArgumentException("You must first set the Piwik Tracker URL by calling PiwikTracker.URL = \"http://your-website.org/piwik/\";");
+                throw new ArgumentException("Piwik api url must not be emty or null.", nameof(apiUrl));
             }
             PiwikBaseUrl = apiUrl;
             _siteId = siteId;
