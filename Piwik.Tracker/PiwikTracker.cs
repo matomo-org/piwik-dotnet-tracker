@@ -136,7 +136,7 @@ namespace Piwik.Tracker
         /// Piwik base URL, for example http://example.org/piwik/
         /// Must be set before using the class by calling PiwikTracker.URL = 'http://yourwebsite.org/piwik/'
         /// </summary>
-        public static string Url;
+        public readonly string PiwikBaseUrl;
 
         /// <summary>
         /// Used in tests to output useful error messages.
@@ -204,8 +204,15 @@ namespace Piwik.Tracker
         /// </summary>
         /// <param name="siteId">Id site to be tracked</param>
         /// <param name="apiUrl">"http://example.org/piwik/" or "http://piwik.example.org/". If set, will overwrite PiwikTracker.URL</param>
-        public PiwikTracker(int siteId, string apiUrl = "")
+        public PiwikTracker(int siteId, string apiUrl)
         {
+            if (string.IsNullOrEmpty(PiwikBaseUrl))
+            {
+                throw new ArgumentException("You must first set the Piwik Tracker URL by calling PiwikTracker.URL = \"http://your-website.org/piwik/\";");
+            }
+            PiwikBaseUrl = apiUrl;
+            _siteId = siteId;
+
             _userAgent = null;
             _localTime = DateTimeOffset.MinValue;
             _hasCookies = false;
@@ -222,7 +229,6 @@ namespace Piwik.Tracker
             _ecommerceItems = new Dictionary<string, object[]>();
             _generationTime = null;
 
-            _siteId = siteId;
             var currentContext = HttpContext.Current;
             if (currentContext != null)
             {
@@ -244,7 +250,7 @@ namespace Piwik.Tracker
             _pageUrl = GetCurrentUrl();
             if (!string.IsNullOrEmpty(apiUrl))
             {
-                Url = apiUrl;
+                PiwikBaseUrl = apiUrl;
             }
 
             // Life of the visitor cookie (in sec)
@@ -788,7 +794,7 @@ namespace Piwik.Tracker
             }
 
             var postData = new JavaScriptSerializer().Serialize(data);
-            var response = SendRequest(GetBaseUrl(), "POST", postData, true);
+            var response = SendRequest(PiwikBaseUrl, "POST", postData, true);
 
             _storedTrackingActions = new List<string>();
 
@@ -1562,19 +1568,16 @@ namespace Piwik.Tracker
         /// <summary>
         /// Returns the base URL for the piwik server.
         /// </summary>
-        protected string GetBaseUrl()
+        /// <param name="url">The URL.</param>
+        /// <returns></returns>
+        private static string FixPiwikBaseUrl(string url)
         {
-            if (string.IsNullOrEmpty(Url))
-            {
-                throw new InvalidOperationException("You must first set the Piwik Tracker URL by calling PiwikTracker.URL = \"http://your-website.org/piwik/\";");
-            }
-            if (!Url.Contains("/piwik.php")
-                && !Url.Contains("/proxy-piwik.php")
+            if (!url.Contains("/piwik.php") && !url.Contains("/proxy-piwik.php")
             )
             {
-                Url += "/piwik.php";
+                url += "/piwik.php";
             }
-            return Url;
+            return url;
         }
 
         private string GetRequest(int idSite)
@@ -1590,7 +1593,7 @@ namespace Piwik.Tracker
                 }
             }
 
-            var url = GetBaseUrl() +
+            var url = PiwikBaseUrl +
                 "?idsite=" + idSite +
                 "&rec=1" +
                 "&apiv=" + Version +

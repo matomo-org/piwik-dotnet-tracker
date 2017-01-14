@@ -16,11 +16,11 @@ namespace Piwik.Tracker.Samples
     internal class PiwikTrackerSamples
     {
         private const string UA = "Firefox";
+        private static readonly string PiwikBaseUrl = "http://piwik.local";
+        private static readonly int SiteId = 1;
 
         private static void Main(string[] args)
         {
-            PiwikTracker.Url = "http://piwik.local";
-
             // ** PAGE VIEW **
             //            RecordSimplePageView();
             //            RecordSimplePageViewWithCustomProperties();
@@ -68,7 +68,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void GoalConversion()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             var response = piwikTracker.DoTrackGoal(1, 42.69F);
@@ -81,7 +81,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordCustomVariables()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetCustomVariable(1, "var1", "value1");
@@ -100,7 +100,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordCustomDimensions()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetCustomTrackingParameter("dimension1", "value1");
@@ -116,7 +116,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordSimplePageView()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             var response = piwikTracker.DoTrackPageView("Document title of current page view");
@@ -129,7 +129,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordSimplePageViewWithCustomProperties()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetResolution(1600, 1400);
@@ -164,7 +164,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordSimplePageViewWithCustomGeoLocation()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetTokenAuth("XYZ");
 
             piwikTracker.SetUserAgent(UA);
@@ -185,7 +185,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordSimplePageViewWithGenerationTime()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetGenerationTime(10000);
@@ -200,7 +200,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void GoalConversionWithAttributionInfo()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             var attributionInfo = new AttributionInfo();
@@ -222,7 +222,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void TrackLink()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             var response = piwikTracker.DoTrackAction("http://dev.piwik.org/svn", ActionType.Link);
@@ -235,7 +235,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void TrackDownload()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             var response = piwikTracker.DoTrackAction("http://piwik.org/path/again/latest.zip", ActionType.Download);
@@ -248,7 +248,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void ECommerceCategoryView()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetEcommerceView("", "", new List<string> { "Electronics & Cameras" });
@@ -261,7 +261,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void ECommerceView()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetEcommerceView("SKU2", "PRODUCT name", new List<string> { "Electronics & Cameras", "Clothes" });
@@ -275,7 +275,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void ECommerceViewWithoutCategory()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetEcommerceView("SKU VERY nice indeed", "PRODUCT name");
@@ -289,7 +289,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void UpdateECommerceCartWithOneProduct()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.AddEcommerceItem(
@@ -309,7 +309,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void UpdateECommerceCartWithOneProductSKUOnly()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.AddEcommerceItem(
@@ -325,7 +325,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void UpdateECommerceCartWithMultipleProducts()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.AddEcommerceItem(
@@ -362,7 +362,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordTwoECommerceOrders()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             // First order
@@ -419,7 +419,7 @@ namespace Piwik.Tracker.Samples
 
         static private void RecordECommerceOrder()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.AddEcommerceItem(
@@ -453,7 +453,7 @@ namespace Piwik.Tracker.Samples
 
         private static void BulkTrackTwoRequests()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
 
             piwikTracker.SetUserAgent(UA);
             piwikTracker.SetTokenAuth("YOUR TOKEN");
@@ -468,7 +468,7 @@ namespace Piwik.Tracker.Samples
 
         static private void TrackSiteSearch()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             var response = piwikTracker.DoTrackSiteSearch("keyword1", "category2", 0);
@@ -478,7 +478,7 @@ namespace Piwik.Tracker.Samples
 
         static private void TrackSongPlayback()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             var response = piwikTracker.DoTrackEvent("music", "play", "Eye Of The Tiger");
