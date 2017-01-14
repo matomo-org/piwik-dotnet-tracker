@@ -1,6 +1,8 @@
 ﻿#region license
+
 // http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
-#endregion
+
+#endregion license
 
 using System;
 using System.Text;
@@ -11,52 +13,52 @@ namespace Piwik.Tracker.Samples
 {
     using System.Collections.Generic;
 
-    class PiwikTrackerSamples
+    internal class PiwikTrackerSamples
     {
         private const string UA = "Firefox";
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             PiwikTracker.Url = "http://piwik.local";
 
             // ** PAGE VIEW **
-//            RecordSimplePageView();
-//            RecordSimplePageViewWithCustomProperties();
-//            RecordSimplePageViewWithCustomGeoLocation();
-//            RecordSimplePageViewWithGenerationTime();
+            //            RecordSimplePageView();
+            //            RecordSimplePageViewWithCustomProperties();
+            //            RecordSimplePageViewWithCustomGeoLocation();
+            //            RecordSimplePageViewWithGenerationTime();
 
             // ** CUSTOM VARIABLES **
-//            RecordCustomVariables();
+            //            RecordCustomVariables();
 
             // ** CUSTOM DIMENSIONS **
-//            RecordCustomDimensions();
+            //            RecordCustomDimensions();
 
             // ** GOAL CONVERSION **
-//            GoalConversion();
-//            GoalConversionWithAttributionInfo();
+            //            GoalConversion();
+            //            GoalConversionWithAttributionInfo();
 
             // ** ACTION TRACKING **
-//            trackDownload();
-//            TrackLink();
+            //            trackDownload();
+            //            TrackLink();
 
             // ** ECOMMERCE TRACKING **
-//            ECommerceView();
-//            ECommerceCategoryView();
-//            ECommerceViewWithoutCategory();
-//            UpdateECommerceCartWithOneProduct();                        
-//            UpdateECommerceCartWithOneProductSKUOnly();
-//            UpdateECommerceCartWithMultipleProducts();
-//            RecordECommerceOrder();
-//            RecordTwoECommerceOrders();
+            //            ECommerceView();
+            //            ECommerceCategoryView();
+            //            ECommerceViewWithoutCategory();
+            //            UpdateECommerceCartWithOneProduct();
+            //            UpdateECommerceCartWithOneProductSKUOnly();
+            //            UpdateECommerceCartWithMultipleProducts();
+            //            RecordECommerceOrder();
+            //            RecordTwoECommerceOrders();
 
             // ** Bulk Tracking **
-//            BulkTrackTwoRequests();
+            //            BulkTrackTwoRequests();
 
             // ** Site Search **
-//            TrackSiteSearch();
+            //            TrackSiteSearch();
 
             // ** Event Tracking **
-//            TrackSongPlayback();
+            //            TrackSongPlayback();
 
             Console.ReadKey(true);
         }
@@ -73,7 +75,6 @@ namespace Piwik.Tracker.Samples
 
             DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records 2 page scoped custom variables and 2 visit scoped custom variables
@@ -110,7 +111,6 @@ namespace Piwik.Tracker.Samples
             DisplayDebugInfo(response);
         }
 
-
         /// <summary>
         ///  Records a simple page view with a specified document title
         /// </summary>
@@ -121,9 +121,8 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.DoTrackPageView("Document title of current page view");
 
-            DisplayDebugInfo(response); 
+            DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records a simple page view with advanced user, browser and server properties
@@ -193,7 +192,7 @@ namespace Piwik.Tracker.Samples
 
             var response = piwikTracker.DoTrackPageView("Document title of current page view");
 
-            DisplayDebugInfo(response); 
+            DisplayDebugInfo(response);
         }
 
         /// <summary>
@@ -218,7 +217,6 @@ namespace Piwik.Tracker.Samples
             DisplayDebugInfo(response);
         }
 
-
         /// <summary>
         /// Records a clicked link
         /// </summary>
@@ -231,7 +229,6 @@ namespace Piwik.Tracker.Samples
 
             DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records a file download
@@ -246,7 +243,6 @@ namespace Piwik.Tracker.Samples
             DisplayDebugInfo(response);
         }
 
-
         /// <summary>
         /// Records a category page view
         /// </summary>
@@ -259,7 +255,6 @@ namespace Piwik.Tracker.Samples
             var response = piwikTracker.DoTrackPageView("Looking at Electronics & Cameras page with a page level custom variable");
             DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records a product view
@@ -274,7 +269,6 @@ namespace Piwik.Tracker.Samples
             var response = piwikTracker.DoTrackPageView("incredible title!");
             DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records a product view which doesn't belong to a category
@@ -300,13 +294,13 @@ namespace Piwik.Tracker.Samples
 
             piwikTracker.AddEcommerceItem(
                 "SKU VERY nice indeed",
-                "PRODUCT name", new List<string> { "Clothes", "Electronics & Cameras" }, 
+                "PRODUCT name", new List<string> { "Clothes", "Electronics & Cameras" },
                 500.2,
                 2
             );
 
             var response = piwikTracker.DoTrackEcommerceCartUpdate(1000.4);
-            
+
             DisplayDebugInfo(response);
         }
 
@@ -344,26 +338,25 @@ namespace Piwik.Tracker.Samples
             // This one overrides the previous addition
             piwikTracker.AddEcommerceItem(
                 "SKU VERY nice indeed",
-                "PRODUCT name", 
-                new List<string> { "Electronics & Cameras" }, 
-                500, 
+                "PRODUCT name",
+                new List<string> { "Electronics & Cameras" },
+                500,
                 2
             );
 
             piwikTracker.AddEcommerceItem(
                 "SKU NEW",
-                "BLABLA", 
-                null, 
-                5000000, 
+                "BLABLA",
+                null,
+                5000000,
                 20
             );
-
 
             var response = piwikTracker.DoTrackEcommerceCartUpdate(1000);
 
             DisplayDebugInfo(response);
         }
-        
+
         /// <summary>
         /// Registers 2 eCommerce orders
         /// </summary>
@@ -377,51 +370,51 @@ namespace Piwik.Tracker.Samples
             piwikTracker.AddEcommerceItem(
                 "SKU VERY nice indeed",
                 "PRODUCT name",
-                new List<string> { "Electronics & Cameras" }, 
+                new List<string> { "Electronics & Cameras" },
                 500,
                 2
              );
 
             piwikTracker.AddEcommerceItem(
-                "ANOTHER SKU HERE", 
-                "PRODUCT name BIS" , 
-                null, 
-                100, 
+                "ANOTHER SKU HERE",
+                "PRODUCT name BIS",
+                null,
+                100,
                 6
-            );        
+            );
 
-            var response = 
+            var response =
                 piwikTracker.DoTrackEcommerceOrder(
-                    "137nsjusG 1094", 
-                    1111.11, 
-                    1000, 
-                    111, 
+                    "137nsjusG 1094",
+                    1111.11,
+                    1000,
+                    111,
                     0.11,
                     666
                 );
 
-            DisplayDebugInfo(response);   
+            DisplayDebugInfo(response);
 
             // Second Order
 
             piwikTracker.AddEcommerceItem(
-                "SKU2", 
-                "Canon SLR" , 
-                new List<string> { "Electronics & Cameras" }, 
+                "SKU2",
+                "Canon SLR",
+                new List<string> { "Electronics & Cameras" },
                 1500,
                 1
             );
-            
+
             response = piwikTracker.DoTrackEcommerceOrder(
-                "1037Bjusu4s3894", 
-                2000, 
-                1500, 
-                400, 
-                100, 
+                "1037Bjusu4s3894",
+                2000,
+                1500,
+                400,
+                100,
                 0
             );
 
-            DisplayDebugInfo(response);  
+            DisplayDebugInfo(response);
         }
 
         static private void RecordECommerceOrder()
@@ -432,7 +425,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.AddEcommerceItem(
                 "SKU VERY nice indeed",
                 "PRODUCT name",
-                new List<string> { "Electronics & Cameras" , "Clothes"},
+                new List<string> { "Electronics & Cameras", "Clothes" },
                 500,
                 2
              );
@@ -494,7 +487,7 @@ namespace Piwik.Tracker.Samples
         }
 
         static private void DisplayDebugInfo(TrackingResponse response)
-        {            
+        {
             Console.WriteLine("DEBUG_LAST_REQUESTED_URL :");
             Console.WriteLine(PiwikTracker.DebugLastRequestedUrl);
             Console.Write("\r\n");
