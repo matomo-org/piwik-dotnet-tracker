@@ -17,7 +17,7 @@ namespace Piwik.Tracker.Samples
 
         static void Main(string[] args)
         {
-            PiwikTracker.URL = "http://piwik.local";
+            PiwikTracker.Url = "http://piwik.local";
 
             // ** PAGE VIEW **
 //            RecordSimplePageView();

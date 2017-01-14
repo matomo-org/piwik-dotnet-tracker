@@ -8,7 +8,7 @@ This page displays the result of the getAttributionInfo() method. <br/><br/>
 If a tracking request has been sent via javascript, this method will output the content of the piwik ref cookie. <br/><br/>
 
 <% 
-    PiwikTracker.URL = ConfigurationSettings.AppSettings["PiwikURL"];
+    PiwikTracker.Url = ConfigurationSettings.AppSettings["PiwikURL"];
     var piwikTracker = new PiwikTracker(1);
     piwikTracker.EnableCookies();
 

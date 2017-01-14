@@ -12,7 +12,7 @@ Otherwise, a random Id is generated<br/><br/>
 It is also possible to override the id using "piwikTracker.setVisitorId()"<br/><br/>
 
 <% 
-    PiwikTracker.URL = ConfigurationSettings.AppSettings["PiwikURL"];
+    PiwikTracker.Url = ConfigurationSettings.AppSettings["PiwikURL"];
     var piwikTracker = new PiwikTracker(1);
     piwikTracker.EnableCookies();
 

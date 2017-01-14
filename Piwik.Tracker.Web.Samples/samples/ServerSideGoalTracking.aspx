@@ -8,7 +8,7 @@
 This page tracks a goal conversion with the Server Side tracking API and displays the response. <br/><br/>
 
 <% 
-    PiwikTracker.URL = ConfigurationSettings.AppSettings["PiwikURL"];
+    PiwikTracker.Url = ConfigurationSettings.AppSettings["PiwikURL"];
 
     var piwikTracker = new PiwikTracker(1);
     piwikTracker.EnableCookies();
