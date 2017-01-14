@@ -6,19 +6,22 @@
 
 using System;
 
-/// <summary>
-/// Piwik - Open source web analytics
-/// For more information, see http://piwik.org
-/// </summary>
 namespace Piwik.Tracker
 {
     /// <summary>
-    /// Represents visit attribution information: referrer URL, referrer timestamp, campaign name & keyword.
+    /// Represents visit attribution information: referrer URL, referrer timestamp, campaign name and keyword.
     /// Used in the context of goal converions to attribute the right information.
     /// </summary>
     public class AttributionInfo
     {
+        /// <summary>
+        /// Gets or sets the name of the campaign.
+        /// </summary>
         public string CampaignName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the campaign keyword.
+        /// </summary>
         public string CampaignKeyword { get; set; }
 
         /// <summary>
@@ -26,8 +29,15 @@ namespace Piwik.Tracker
         /// </summary>
         public DateTimeOffset ReferrerTimestamp { get; set; }
 
+        /// <summary>
+        /// Gets or sets the referrer URL.
+        /// </summary>
         public string ReferrerUrl { get; set; }
 
+        /// <summary>
+        /// Coverts this instance to a string array.
+        /// </summary>
+        /// <returns></returns>
         public string[] ToArray()
         {
             var infos = new string[4];

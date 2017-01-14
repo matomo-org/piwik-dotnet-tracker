@@ -4,10 +4,6 @@
 
 #endregion license
 
-/// <summary>
-/// Piwik - Open source web analytics
-/// For more information, see http://piwik.org
-/// </summary>
 namespace Piwik.Tracker
 {
     /// <summary>
@@ -16,15 +12,30 @@ namespace Piwik.Tracker
     /// </summary>
     public class CustomVar
     {
+        /// <summary>
+        /// The possible scopes.
+        /// </summary>
         public enum Scopes { Visit, Page, Event };
 
-        public string Name { get; set; }
-        public string Value { get; set; }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CustomVar"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="value">The value.</param>
         public CustomVar(string name, string value)
         {
             this.Name = name;
             this.Value = value;
         }
+
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value.
+        /// </summary>
+        public string Value { get; set; }
     }
 }
