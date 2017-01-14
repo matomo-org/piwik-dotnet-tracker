@@ -145,24 +145,24 @@ namespace Piwik.Tracker
 
         private string _debugAppendUrl;
         private string _userAgent;
-        private DateTimeOffset _localTime;
+        private DateTimeOffset _localTime = DateTimeOffset.MinValue;
         private bool _hasCookies;
         private string _plugins;
         private Dictionary<string, string[]> _visitorCustomVar;
-        private Dictionary<string, string[]> _pageCustomVar;
-        private Dictionary<string, string[]> _eventCustomVar;
-        private Dictionary<string, string> _customParameters;
+        private Dictionary<string, string[]> _pageCustomVar = new Dictionary<string, string[]>();
+        private Dictionary<string, string[]> _eventCustomVar = new Dictionary<string, string[]>();
+        private Dictionary<string, string> _customParameters = new Dictionary<string, string>();
         private readonly string _customData;
-        private DateTimeOffset _forcedDatetime;
+        private DateTimeOffset _forcedDatetime = DateTimeOffset.MinValue;
         private bool _forcedNewVisit;
         private string _tokenAuth;
         private AttributionInfo _attributionInfo;
-        private DateTimeOffset _ecommerceLastOrderTimestamp;
-        private Dictionary<string, object[]> _ecommerceItems;
+        private DateTimeOffset _ecommerceLastOrderTimestamp = DateTimeOffset.MinValue;
+        private Dictionary<string, object[]> _ecommerceItems = new Dictionary<string, object[]>();
         private int? _generationTime;
         private int _siteId;
         private string _referrerUrl;
-        private string _pageCharset;
+        private string _pageCharset = DefaultCharsetParameterValues;
         private string _pageUrl;
         private string _ip;
         private string _acceptLanguage;
@@ -172,27 +172,34 @@ namespace Piwik.Tracker
         private string _randomVisitorId;
         private int _width;
         private int _height;
-        private int _requestTimeout;
+        private int _requestTimeout = 600;
         private bool _doBulkRequests;
-        private List<string> _storedTrackingActions;
+        private List<string> _storedTrackingActions = new List<string>();
         private string _country;
         private string _region;
         private string _city;
         private float? _latitude;
         private float? _longitude;
-        private readonly int _configVisitorCookieTimeout;
-        private readonly int _configSessionCookieTimeout;
-        private readonly int _configReferralCookieTimeout;
+
+        // Life of the visitor cookie (in sec)
+        private readonly int _configVisitorCookieTimeout = 33955200;
+
+        // Life of the session cookie (in sec)
+        private readonly int _configSessionCookieTimeout = 1800; // 30 minutes
+
+        // Life of the session cookie (in sec)
+        private readonly int _configReferralCookieTimeout = 15768000; // 6 months
+
         private bool _configCookiesDisabled;
-        private string _configCookiePath;
-        private string _configCookieDomain;
-        private readonly long _currentTs;
+        private string _configCookiePath = DefaultCookiePath;
+        private string _configCookieDomain = "";
+        private readonly long _currentTs = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
         private long _createTs;
-        private long? _visitCount;
+        private long? _visitCount = 0;
         private long? _currentVisitTs;
         private long? _lastVisitTs;
         private long? _lastEcommerceOrderTs;
-        private bool _sendImageResponse;
+        private bool _sendImageResponse = true;
         private IWebProxy _proxy;
 
         /// <summary>
@@ -213,79 +220,14 @@ namespace Piwik.Tracker
             PiwikBaseUrl = apiUrl;
             _siteId = siteId;
 
-            _userAgent = null;
-            _localTime = DateTimeOffset.MinValue;
-            _hasCookies = false;
-            _plugins = null;
-            _pageCustomVar = new Dictionary<string, string[]>();
-            _eventCustomVar = new Dictionary<string, string[]>();
-            _customParameters = new Dictionary<string, string>();
-            _customData = null;
-            _forcedDatetime = DateTimeOffset.MinValue;
-            _forcedNewVisit = false;
-            _tokenAuth = null;
-            _attributionInfo = null;
-            _ecommerceLastOrderTimestamp = DateTimeOffset.MinValue;
-            _ecommerceItems = new Dictionary<string, object[]>();
-            _generationTime = null;
+            _referrerUrl = HttpContext.Current?.Request?.UrlReferrer?.AbsoluteUri ?? string.Empty;
+            _ip = HttpContext.Current?.Request?.UserHostAddress ?? string.Empty;
+            _acceptLanguage = HttpContext.Current?.Request?.UserLanguages?.FirstOrDefault() ?? string.Empty;
+            _userAgent = HttpContext.Current?.Request?.UserAgent ?? string.Empty;
 
-            var currentContext = HttpContext.Current;
-            if (currentContext != null)
-            {
-                if (currentContext.Request.UrlReferrer != null)
-                {
-                    _referrerUrl = currentContext.Request.UrlReferrer.AbsoluteUri;
-                }
-
-                _ip = currentContext.Request.UserHostAddress;
-
-                if (currentContext.Request.UserLanguages != null && currentContext.Request.UserLanguages.Any())
-                {
-                    _acceptLanguage = currentContext.Request.UserLanguages.First();
-                }
-
-                _userAgent = currentContext.Request.UserAgent;
-            }
-            _pageCharset = DefaultCharsetParameterValues;
             _pageUrl = GetCurrentUrl();
-            if (!string.IsNullOrEmpty(apiUrl))
-            {
-                PiwikBaseUrl = apiUrl;
-            }
-
-            // Life of the visitor cookie (in sec)
-            _configVisitorCookieTimeout = 33955200; // 13 months (365 + 28 days)
-            // Life of the session cookie (in sec)
-            _configSessionCookieTimeout = 1800; // 30 minutes
-            // Life of the session cookie (in sec)
-            _configReferralCookieTimeout = 15768000; // 6 months
-
-            // Visitor Ids in order
-            _userId = null;
-            _forcedVisitorId = null;
-            _cookieVisitorId = null;
-            _randomVisitorId = null;
-
             SetNewVisitorId();
-
-            _configCookiesDisabled = false;
-            _configCookiePath = DefaultCookiePath;
-            _configCookieDomain = "";
-
-            _currentTs = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
             _createTs = _currentTs;
-            _visitCount = 0;
-            _currentVisitTs = null;
-            _lastVisitTs = null;
-            _lastEcommerceOrderTs = null;
-
-            // Allow debug while blocking the request
-            _requestTimeout = 600;
-            _doBulkRequests = false;
-            _storedTrackingActions = new List<string>();
-
-            _sendImageResponse = true;
-
             _visitorCustomVar = GetCustomVariablesFromCookie();
         }
 
