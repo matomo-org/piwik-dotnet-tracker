@@ -493,46 +493,12 @@ namespace Piwik.Tracker.Samples
             displayDebugInfo(response);
         }
 
-        static private void displayDebugInfo(HttpWebResponse response)
-        {
-            
+        static private void displayDebugInfo(TrackingResponse response)
+        {            
             Console.WriteLine("DEBUG_LAST_REQUESTED_URL :");
             Console.WriteLine(PiwikTracker.DEBUG_LAST_REQUESTED_URL);
             Console.Write("\r\n");
-
-            displayHttpWebReponse(response);
-        }
-
-        /// <summary>
-        /// Outputs the HTTP reponse to the console
-        /// 
-        /// Code taken from http://msdn.microsoft.com/en-us/library/system.net.httpwebresponse.getresponsestream.aspx
-        /// </summary>
-        /// <param name="response"></param>       
-        static private void displayHttpWebReponse(HttpWebResponse response)
-        {
-            Console.WriteLine(response.StatusCode);
-            Stream receiveStream = response.GetResponseStream();
-            Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
-            // Pipes the stream to a higher level stream reader with the required encoding format. 
-            StreamReader readStream = new StreamReader(receiveStream, encode);
-            Console.WriteLine("\r\nResponse stream received.");
-            Char[] read = new Char[256];
-            // Reads 256 characters at a time.    
-            int count = readStream.Read(read, 0, 256);
-            Console.WriteLine("HTML...\r\n");
-            while (count > 0)
-            {
-                // Dumps the 256 characters on a string and displays the string to the console.
-                String str = new String(read, 0, count);
-                Console.Write(str);
-                count = readStream.Read(read, 0, 256);
-            }
-            Console.WriteLine("");
-            // Releases the resources of the response.
-            response.Close();
-            // Releases the resources of the Stream.
-            readStream.Close();
+            Console.WriteLine(response.HttpStatusCode);
         }
     }
 }

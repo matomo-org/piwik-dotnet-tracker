@@ -1,18 +1,45 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piwik.Tracker", "Piwik.Tracker\Piwik.Tracker.csproj", "{C3BB0E94-F45C-4691-81FF-061FC20E3209}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piwik.Tracker.Samples", "Piwik.Tracker.Samples\Piwik.Tracker.Samples.csproj", "{E551D682-CEF7-4E9C-9C4B-5AA1F002D709}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piwik.Tracker.Web.Samples", "Piwik.Tracker.Web.Samples\Piwik.Tracker.Web.Samples.csproj", "{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C3BB0E94-F45C-4691-81FF-061FC20E3209}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C3BB0E94-F45C-4691-81FF-061FC20E3209}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3BB0E94-F45C-4691-81FF-061FC20E3209}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C3BB0E94-F45C-4691-81FF-061FC20E3209}.Debug|x86.Build.0 = Debug|Any CPU
 		{C3BB0E94-F45C-4691-81FF-061FC20E3209}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3BB0E94-F45C-4691-81FF-061FC20E3209}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3BB0E94-F45C-4691-81FF-061FC20E3209}.Release|x86.ActiveCfg = Release|Any CPU
+		{C3BB0E94-F45C-4691-81FF-061FC20E3209}.Release|x86.Build.0 = Release|Any CPU
+		{E551D682-CEF7-4E9C-9C4B-5AA1F002D709}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E551D682-CEF7-4E9C-9C4B-5AA1F002D709}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E551D682-CEF7-4E9C-9C4B-5AA1F002D709}.Debug|x86.ActiveCfg = Debug|x86
+		{E551D682-CEF7-4E9C-9C4B-5AA1F002D709}.Debug|x86.Build.0 = Debug|x86
+		{E551D682-CEF7-4E9C-9C4B-5AA1F002D709}.Release|Any CPU.ActiveCfg = Release|x86
+		{E551D682-CEF7-4E9C-9C4B-5AA1F002D709}.Release|x86.ActiveCfg = Release|x86
+		{E551D682-CEF7-4E9C-9C4B-5AA1F002D709}.Release|x86.Build.0 = Release|x86
+		{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}.Debug|x86.Build.0 = Debug|Any CPU
+		{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}.Release|x86.ActiveCfg = Release|Any CPU
+		{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
