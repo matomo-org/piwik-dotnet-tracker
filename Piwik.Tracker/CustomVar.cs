@@ -24,18 +24,24 @@ namespace Piwik.Tracker
         /// <param name="value">The value.</param>
         public CustomVar(string name, string value)
         {
-            this.Name = name;
-            this.Value = value;
+            Name = name;
+            Value = value;
         }
 
         /// <summary>
-        /// Gets or sets the name.
+        /// Gets the name.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
-        /// Gets or sets the value.
+        /// Gets the value.
         /// </summary>
-        public string Value { get; set; }
+        public string Value { get; }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{nameof(Name)}: {Name}, {nameof(Value)}: {Value}";
+        }
     }
 }
