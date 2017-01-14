@@ -244,7 +244,7 @@ namespace Piwik.Tracker
             }
             _pageCharset = DefaultCharsetParameterValues;
             _pageUrl = GetCurrentUrl();
-            if (!String.IsNullOrEmpty(apiUrl))
+            if (!string.IsNullOrEmpty(apiUrl))
             {
                 Url = apiUrl;
             }
@@ -769,7 +769,7 @@ namespace Piwik.Tracker
                 throw new Exception("Error:  you must call the function doTrackPageView or doTrackGoal from this class, before calling this method doBulkTrack()");
             }
 
-            var data = new Dictionary<string, Object>();
+            var data = new Dictionary<string, object>();
             data["requests"] = _storedTrackingActions;
 
             // token_auth is not required by default, except if bulk_requests_require_authentication=1
@@ -885,7 +885,7 @@ namespace Piwik.Tracker
         /// </summary>
         public string GetUrlTrackEcommerceOrder(string orderId, double grandTotal, double subTotal = 0, double tax = 0, double shipping = 0, double discount = 0)
         {
-            if (String.IsNullOrEmpty(orderId))
+            if (string.IsNullOrEmpty(orderId))
             {
                 throw new Exception("You must specifiy an orderId for the Ecommerce order");
             }
@@ -1350,17 +1350,17 @@ namespace Piwik.Tracker
                 attributionInfo.CampaignName = cookieDecoded[0];
             }
 
-            if (arraySize > 1 && !String.IsNullOrEmpty(cookieDecoded[1]))
+            if (arraySize > 1 && !string.IsNullOrEmpty(cookieDecoded[1]))
             {
                 attributionInfo.CampaignKeyword = cookieDecoded[1];
             }
 
-            if (arraySize > 2 && !String.IsNullOrEmpty(cookieDecoded[2]))
+            if (arraySize > 2 && !string.IsNullOrEmpty(cookieDecoded[2]))
             {
                 attributionInfo.ReferrerTimestamp = new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(Convert.ToInt32(cookieDecoded[2]));
             }
 
-            if (arraySize > 3 && !String.IsNullOrEmpty(cookieDecoded[3]))
+            if (arraySize > 3 && !string.IsNullOrEmpty(cookieDecoded[3]))
             {
                 attributionInfo.ReferrerUrl = cookieDecoded[3];
             }
@@ -1479,8 +1479,8 @@ namespace Piwik.Tracker
             {
                 _storedTrackingActions.Add(
                     url
-                    + (!String.IsNullOrEmpty(_userAgent) ? "&ua=" + UrlEncode(_userAgent) : "")
-                    + (!String.IsNullOrEmpty(_acceptLanguage) ? "&lang=" + UrlEncode(_acceptLanguage) : "")
+                    + (!string.IsNullOrEmpty(_userAgent) ? "&ua=" + UrlEncode(_userAgent) : "")
+                    + (!string.IsNullOrEmpty(_acceptLanguage) ? "&lang=" + UrlEncode(_acceptLanguage) : "")
                 );
 
                 // Clear custom variables so they don't get copied over to other users in the bulk request
