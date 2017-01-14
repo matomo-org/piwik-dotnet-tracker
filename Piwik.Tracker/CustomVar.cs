@@ -1,6 +1,8 @@
 ﻿#region license
+
 // http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
-#endregion
+
+#endregion license
 
 /// <summary>
 /// Piwik - Open source web analytics
@@ -14,7 +16,7 @@ namespace Piwik.Tracker
     /// </summary>
     public class CustomVar
     {
-        public enum Scopes {Visit, Page, Event};
+        public enum Scopes { Visit, Page, Event };
 
         public string Name { get; set; }
         public string Value { get; set; }

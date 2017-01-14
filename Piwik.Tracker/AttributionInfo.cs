@@ -1,6 +1,8 @@
 ﻿#region license
+
 // http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
-#endregion
+
+#endregion license
 
 using System;
 
@@ -16,13 +18,12 @@ namespace Piwik.Tracker
     /// </summary>
     public class AttributionInfo
     {
-
         public string CampaignName { get; set; }
         public string CampaignKeyword { get; set; }
 
         /// <summary>
         /// Timestamp at which the referrer was set
-        /// </summary>  
+        /// </summary>
         public DateTimeOffset ReferrerTimestamp { get; set; }
 
         public string ReferrerUrl { get; set; }

@@ -7,7 +7,6 @@ namespace Piwik.Tracker
     /// </summary>
     public class TrackingResponse
     {
-
         /// <summary>
         /// Gets the HTTP status code recived from the piwik server.
         /// </summary>
