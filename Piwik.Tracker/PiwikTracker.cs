@@ -9,6 +9,7 @@
 // <see href="http://piwik.org/docs/tracking-api/"/>
 // Piwik Server Api: <see href="http://developer.piwik.org/api-reference/tracking-api"/>
 // </summary>
+
 namespace Piwik.Tracker
 {
     using System.IO;
@@ -21,6 +22,7 @@ namespace Piwik.Tracker
     using System.Security.Cryptography;
     using System.Web;
     using System.Web.Script.Serialization;
+    using System.Text.RegularExpressions;
 
     /// <summary>
     /// PiwikTracker implements the Piwik Tracking Web API.
@@ -347,13 +349,14 @@ namespace Piwik.Tracker
 
         /// <summary>
         /// Returns the currently assigned Custom Variable.
-        ///
         /// If scope is 'visit', it will attempt to read the value set in the first party cookie created by Piwik Tracker ($_COOKIE array).
         /// </summary>
         /// <param name="id">Custom Variable integer index to fetch from cookie. Should be a value from 1 to 5</param>
         /// <param name="scope">Custom variable scope. Possible values: visit, page, event</param>
-        /// <exception cref="Exception"/>
-        /// <returns>The requested custom variable</returns>
+        /// <returns>
+        /// The requested custom variable
+        /// </returns>
+        /// <exception cref="ArgumentException">Invalid 'scope' parameter value - scope</exception>
         public CustomVar GetCustomVariable(int id, Scopes scope = Scopes.Visit)
         {
             var stringId = Convert.ToString(id);
@@ -678,18 +681,17 @@ namespace Piwik.Tracker
 
         /// <summary>
         /// Adds an item in the Ecommerce order.
-        ///
         /// This should be called before doTrackEcommerceOrder(), or before doTrackEcommerceCartUpdate().
         /// This function can be called for all individual products in the cart (or order).
         /// SKU parameter is mandatory. Other parameters are optional (set to false if value not known).
         /// Ecommerce items added via this function are automatically cleared when doTrackEcommerceOrder() or getUrlTrackEcommerceOrder() is called.
         /// </summary>
-        /// <param name="sku">SKU, Product identifier </param>
+        /// <param name="sku">SKU, Product identifier</param>
         /// <param name="name">Product name</param>
         /// <param name="categories">Array of product categories (up to 5 categories can be specified for a given product)</param>
-        /// <param name="price"> Individual product price (supports integer and decimal prices)</param>
+        /// <param name="price">Individual product price (supports integer and decimal prices)</param>
         /// <param name="quantity">Product quantity. If not specified, will default to 1 in the Reports</param>
-        /// <exception cref="Exception"/>
+        /// <exception cref="System.ArgumentException">You must specify a SKU for the Ecommerce item - sku</exception>
         public void AddEcommerceItem(string sku, string name = "", List<string> categories = null, double price = 0, ulong quantity = 1)
         {
             if (string.IsNullOrEmpty(sku))
@@ -720,16 +722,17 @@ namespace Piwik.Tracker
 
         /// <summary>
         /// Sends all stored tracking actions at once. Only has an effect if bulk tracking is enabled.
-        ///
         /// To enable bulk tracking, call enableBulkTracking().
         /// </summary>
-        /// <exception cref="Exception"/>
-        /// <returns>Response</returns>
+        /// <returns>
+        /// Response
+        /// </returns>
+        /// <exception cref="System.InvalidOperationException">Error: you must call the function DoTrackPageView or DoTrackGoal from this class, before calling this method DoBulkTrack()</exception>
         public TrackingResponse DoBulkTrack()
         {
             if (!_storedTrackingActions.Any())
             {
-                throw new InvalidOperationException("Error: you must call the function doTrackPageView or doTrackGoal from this class, before calling this method doBulkTrack()");
+                throw new InvalidOperationException("Error: you must call the function DoTrackPageView or DoTrackGoal from this class, before calling this method DoBulkTrack()");
             }
 
             var data = new Dictionary<string, object>();
@@ -1145,11 +1148,10 @@ namespace Piwik.Tracker
 
         /// <summary>
         /// Force the action to be recorded for a specific User. The User ID is a string representing a given user in your system.
-        ///
         /// A User ID can be a username, UUID or an email address, or any number or string that uniquely identifies a user or client.
         /// </summary>
         /// <param name="userId">Any user ID string (eg. email address, ID, username). Must be non empty. Set to false to de-assign a user id previously set.</param>
-        /// <exception cref="Exception"/>
+        /// <exception cref="System.ArgumentException">User ID cannot be empty. - userId</exception>
         public void SetUserId(string userId)
         {
             // todo this is contradicion: (userId == null) / string.IsNullOrEmpty(userId)
@@ -1179,22 +1181,20 @@ namespace Piwik.Tracker
 
         /// <summary>
         /// Forces the requests to be recorded for the specified Visitor ID.
-        /// Note: it is recommended to use ->setUserId($userId); instead.
-        ///
+        /// Note: it is recommended to use -&gt;setUserId($userId); instead.
         /// Rather than letting Piwik attribute the user with a heuristic based on IP and other user fingeprinting attributes,
         /// force the action to be recorded for a particular visitor.
-        ///
         /// If you use both setVisitorId and setUserId, setUserId will take precedence.
         /// If not set, the visitor ID will be fetched from the 1st party cookie, or will be set to a random UUID.
-        ///
         /// </summary>
         /// <param name="visitorId">16 hexadecimal characters visitor ID, eg. "33c31e01394bdc63"</param>
-        /// <exception cref="Exception"/>
+        /// <exception cref="System.ArgumentException">SetVisitorId() expects a n characters hexadecimal string
+        /// (containing only the following: "01234567890abcdefABCDEF")</exception>
         [Obsolete("We recommend to use  ->setUserId($userId).")]
         public void SetVisitorId(string visitorId)
         {
             if (visitorId.Length != LengthVisitorId
-                || !System.Text.RegularExpressions.Regex.IsMatch(visitorId, @"\A\b[0-9a-fA-F]+\b\Z"))
+                || !Regex.IsMatch(visitorId, @"\A\b[0-9a-fA-F]+\b\Z"))
             {
                 throw new ArgumentException("setVisitorId() expects a " + LengthVisitorId
                                 + " characters hexadecimal string (containing only the following: "
