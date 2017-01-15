@@ -7,6 +7,7 @@
 //
 // <see href="http://www.opensource.org/licenses/bsd-license.php">released under BSD License</see>
 // <see href="http://piwik.org/docs/tracking-api/"/>
+// Piwik Server Api: <see href="http://developer.piwik.org/api-reference/tracking-api"/>
 // </summary>
 namespace Piwik.Tracker
 {
@@ -132,6 +133,15 @@ namespace Piwik.Tracker
 
         private const string DefaultCookiePath = "/";
 
+        // Life of the visitor cookie (in sec)
+        private const int ConfigVisitorCookieTimeout = 33955200;
+
+        // Life of the session cookie (in sec)
+        private const int ConfigSessionCookieTimeout = 1800; // 30 minutes
+
+        // Life of the session cookie (in sec)
+        private const int ConfigReferralCookieTimeout = 15768000; // 6 months
+
         private string _debugAppendUrl;
         private string _userAgent;
         private DateTimeOffset _localTime = DateTimeOffset.MinValue;
@@ -168,15 +178,6 @@ namespace Piwik.Tracker
         private float? _latitude;
         private float? _longitude;
 
-        // Life of the visitor cookie (in sec)
-        private readonly int _configVisitorCookieTimeout = 33955200;
-
-        // Life of the session cookie (in sec)
-        private readonly int _configSessionCookieTimeout = 1800; // 30 minutes
-
-        // Life of the session cookie (in sec)
-        private readonly int _configReferralCookieTimeout = 15768000; // 6 months
-
         private bool _configCookiesDisabled;
         private string _configCookiePath = DefaultCookiePath;
         private string _configCookieDomain = "";
@@ -203,7 +204,7 @@ namespace Piwik.Tracker
             {
                 throw new ArgumentException("Piwik api url must not be emty or null.", nameof(apiUrl));
             }
-            PiwikBaseUrl = apiUrl;
+            PiwikBaseUrl = FixPiwikBaseUrl(apiUrl);
             IdSite = idSite;
 
             _referrerUrl = HttpContext.Current?.Request?.UrlReferrer?.AbsoluteUri ?? string.Empty;
@@ -1313,7 +1314,7 @@ namespace Piwik.Tracker
                 return null;
             }
 
-            var cookieDecoded = new JavaScriptSerializer().Deserialize<string[]>(HttpUtility.UrlDecode(refCookie.Value));
+            var cookieDecoded = new JavaScriptSerializer().Deserialize<string[]>(HttpUtility.UrlDecode(refCookie.Value ?? string.Empty));
 
             if (cookieDecoded == null)
             {
@@ -1696,19 +1697,19 @@ namespace Piwik.Tracker
             var attributionInfo = GetAttributionInfo();
             if (attributionInfo != null)
             {
-                SetCookie("ref", UrlEncode(new JavaScriptSerializer().Serialize(attributionInfo.ToArray())), _configReferralCookieTimeout);
+                SetCookie("ref", UrlEncode(new JavaScriptSerializer().Serialize(attributionInfo.ToArray())), ConfigReferralCookieTimeout);
             }
 
             // Set the 'ses' cookie
-            SetCookie("ses", "*", _configSessionCookieTimeout);
+            SetCookie("ses", "*", ConfigSessionCookieTimeout);
 
             // Set the 'id' cookie
             var visitCount = _visitCount + 1;
             var cookieValue = GetVisitorId() + "." + _createTs + "." + visitCount + "." + _currentTs + "." + _lastVisitTs + "." + _lastEcommerceOrderTs;
-            SetCookie("id", cookieValue, _configVisitorCookieTimeout);
+            SetCookie("id", cookieValue, ConfigVisitorCookieTimeout);
 
             // Set the 'cvar' cookie
-            SetCookie("cvar", UrlEncode(new JavaScriptSerializer().Serialize(_visitorCustomVar)), _configSessionCookieTimeout);
+            SetCookie("cvar", UrlEncode(new JavaScriptSerializer().Serialize(_visitorCustomVar)), ConfigSessionCookieTimeout);
         }
 
         /// <summary>
@@ -1738,7 +1739,7 @@ namespace Piwik.Tracker
             {
                 return new Dictionary<string, string[]>();
             }
-            return new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value));
+            return new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value ?? string.Empty));
         }
 
         private string FormatDateValue(DateTimeOffset date)
