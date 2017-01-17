@@ -202,7 +202,7 @@ namespace Piwik.Tracker
         /// <exception cref="ArgumentException">apiUrl must not be null or empty</exception>
         public PiwikTracker(int idSite, string apiUrl)
         {
-            if (string.IsNullOrEmpty(PiwikBaseUrl))
+            if (string.IsNullOrEmpty(apiUrl))
             {
                 throw new ArgumentException("Piwik api url must not be emty or null.", nameof(apiUrl));
             }
@@ -360,24 +360,29 @@ namespace Piwik.Tracker
         public CustomVar GetCustomVariable(int id, Scopes scope = Scopes.Visit)
         {
             var stringId = Convert.ToString(id);
+            switch (scope)
+            {
+                case Scopes.Page:
+                    return _pageCustomVar.ContainsKey(stringId)
+                        ? new CustomVar(_pageCustomVar[stringId][0], _pageCustomVar[stringId][1])
+                        : null;
 
-            if (scope.Equals(Scopes.Page))
-            {
-                return _pageCustomVar.ContainsKey(stringId) ? new CustomVar(_pageCustomVar[stringId][0], _pageCustomVar[stringId][1]) : null;
+                case Scopes.Event:
+                    return _eventCustomVar.ContainsKey(stringId)
+                        ? new CustomVar(_eventCustomVar[stringId][0], _eventCustomVar[stringId][1])
+                        : null;
+
+                case Scopes.Visit:
+                    if (_visitorCustomVar.ContainsKey(stringId))
+                    {
+                        return new CustomVar(_visitorCustomVar[stringId][0], _visitorCustomVar[stringId][1]);
+                    }
+                    break;
+
+                default:
+                    throw new ArgumentException("Invalid 'scope' parameter value", nameof(scope));
             }
-            else if (!scope.Equals(Scopes.Event))
-            {
-                return _eventCustomVar.ContainsKey(stringId) ? new CustomVar(_eventCustomVar[stringId][0], _eventCustomVar[stringId][1]) : null;
-            }
-            else if (!scope.Equals(Scopes.Visit))
-            {
-                throw new ArgumentException("Invalid 'scope' parameter value", nameof(scope));
-            }
-            // todo: unreachable code, this will newer be called since we return before!
-            if (_visitorCustomVar.ContainsKey(stringId))
-            {
-                return new CustomVar(_visitorCustomVar[stringId][0], _visitorCustomVar[stringId][1]);
-            }
+
             var cookieDecoded = GetCustomVariablesFromCookie();
             if (!cookieDecoded.ContainsKey(stringId)
                 || cookieDecoded[stringId].Count() != 2)

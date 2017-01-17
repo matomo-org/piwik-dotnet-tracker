@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piwik.Tracker.Samples", "Pi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piwik.Tracker.Web.Samples", "Piwik.Tracker.Web.Samples\Piwik.Tracker.Web.Samples.csproj", "{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piwik.Tracker.Tests", "Piwik.Tracker.Tests\Piwik.Tracker.Tests.csproj", "{A6F87572-AB3D-477E-A97E-300DFED8CB5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,14 @@ Global
 		{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}.Release|x86.ActiveCfg = Release|Any CPU
 		{3D74EB7C-F2A4-49E4-8B2C-8247322F7DE0}.Release|x86.Build.0 = Release|Any CPU
+		{A6F87572-AB3D-477E-A97E-300DFED8CB5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6F87572-AB3D-477E-A97E-300DFED8CB5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6F87572-AB3D-477E-A97E-300DFED8CB5C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A6F87572-AB3D-477E-A97E-300DFED8CB5C}.Debug|x86.Build.0 = Debug|Any CPU
+		{A6F87572-AB3D-477E-A97E-300DFED8CB5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6F87572-AB3D-477E-A97E-300DFED8CB5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6F87572-AB3D-477E-A97E-300DFED8CB5C}.Release|x86.ActiveCfg = Release|Any CPU
+		{A6F87572-AB3D-477E-A97E-300DFED8CB5C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
