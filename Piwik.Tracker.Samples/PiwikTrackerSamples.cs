@@ -1,6 +1,8 @@
 ﻿#region license
+
 // http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
-#endregion
+
+#endregion license
 
 using System;
 using System.Text;
@@ -11,52 +13,52 @@ namespace Piwik.Tracker.Samples
 {
     using System.Collections.Generic;
 
-    class PiwikTrackerSamples
+    internal class PiwikTrackerSamples
     {
         private const string UA = "Firefox";
+        private static readonly string PiwikBaseUrl = "http://piwik.local";
+        private static readonly int SiteId = 1;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            PiwikTracker.URL = "http://piwik.local";
-
             // ** PAGE VIEW **
-//            RecordSimplePageView();
-//            RecordSimplePageViewWithCustomProperties();
-//            RecordSimplePageViewWithCustomGeoLocation();
-//            RecordSimplePageViewWithGenerationTime();
+            //            RecordSimplePageView();
+            //            RecordSimplePageViewWithCustomProperties();
+            //            RecordSimplePageViewWithCustomGeoLocation();
+            //            RecordSimplePageViewWithGenerationTime();
 
             // ** CUSTOM VARIABLES **
-//            RecordCustomVariables();
+            //            RecordCustomVariables();
 
             // ** CUSTOM DIMENSIONS **
-//            RecordCustomDimensions();
+            //            RecordCustomDimensions();
 
             // ** GOAL CONVERSION **
-//            GoalConversion();
-//            GoalConversionWithAttributionInfo();
+            //            GoalConversion();
+            //            GoalConversionWithAttributionInfo();
 
             // ** ACTION TRACKING **
-//            trackDownload();
-//            TrackLink();
+            //            trackDownload();
+            //            TrackLink();
 
             // ** ECOMMERCE TRACKING **
-//            ECommerceView();
-//            ECommerceCategoryView();
-//            ECommerceViewWithoutCategory();
-//            UpdateECommerceCartWithOneProduct();                        
-//            UpdateECommerceCartWithOneProductSKUOnly();
-//            UpdateECommerceCartWithMultipleProducts();
-//            RecordECommerceOrder();
-//            RecordTwoECommerceOrders();
+            //            ECommerceView();
+            //            ECommerceCategoryView();
+            //            ECommerceViewWithoutCategory();
+            //            UpdateECommerceCartWithOneProduct();
+            //            UpdateECommerceCartWithOneProductSKUOnly();
+            //            UpdateECommerceCartWithMultipleProducts();
+            //            RecordECommerceOrder();
+            //            RecordTwoECommerceOrders();
 
             // ** Bulk Tracking **
-//            BulkTrackTwoRequests();
+            //            BulkTrackTwoRequests();
 
             // ** Site Search **
-//            TrackSiteSearch();
+            //            TrackSiteSearch();
 
             // ** Event Tracking **
-//            TrackSongPlayback();
+            //            TrackSongPlayback();
 
             Console.ReadKey(true);
         }
@@ -66,32 +68,31 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void GoalConversion()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.doTrackGoal(1, 42.69F);
+            var response = piwikTracker.DoTrackGoal(1, 42.69F);
 
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records 2 page scoped custom variables and 2 visit scoped custom variables
         /// </summary>
         static private void RecordCustomVariables()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            piwikTracker.setCustomVariable(1, "var1", "value1");
-            piwikTracker.setCustomVariable(2, "var2", "value2");
+            piwikTracker.SetCustomVariable(1, "var1", "value1");
+            piwikTracker.SetCustomVariable(2, "var2", "value2");
 
-            piwikTracker.setCustomVariable(1, "pagevar1", "pagevalue1", CustomVar.Scopes.page);
-            piwikTracker.setCustomVariable(2, "pagevar2", "pagevalue2", CustomVar.Scopes.page);
+            piwikTracker.SetCustomVariable(1, "pagevar1", "pagevalue1", Scopes.Page);
+            piwikTracker.SetCustomVariable(2, "pagevar2", "pagevalue2", Scopes.Page);
 
-            var response = piwikTracker.doTrackPageView("Document title of current page view");
+            var response = piwikTracker.DoTrackPageView("Document title of current page view");
 
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
 
         /// <summary>
@@ -99,65 +100,63 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordCustomDimensions()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            piwikTracker.setCustomTrackingParameter("dimension1", "value1");
-            piwikTracker.setCustomTrackingParameter("dimension2", "value2");
+            piwikTracker.SetCustomTrackingParameter("dimension1", "value1");
+            piwikTracker.SetCustomTrackingParameter("dimension2", "value2");
 
-            var response = piwikTracker.doTrackPageView("Document title of current page view");
+            var response = piwikTracker.DoTrackPageView("Document title of current page view");
 
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         ///  Records a simple page view with a specified document title
         /// </summary>
         static private void RecordSimplePageView()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.doTrackPageView("Document title of current page view");
+            var response = piwikTracker.DoTrackPageView("Document title of current page view");
 
-            displayDebugInfo(response); 
+            DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records a simple page view with advanced user, browser and server properties
         /// </summary>
         static private void RecordSimplePageViewWithCustomProperties()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            piwikTracker.setResolution(1600, 1400);
+            piwikTracker.SetResolution(1600, 1400);
 
-            piwikTracker.setIp("192.168.52.64");
-            piwikTracker.setVisitorId("33c31B01394bdc65");
+            piwikTracker.SetIp("192.168.52.64");
+            piwikTracker.SetVisitorId("33c31B01394bdc65");
 
-            piwikTracker.setForceVisitDateTime(new DateTime(2011, 10, 23, 10, 20, 50));
+            piwikTracker.SetForceVisitDateTime(new DateTime(2011, 10, 23, 10, 20, 50));
 
-            piwikTracker.setResolution(1600, 1400);
+            piwikTracker.SetResolution(1600, 1400);
 
-            piwikTracker.setTokenAuth("XYZ");
+            piwikTracker.SetTokenAuth("XYZ");
 
             var browserPluginsToSet = new BrowserPlugins();
-            browserPluginsToSet.silverlight = true;
-            browserPluginsToSet.flash = true;
-            piwikTracker.setPlugins(browserPluginsToSet);
-            piwikTracker.setBrowserHasCookies(true);
+            browserPluginsToSet.Silverlight = true;
+            browserPluginsToSet.Flash = true;
+            piwikTracker.SetPlugins(browserPluginsToSet);
+            piwikTracker.SetBrowserHasCookies(true);
 
-            piwikTracker.setLocalTime(new DateTime(2000, 1, 1, 9, 10, 25));
+            piwikTracker.SetLocalTime(new DateTime(2000, 1, 1, 9, 10, 25));
 
-            piwikTracker.setUrl("http://piwik-1.5/supernova");
-            piwikTracker.setUrlReferrer("http://supernovadirectory.org");
+            piwikTracker.SetUrl("http://piwik-1.5/supernova");
+            piwikTracker.SetUrlReferrer("http://supernovadirectory.org");
 
-            var response = piwikTracker.doTrackPageView("Document title of current page view");
+            var response = piwikTracker.DoTrackPageView("Document title of current page view");
 
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
 
         /// <summary>
@@ -165,20 +164,20 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordSimplePageViewWithCustomGeoLocation()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setTokenAuth("XYZ");
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetTokenAuth("XYZ");
 
-            piwikTracker.setUserAgent(UA);
+            piwikTracker.SetUserAgent(UA);
 
-            piwikTracker.setCountry("fr");
-            piwikTracker.setRegion("A8");
-            piwikTracker.setCity("Paris");
-            piwikTracker.setLatitude(48.2F);
-            piwikTracker.setLongitude(2.1F);
+            piwikTracker.SetCountry("fr");
+            piwikTracker.SetRegion("A8");
+            piwikTracker.SetCity("Paris");
+            piwikTracker.SetLatitude(48.2F);
+            piwikTracker.SetLongitude(2.1F);
 
-            var response = piwikTracker.doTrackPageView("Document title of current page view");
+            var response = piwikTracker.DoTrackPageView("Document title of current page view");
 
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
 
         /// <summary>
@@ -186,14 +185,14 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordSimplePageViewWithGenerationTime()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            piwikTracker.setGenerationTime(10000);
+            piwikTracker.SetGenerationTime(10000);
 
-            var response = piwikTracker.doTrackPageView("Document title of current page view");
+            var response = piwikTracker.DoTrackPageView("Document title of current page view");
 
-            displayDebugInfo(response); 
+            DisplayDebugInfo(response);
         }
 
         /// <summary>
@@ -201,93 +200,88 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void GoalConversionWithAttributionInfo()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
             var attributionInfo = new AttributionInfo();
 
-            attributionInfo.campaignName = "CAMPAIGN NAME";
-            attributionInfo.campaignKeyword = "CAMPAIGN KEYWORD";
-            attributionInfo.referrerTimestamp = new DateTime(2011, 04, 08, 23, 48, 24);
-            attributionInfo.referrerUrl = "http://www.example.org/test/really?q=yes";
+            attributionInfo.CampaignName = "CAMPAIGN NAME";
+            attributionInfo.CampaignKeyword = "CAMPAIGN KEYWORD";
+            attributionInfo.ReferrerTimestamp = new DateTime(2011, 04, 08, 23, 48, 24);
+            attributionInfo.ReferrerUrl = "http://www.example.org/test/really?q=yes";
 
-            piwikTracker.setAttributionInfo(attributionInfo);
+            piwikTracker.SetAttributionInfo(attributionInfo);
 
-            var response = piwikTracker.doTrackGoal(1, 42.69F);
+            var response = piwikTracker.DoTrackGoal(1, 42.69F);
 
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records a clicked link
         /// </summary>
         static private void TrackLink()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.doTrackAction("http://dev.piwik.org/svn", PiwikTracker.ActionType.link);
+            var response = piwikTracker.DoTrackAction("http://dev.piwik.org/svn", ActionType.Link);
 
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records a file download
         /// </summary>
-        static private void trackDownload()
+        static private void TrackDownload()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.doTrackAction("http://piwik.org/path/again/latest.zip", PiwikTracker.ActionType.download);
+            var response = piwikTracker.DoTrackAction("http://piwik.org/path/again/latest.zip", ActionType.Download);
 
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records a category page view
         /// </summary>
         static private void ECommerceCategoryView()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            piwikTracker.setEcommerceView("", "", new List<string> { "Electronics & Cameras" });
-            var response = piwikTracker.doTrackPageView("Looking at Electronics & Cameras page with a page level custom variable");
-            displayDebugInfo(response);
+            piwikTracker.SetEcommerceView("", "", new List<string> { "Electronics & Cameras" });
+            var response = piwikTracker.DoTrackPageView("Looking at Electronics & Cameras page with a page level custom variable");
+            DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records a product view
         /// </summary>
         static private void ECommerceView()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            piwikTracker.setEcommerceView("SKU2", "PRODUCT name", new List<string> { "Electronics & Cameras", "Clothes" });
+            piwikTracker.SetEcommerceView("SKU2", "PRODUCT name", new List<string> { "Electronics & Cameras", "Clothes" });
 
-            var response = piwikTracker.doTrackPageView("incredible title!");
-            displayDebugInfo(response);
+            var response = piwikTracker.DoTrackPageView("incredible title!");
+            DisplayDebugInfo(response);
         }
-
 
         /// <summary>
         /// Records a product view which doesn't belong to a category
         /// </summary>
         static private void ECommerceViewWithoutCategory()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            piwikTracker.setEcommerceView("SKU VERY nice indeed", "PRODUCT name");
+            piwikTracker.SetEcommerceView("SKU VERY nice indeed", "PRODUCT name");
 
-            var response = piwikTracker.doTrackPageView("another incredible title!");
-            displayDebugInfo(response);
+            var response = piwikTracker.DoTrackPageView("another incredible title!");
+            DisplayDebugInfo(response);
         }
 
         /// <summary>
@@ -295,19 +289,19 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void UpdateECommerceCartWithOneProduct()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            piwikTracker.addEcommerceItem(
+            piwikTracker.AddEcommerceItem(
                 "SKU VERY nice indeed",
-                "PRODUCT name", new List<string> { "Clothes", "Electronics & Cameras" }, 
+                "PRODUCT name", new List<string> { "Clothes", "Electronics & Cameras" },
                 500.2,
                 2
             );
 
-            var response = piwikTracker.doTrackEcommerceCartUpdate(1000.4);
-            
-            displayDebugInfo(response);
+            var response = piwikTracker.DoTrackEcommerceCartUpdate(1000.4);
+
+            DisplayDebugInfo(response);
         }
 
         /// <summary>
@@ -315,15 +309,15 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void UpdateECommerceCartWithOneProductSKUOnly()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            piwikTracker.addEcommerceItem(
+            piwikTracker.AddEcommerceItem(
                 "SKU VERY nice indeed"
             );
 
-            var response = piwikTracker.doTrackEcommerceCartUpdate(1000.2);
-            displayDebugInfo(response);
+            var response = piwikTracker.DoTrackEcommerceCartUpdate(1000.2);
+            DisplayDebugInfo(response);
         }
 
         /// <summary>
@@ -331,10 +325,10 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void UpdateECommerceCartWithMultipleProducts()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            piwikTracker.addEcommerceItem(
+            piwikTracker.AddEcommerceItem(
                 "SKU VERY nice indeed",
                 "PRODUCT name",
                 new List<string> { "Electronics & Cameras" },
@@ -342,102 +336,46 @@ namespace Piwik.Tracker.Samples
             );
 
             // This one overrides the previous addition
-            piwikTracker.addEcommerceItem(
+            piwikTracker.AddEcommerceItem(
                 "SKU VERY nice indeed",
-                "PRODUCT name", 
-                new List<string> { "Electronics & Cameras" }, 
-                500, 
+                "PRODUCT name",
+                new List<string> { "Electronics & Cameras" },
+                500,
                 2
             );
 
-            piwikTracker.addEcommerceItem(
+            piwikTracker.AddEcommerceItem(
                 "SKU NEW",
-                "BLABLA", 
-                null, 
-                5000000, 
+                "BLABLA",
+                null,
+                5000000,
                 20
             );
 
+            var response = piwikTracker.DoTrackEcommerceCartUpdate(1000);
 
-            var response = piwikTracker.doTrackEcommerceCartUpdate(1000);
-
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
-        
+
         /// <summary>
         /// Registers 2 eCommerce orders
         /// </summary>
         static private void RecordTwoECommerceOrders()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
             // First order
 
-            piwikTracker.addEcommerceItem(
+            piwikTracker.AddEcommerceItem(
                 "SKU VERY nice indeed",
                 "PRODUCT name",
-                new List<string> { "Electronics & Cameras" }, 
+                new List<string> { "Electronics & Cameras" },
                 500,
                 2
              );
 
-            piwikTracker.addEcommerceItem(
-                "ANOTHER SKU HERE", 
-                "PRODUCT name BIS" , 
-                null, 
-                100, 
-                6
-            );        
-
-            var response = 
-                piwikTracker.doTrackEcommerceOrder(
-                    "137nsjusG 1094", 
-                    1111.11, 
-                    1000, 
-                    111, 
-                    0.11,
-                    666
-                );
-
-            displayDebugInfo(response);   
-
-            // Second Order
-
-            piwikTracker.addEcommerceItem(
-                "SKU2", 
-                "Canon SLR" , 
-                new List<string> { "Electronics & Cameras" }, 
-                1500,
-                1
-            );
-            
-            response = piwikTracker.doTrackEcommerceOrder(
-                "1037Bjusu4s3894", 
-                2000, 
-                1500, 
-                400, 
-                100, 
-                0
-            );
-
-            displayDebugInfo(response);  
-        }
-
-        static private void RecordECommerceOrder()
-        {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
-
-            piwikTracker.addEcommerceItem(
-                "SKU VERY nice indeed",
-                "PRODUCT name",
-                new List<string> { "Electronics & Cameras" , "Clothes"},
-                500,
-                2
-             );
-
-            piwikTracker.addEcommerceItem(
+            piwikTracker.AddEcommerceItem(
                 "ANOTHER SKU HERE",
                 "PRODUCT name BIS",
                 null,
@@ -446,7 +384,62 @@ namespace Piwik.Tracker.Samples
             );
 
             var response =
-                piwikTracker.doTrackEcommerceOrder(
+                piwikTracker.DoTrackEcommerceOrder(
+                    "137nsjusG 1094",
+                    1111.11,
+                    1000,
+                    111,
+                    0.11,
+                    666
+                );
+
+            DisplayDebugInfo(response);
+
+            // Second Order
+
+            piwikTracker.AddEcommerceItem(
+                "SKU2",
+                "Canon SLR",
+                new List<string> { "Electronics & Cameras" },
+                1500,
+                1
+            );
+
+            response = piwikTracker.DoTrackEcommerceOrder(
+                "1037Bjusu4s3894",
+                2000,
+                1500,
+                400,
+                100,
+                0
+            );
+
+            DisplayDebugInfo(response);
+        }
+
+        static private void RecordECommerceOrder()
+        {
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
+
+            piwikTracker.AddEcommerceItem(
+                "SKU VERY nice indeed",
+                "PRODUCT name",
+                new List<string> { "Electronics & Cameras", "Clothes" },
+                500,
+                2
+             );
+
+            piwikTracker.AddEcommerceItem(
+                "ANOTHER SKU HERE",
+                "PRODUCT name BIS",
+                null,
+                100,
+                6
+            );
+
+            var response =
+                piwikTracker.DoTrackEcommerceOrder(
                     "133nsjusu 1094",
                     1111.11,
                     1000,
@@ -455,48 +448,48 @@ namespace Piwik.Tracker.Samples
                     666
                 );
 
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
 
         private static void BulkTrackTwoRequests()
         {
-            var piwikTracker = new PiwikTracker(1);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
 
-            piwikTracker.setUserAgent(UA);
-            piwikTracker.setTokenAuth("YOUR TOKEN");
+            piwikTracker.SetUserAgent(UA);
+            piwikTracker.SetTokenAuth("YOUR TOKEN");
 
-            piwikTracker.enableBulkTracking();
+            piwikTracker.EnableBulkTracking();
 
-            piwikTracker.doTrackPageView("Tracking Request 1");
-            piwikTracker.doTrackPageView("Tracking Request 2");
+            piwikTracker.DoTrackPageView("Tracking Request 1");
+            piwikTracker.DoTrackPageView("Tracking Request 2");
 
-            displayDebugInfo(piwikTracker.doBulkTrack());
+            DisplayDebugInfo(piwikTracker.DoBulkTrack());
         }
 
         static private void TrackSiteSearch()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.doTrackSiteSearch("keyword1", "category2", 0);
+            var response = piwikTracker.DoTrackSiteSearch("keyword1", "category2", 0);
 
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
 
         static private void TrackSongPlayback()
         {
-            var piwikTracker = new PiwikTracker(1);
-            piwikTracker.setUserAgent(UA);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.doTrackEvent("music", "play", "Eye Of The Tiger");
+            var response = piwikTracker.DoTrackEvent("music", "play", "Eye Of The Tiger");
 
-            displayDebugInfo(response);
+            DisplayDebugInfo(response);
         }
 
-        static private void displayDebugInfo(TrackingResponse response)
-        {            
+        static private void DisplayDebugInfo(TrackingResponse response)
+        {
             Console.WriteLine("DEBUG_LAST_REQUESTED_URL :");
-            Console.WriteLine(PiwikTracker.DEBUG_LAST_REQUESTED_URL);
+            Console.WriteLine(PiwikTracker.DebugLastRequestedUrl);
             Console.Write("\r\n");
             Console.WriteLine(response.HttpStatusCode);
         }

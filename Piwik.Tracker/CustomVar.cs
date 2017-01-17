@@ -1,11 +1,9 @@
 ﻿#region license
-// http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
-#endregion
 
-/// <summary>
-/// Piwik - Open source web analytics
-/// For more information, see http://piwik.org
-/// </summary>
+// http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+
+#endregion license
+
 namespace Piwik.Tracker
 {
     /// <summary>
@@ -14,15 +12,31 @@ namespace Piwik.Tracker
     /// </summary>
     public class CustomVar
     {
-        public enum Scopes {visit, page, _event};
-
-        public string name { get; set; }
-        public string value { get; set; }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CustomVar"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="value">The value.</param>
         public CustomVar(string name, string value)
         {
-            this.name = name;
-            this.value = value;
+            Name = name;
+            Value = value;
+        }
+
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// Gets the value.
+        /// </summary>
+        public string Value { get; }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{nameof(Name)}: {Name}, {nameof(Value)}: {Value}";
         }
     }
 }
