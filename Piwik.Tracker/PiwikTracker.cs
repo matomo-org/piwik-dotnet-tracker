@@ -1150,19 +1150,13 @@ namespace Piwik.Tracker
         /// Force the action to be recorded for a specific User. The User ID is a string representing a given user in your system.
         /// A User ID can be a username, UUID or an email address, or any number or string that uniquely identifies a user or client.
         /// </summary>
-        /// <param name="userId">Any user ID string (eg. email address, ID, username). Must be non empty. Set to false to de-assign a user id previously set.</param>
-        /// <exception cref="System.ArgumentException">User ID cannot be empty. - userId</exception>
+        /// <param name="userId">Any user ID string (eg. email address, ID, username). Must not be empty or <c>null</c>.</param>
+        /// <exception cref="System.ArgumentException">User ID cannot be empty or null. - userId</exception>
         public void SetUserId(string userId)
         {
-            // todo this is contradicion: (userId == null) / string.IsNullOrEmpty(userId)
-            if (userId == null)
-            {
-                SetNewVisitorId();
-                return;
-            }
             if (string.IsNullOrEmpty(userId))
             {
-                throw new ArgumentException("User ID cannot be empty.", nameof(userId));
+                throw new ArgumentException("User ID must not be empty or null.", nameof(userId));
             }
             _userId = userId;
         }
