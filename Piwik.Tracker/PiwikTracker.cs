@@ -1258,7 +1258,7 @@ namespace Piwik.Tracker
             {
                 _visitCount = long.Parse(parts[2]);
             }
-            // todo _currentVisitTs is never used (was earlier assigned with null in constructor)
+            //  _currentVisitTs is set for information / debugging purposes
             _currentVisitTs = long.Parse(parts[3]);
             if (!string.IsNullOrWhiteSpace(parts[4]))
             {
