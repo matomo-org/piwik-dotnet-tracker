@@ -233,11 +233,6 @@ namespace Piwik.Tracker
         public int IdSite { get; }
 
         /// <summary>
-        /// Used in tests to output useful error messages.
-        /// </summary>
-        public string DebugLastRequestedUrl { get; internal set; }
-
-        /// <summary>
         /// Gets or sets the maximum number of seconds the tracker will spend waiting for a response
         /// from Piwik. Defaults to 600 seconds.
         /// </summary>
@@ -1435,8 +1430,6 @@ namespace Piwik.Tracker
 
         private TrackingResponse SendRequest(string url, string method = "GET", string data = null, bool force = false)
         {
-            DebugLastRequestedUrl = url;
-
             // if doing a bulk request, store the url
             if (_doBulkRequests && !force)
             {
@@ -1474,7 +1467,7 @@ namespace Piwik.Tracker
             }
             using (var result = (HttpWebResponse)request.GetResponse())
             {
-                return new TrackingResponse { HttpStatusCode = result.StatusCode };
+                return new TrackingResponse { HttpStatusCode = result.StatusCode, RequestedUrl = url };
             }
         }
 
