@@ -1,4 +1,4 @@
-# Piwik C# Tracking API
+# Piwik C# Tracking API [![Build Status](https://travis-ci.org/piwik/piwik-dotnet-tracker.svg?branch=master)](https://travis-ci.org/piwik/piwik-dotnet-tracker)
 
 This is the official C# implementation of the [Piwik Tracking API](http://piwik.org/docs/tracking-api/).
 

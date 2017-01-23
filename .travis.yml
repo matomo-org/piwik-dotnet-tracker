@@ -1,0 +1,8 @@
+language: csharp
+solution: Piwik.Tracker.sln
+install:
+  - nuget restore Piwik.Tracker.sln
+  - nuget install NUnit.Runners -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=Release Piwik.Tracker.sln
+  - mono ./testrunner/NUnit.ConsoleRunner*/tools/nunit3-console.exe ./Piwik.Tracker.Tests/bin/Release/Piwik.Tracker.Tests.dll
