@@ -13,9 +13,15 @@ namespace Piwik.Tracker
         public HttpStatusCode HttpStatusCode { get; internal set; }
 
         /// <inheritdoc />
+        /// <summary>
+        /// Gets the Url used for last request. Used in tests to output useful error messages.
+        /// </summary>
+        public string RequestedUrl { get; internal set; }
+
+        /// <inheritdoc />
         public override string ToString()
         {
-            return $"{nameof(HttpStatusCode)}: {HttpStatusCode}";
+            return $"{nameof(HttpStatusCode)}: {HttpStatusCode}, {nameof(RequestedUrl)}: {RequestedUrl}";
         }
     }
 }
