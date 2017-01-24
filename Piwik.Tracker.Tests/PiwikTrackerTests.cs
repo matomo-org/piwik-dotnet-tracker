@@ -43,10 +43,10 @@ namespace Piwik.Tracker.Tests
             }
         }
 
-        [Test]
+        [Test, Ignore("Todo: Provide ability to mock cookie!")]
         public void GetCustomVariable_WhenScopeIsVisit_ReturnsVariableFromCookie()
         {
-            Assert.That(false, Is.True, "Todo: Provide abillity to mock cookie!");
+            Assert.That(false, Is.True, "Todo: Provide ability to mock cookie!");
         }
 
         [Test]
