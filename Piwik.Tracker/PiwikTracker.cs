@@ -127,11 +127,11 @@ namespace Piwik.Tracker
         /// <summary>
         /// Ecommerce item page view tracking stores item's metadata in these Custom Variables slots.
         /// </summary>
-        internal const int CvarIndexEcommerceItemPrice = 2;
+        private const int CvarIndexEcommerceItemPrice = 2;
 
-        internal const int CvarIndexEcommerceItemSku = 3;
-        internal const int CvarIndexEcommerceItemName = 4;
-        internal const int CvarIndexEcommerceItemCategory = 5;
+        private const int CvarIndexEcommerceItemSku = 3;
+        private const int CvarIndexEcommerceItemName = 4;
+        private const int CvarIndexEcommerceItemCategory = 5;
 
         private const string DefaultCookiePath = "/";
 
@@ -398,15 +398,6 @@ namespace Piwik.Tracker
         }
 
         /// <summary>
-        /// Gets the stored tracking actions, that have been stored for bulkRequest <see cref="EnableBulkTracking"/>, <see cref="DoBulkTrack"/>.
-        /// </summary>
-        /// <returns></returns>
-        public string[] GetStoredTrackingActions()
-        {
-            return _storedTrackingActions.ToArray();
-        }
-
-        /// <summary>
         /// Clears any Custom Variable that may be have been set.
         ///
         /// This can be useful when you have enabled bulk requests,
@@ -548,7 +539,7 @@ namespace Piwik.Tracker
         /// </summary>
         /// <param name="domain">The domain.</param>
         /// <returns></returns>
-        protected internal static string DomainFixup(string domain)
+        protected static string DomainFixup(string domain)
         {
             if (string.IsNullOrWhiteSpace(domain))
             {
@@ -573,7 +564,7 @@ namespace Piwik.Tracker
         /// </summary>
         /// <param name="cookieName">Name of the cookie.</param>
         /// <returns></returns>
-        protected internal string GetCookieName(string cookieName)
+        protected string GetCookieName(string cookieName)
         {
             // NOTE: If the cookie name is changed, we must also update the method in piwik.js with the same name.
             var hash = GetHexStringFromBytes(new SHA1CryptoServiceProvider().ComputeHash(Encoding.UTF8.GetBytes((string.IsNullOrWhiteSpace(_configCookieDomain) ? GetCurrentHost() : _configCookieDomain) + _configCookiePath))).Substring(0, 4);
@@ -585,7 +576,7 @@ namespace Piwik.Tracker
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <returns></returns>
-        protected static string GetHexStringFromBytes(byte[] bytes)
+        protected string GetHexStringFromBytes(byte[] bytes)
         {
             var sb = new StringBuilder();
             foreach (byte b in bytes)
@@ -894,7 +885,7 @@ namespace Piwik.Tracker
         /// <param name="shipping">The shipping.</param>
         /// <param name="discount">The discount.</param>
         /// <returns></returns>
-        protected internal string GetUrlTrackEcommerce(double grandTotal, double subTotal = 0, double tax = 0, double shipping = 0, double discount = 0)
+        protected string GetUrlTrackEcommerce(double grandTotal, double subTotal = 0, double tax = 0, double shipping = 0, double discount = 0)
         {
             string url = GetRequest(IdSite) + "&idgoal=0&revenue=" + FormatMonetaryValue(grandTotal);
 
@@ -917,6 +908,7 @@ namespace Piwik.Tracker
             {
                 url += "&ec_dt=" + FormatMonetaryValue(discount);
             }
+
             if (_ecommerceItems.Count > 0)
             {
                 url += "&ec_items=" + UrlEncode(new JavaScriptSerializer().Serialize(_ecommerceItems.Values));
@@ -1494,7 +1486,7 @@ namespace Piwik.Tracker
             return url;
         }
 
-        internal string GetRequest(int idSite)
+        private string GetRequest(int idSite)
         {
             SetFirstPartyCookies();
 
@@ -1524,7 +1516,7 @@ namespace Piwik.Tracker
                     "&r=" + new Random().Next(0, 1000000).ToString("000000") +
 
                     // Only allowed for Super User, token_auth required,
-                    (!string.IsNullOrEmpty(_ip) ? "&cip=" + UrlEncode(_ip) : "") +
+                    (!string.IsNullOrEmpty(_ip) ? "&cip=" + _ip : "") +
                     (!string.IsNullOrEmpty(_userId) ? "&uid=" + UrlEncode(_userId) : "") +
                     (!_forcedDatetime.Equals(DateTimeOffset.MinValue) ? "&cdt=" + FormatDateValue(_forcedDatetime) : "") +
                     (_forcedNewVisit ? "&new_visit=1" : "") +
@@ -1644,7 +1636,7 @@ namespace Piwik.Tracker
         /// will return <![CDATA[http://example.org]]>.
         /// </summary>
         /// <returns>string 'https' or 'http'</returns>
-        protected internal static string GetCurrentHost()
+        protected static string GetCurrentHost()
         {
             if (HttpContext.Current != null)
             {
@@ -1669,7 +1661,7 @@ namespace Piwik.Tracker
         /// <summary>
         /// Returns the current full URL (scheme, host, path and query string.
         /// </summary>
-        protected internal static string GetCurrentUrl()
+        protected static string GetCurrentUrl()
         {
             return GetCurrentScheme() + "://"
                 + GetCurrentHost()
@@ -1681,7 +1673,7 @@ namespace Piwik.Tracker
         /// Sets the first party cookies as would the piwik.js
         /// All cookies are supported: 'id' and 'ses' and 'ref' and 'cvar' cookies.
         /// </summary>
-        protected internal void SetFirstPartyCookies()
+        protected void SetFirstPartyCookies()
         {
             if (_configCookiesDisabled)
             {
