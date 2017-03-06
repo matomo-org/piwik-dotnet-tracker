@@ -5,7 +5,6 @@
 // This is a C# Version of the piwik.js standard Tracking API.
 // For more information, see http://piwik.org/docs/tracking-api/
 //
-// <see href="http://www.opensource.org/licenses/bsd-license.php">released under BSD License</see>
 // <see href="http://piwik.org/docs/tracking-api/"/>
 // Piwik Server Api: <see href="http://developer.piwik.org/api-reference/tracking-api"/>
 // </summary>

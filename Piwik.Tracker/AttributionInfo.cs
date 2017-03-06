@@ -1,10 +1,4 @@
-﻿#region license
-
-// http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
-
-#endregion license
-
-using System;
+﻿using System;
 using System.Globalization;
 
 namespace Piwik.Tracker

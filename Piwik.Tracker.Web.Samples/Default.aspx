@@ -1,6 +1,4 @@
-﻿<%--http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later--%>
-
-<%@ Page Language="C#" %>
+﻿<%@ Page Language="C#" %>
 
 This is the C# Web Tracking Test Application. <br/><br/>
 
