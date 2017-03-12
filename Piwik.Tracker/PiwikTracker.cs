@@ -126,11 +126,11 @@ namespace Piwik.Tracker
         /// <summary>
         /// Ecommerce item page view tracking stores item's metadata in these Custom Variables slots.
         /// </summary>
-        private const int CvarIndexEcommerceItemPrice = 2;
+        internal const int CvarIndexEcommerceItemPrice = 2;
 
-        private const int CvarIndexEcommerceItemSku = 3;
-        private const int CvarIndexEcommerceItemName = 4;
-        private const int CvarIndexEcommerceItemCategory = 5;
+        internal const int CvarIndexEcommerceItemSku = 3;
+        internal const int CvarIndexEcommerceItemName = 4;
+        internal const int CvarIndexEcommerceItemCategory = 5;
 
         private const string DefaultCookiePath = "/";
 
@@ -397,6 +397,15 @@ namespace Piwik.Tracker
         }
 
         /// <summary>
+        /// Gets the stored tracking actions, that have been stored for bulkRequest <see cref="EnableBulkTracking"/>, <see cref="DoBulkTrack"/>.
+        /// </summary>
+        /// <returns></returns>
+        public string[] GetStoredTrackingActions()
+        {
+            return _storedTrackingActions.ToArray();
+        }
+
+        /// <summary>
         /// Clears any Custom Variable that may be have been set.
         ///
         /// This can be useful when you have enabled bulk requests,
@@ -575,7 +584,7 @@ namespace Piwik.Tracker
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <returns></returns>
-        protected string GetHexStringFromBytes(byte[] bytes)
+        protected static string GetHexStringFromBytes(byte[] bytes)
         {
             var sb = new StringBuilder();
             foreach (byte b in bytes)
@@ -884,7 +893,7 @@ namespace Piwik.Tracker
         /// <param name="shipping">The shipping.</param>
         /// <param name="discount">The discount.</param>
         /// <returns></returns>
-        protected string GetUrlTrackEcommerce(double grandTotal, double subTotal = 0, double tax = 0, double shipping = 0, double discount = 0)
+        protected internal string GetUrlTrackEcommerce(double grandTotal, double subTotal = 0, double tax = 0, double shipping = 0, double discount = 0)
         {
             string url = GetRequest(IdSite) + "&idgoal=0&revenue=" + FormatMonetaryValue(grandTotal);
 
@@ -1485,7 +1494,7 @@ namespace Piwik.Tracker
             return url;
         }
 
-        private string GetRequest(int idSite)
+        internal string GetRequest(int idSite)
         {
             SetFirstPartyCookies();
 
