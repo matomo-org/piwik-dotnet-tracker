@@ -65,11 +65,9 @@ namespace Piwik.Tracker.Tests
             var actual = _sut.DoTrackPageView(documentTitle);
             //Assert
             var actualRequest = retrieveRequest();
-            Assert.NotNull(actualRequest);
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(actualRequest.Method, Is.EqualTo("GET"));
-            Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
-            Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
+            Assert.PiwikRequestParameterMatch(actualRequest, new NameValueCollection
             {
                 { "_idvc", "0" },// visit count
                 { "_id", _sut.GetVisitorId() }, // visitor id
@@ -85,48 +83,29 @@ namespace Piwik.Tracker.Tests
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
+            var expectedParameter = new NameValueCollection
+            {
+                {"_idvc", "0"}, // visit count
+                {"_id", _sut.GetVisitorId()}, // visitor id
+                {"e_c", category},
+                {"e_a", action},
+            };
             //Act
             var actual = _sut.DoTrackEvent(category, action, name, value);
             //Assert
             var actualRequest = retrieveRequest();
-            Assert.NotNull(actualRequest);
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(actualRequest.Method, Is.EqualTo("GET"));
-            Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
-            if (string.IsNullOrEmpty(name))
+            if (!string.IsNullOrEmpty(name))
             {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                 {
-                     { "_idvc", "0" },// visit count
-                     { "_id", _sut.GetVisitorId() }, // visitor id
-                     { "e_c", category },
-                     { "e_a", action },
-                     { "e_v", value },
-                 });
+                expectedParameter.Add("e_n", name);
             }
-            else if (string.IsNullOrEmpty(value))
+            if (!string.IsNullOrEmpty(value))
             {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                 {
-                     { "_idvc", "0" },// visit count
-                     { "_id", _sut.GetVisitorId() }, // visitor id
-                     { "e_c", category },
-                     { "e_n", name },
-                     { "e_a", action },
-                 });
+                expectedParameter.Add("e_v", value);
             }
-            else
-            {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-            {
-                { "_idvc", "0" },// visit count
-                { "_id", _sut.GetVisitorId() }, // visitor id
-                { "e_c", category },
-                { "e_a", action },
-                { "e_n", name },
-                { "e_v", value },
-            });
-            }
+
+            Assert.PiwikRequestParameterMatch(actualRequest, expectedParameter);
         }
 
         [Test]
@@ -137,45 +116,28 @@ namespace Piwik.Tracker.Tests
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
+            var expectedParameter = new NameValueCollection
+            {
+                {"_idvc", "0"}, // visit count
+                {"_id", _sut.GetVisitorId()}, // visitor id
+                { "c_n", contentName },
+            };
             //Act
             var actual = _sut.DoTrackContentImpression(contentName, contentPiece, contentTarget);
             //Assert
             var actualRequest = retrieveRequest();
-            Assert.NotNull(actualRequest);
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(actualRequest.Method, Is.EqualTo("GET"));
-            Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
-            if (string.IsNullOrEmpty(contentPiece))
+            if (!string.IsNullOrEmpty(contentPiece))
             {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
-                    { "_idvc", "0" },// visit count
-                    { "_id", _sut.GetVisitorId() }, // visitor id
-                    { "c_n", contentName },
-                    { "c_t", contentTarget },
-                });
+                expectedParameter.Add("c_p", contentPiece);
             }
-            else if (string.IsNullOrEmpty(contentTarget))
+            if (!string.IsNullOrEmpty(contentTarget))
             {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
-                    { "_idvc", "0" },// visit count
-                    { "_id", _sut.GetVisitorId() }, // visitor id
-                    { "c_n", contentName },
-                    { "c_p", contentPiece },
-                });
+                expectedParameter.Add("c_t", contentTarget);
             }
-            else
-            {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
-                    { "_idvc", "0" },// visit count
-                    { "_id", _sut.GetVisitorId() }, // visitor id
-                    { "c_n", contentName },
-                    { "c_p", contentPiece },
-                    { "c_t", contentTarget },
-                });
-            }
+
+            Assert.PiwikRequestParameterMatch(actualRequest, expectedParameter);
         }
 
         [Test]
@@ -186,48 +148,29 @@ namespace Piwik.Tracker.Tests
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
+            var expectedParameter = new NameValueCollection
+            {
+                 { "_idvc", "0" },// visit count
+                    { "_id", _sut.GetVisitorId() }, // visitor id
+                    { "c_n", contentName },
+                    { "c_i", interaction },
+            };
             //Act
             var actual = _sut.DoTrackContentInteraction(interaction, contentName, contentPiece, contentTarget);
             //Assert
             var actualRequest = retrieveRequest();
-            Assert.NotNull(actualRequest);
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(actualRequest.Method, Is.EqualTo("GET"));
-            Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
-            if (string.IsNullOrEmpty(contentPiece))
+            if (!string.IsNullOrEmpty(contentPiece))
             {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
-                    { "_idvc", "0" },// visit count
-                    { "_id", _sut.GetVisitorId() }, // visitor id
-                    { "c_n", contentName },
-                    { "c_t", contentTarget },
-                    { "c_i", interaction },
-                });
+                expectedParameter.Add("c_p", contentPiece);
             }
-            else if (string.IsNullOrEmpty(contentTarget))
+            if (!string.IsNullOrEmpty(contentTarget))
             {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
-                    { "_idvc", "0" },// visit count
-                    { "_id", _sut.GetVisitorId() }, // visitor id
-                    { "c_n", contentName },
-                    { "c_p", contentPiece },
-                    { "c_i", interaction },
-                });
+                expectedParameter.Add("c_t", contentTarget);
             }
-            else
-            {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
-                    { "_idvc", "0" },// visit count
-                    { "_id", _sut.GetVisitorId() }, // visitor id
-                    { "c_n", contentName },
-                    { "c_p", contentPiece },
-                    { "c_t", contentTarget },
-                    { "c_i", interaction },
-                });
-            }
+
+            Assert.PiwikRequestParameterMatch(actualRequest, expectedParameter);
         }
 
         [Test]
@@ -238,45 +181,28 @@ namespace Piwik.Tracker.Tests
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
+            var expectedParameter = new NameValueCollection
+            {
+                 { "_idvc", "0" },// visit count
+                 { "_id", _sut.GetVisitorId() }, // visitor id
+                 { "search", keyword },
+            };
             //Act
             var actual = _sut.DoTrackSiteSearch(keyword, category, countResults);
             //Assert
             var actualRequest = retrieveRequest();
-            Assert.NotNull(actualRequest);
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(actualRequest.Method, Is.EqualTo("GET"));
-            Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
-            if (string.IsNullOrEmpty(category))
+            if (!string.IsNullOrEmpty(category))
             {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
-                    { "_idvc", "0" },
-                    { "_id", _sut.GetVisitorId() },
-                    { "search", keyword },
-                    { "search_count", countResults.ToString() },
-                });
+                expectedParameter.Add("search_cat", category);
             }
-            else if (countResults == null)
+            if (countResults != null)
             {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
-                    { "_idvc", "0" },
-                    { "_id", _sut.GetVisitorId() },
-                    { "search", keyword },
-                    { "search_cat", category },
-                });
+                expectedParameter.Add("search_count", countResults.ToString());
             }
-            else
-            {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
-                    { "_idvc", "0" },
-                    { "_id", _sut.GetVisitorId() },
-                    { "search", keyword },
-                    { "search_cat", category },
-                    { "search_count", countResults.ToString() },
-                });
-            }
+
+            Assert.PiwikRequestParameterMatch(actualRequest, expectedParameter);
         }
 
         [Test]
@@ -287,33 +213,23 @@ namespace Piwik.Tracker.Tests
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
+            var expectedParameter = new NameValueCollection
+            {
+                 { "_idvc", "0" },// visit count
+                 { "_id", _sut.GetVisitorId() }, // visitor id
+                 { "idgoal", idGoal.ToString() },
+            };
             //Act
             var actual = _sut.DoTrackGoal(idGoal, revenue);
             //Assert
             var actualRequest = retrieveRequest();
-            Assert.NotNull(actualRequest);
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(actualRequest.Method, Is.EqualTo("GET"));
-            Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
-            if (Math.Abs(revenue) < 0.05f)
+            if (Math.Abs(revenue) > 0.05f)
             {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
-                    { "_idvc", "0" },
-                    { "_id", _sut.GetVisitorId() },
-                    { "idgoal", idGoal.ToString() },
-                });
+                expectedParameter.Add("revenue", revenue.ToString("0.##", CultureInfo.InvariantCulture));
             }
-            else
-            {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
-                    { "_idvc", "0" },
-                    { "_id", _sut.GetVisitorId() },
-                    { "idgoal", idGoal.ToString() },
-                    { "revenue", revenue.ToString("0.##",CultureInfo.InvariantCulture) },
-                });
-            }
+            Assert.PiwikRequestParameterMatch(actualRequest, expectedParameter);
         }
 
         [Test]
@@ -327,19 +243,15 @@ namespace Piwik.Tracker.Tests
             var actual = _sut.DoTrackAction(actionUrl, actionType);
             //Assert
             var actualRequest = retrieveRequest();
-            Assert.NotNull(actualRequest);
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(actualRequest.Method, Is.EqualTo("GET"));
-            Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
 
+            Assert.PiwikRequestParameterMatch(actualRequest, new NameValueCollection
             {
-                Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
-                {
                     {"_idvc", "0"},
                     {"_id", _sut.GetVisitorId()},
                     {actionType.ToString(), actionUrl},
-                });
-            }
+             });
         }
 
         [Test]
@@ -353,12 +265,10 @@ namespace Piwik.Tracker.Tests
             var actual = _sut.DoTrackEcommerceCartUpdate(grandTotal);
             //Assert
             var actualRequest = retrieveRequest();
-            Assert.NotNull(actualRequest);
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(actualRequest.Method, Is.EqualTo("GET"));
-            Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
 
-            Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
+            Assert.PiwikRequestParameterMatch(actualRequest, new NameValueCollection
                 {
                     { "_idvc", "0" },
                     { "_id", _sut.GetVisitorId() },
@@ -394,10 +304,8 @@ namespace Piwik.Tracker.Tests
             Assert.That(_sut.GetStoredTrackingActions().Length, Is.EqualTo(0));
             //Assert
             var actualRequest = retrieveRequest();
-            Assert.NotNull(actualRequest);
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(actualRequest.Method, Is.EqualTo("POST"));
-            Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
             if (string.IsNullOrEmpty(token))
             {
                 var body = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(actualRequest.RequestBody.ToString()) as Dictionary<string, string[]>;
@@ -424,12 +332,10 @@ namespace Piwik.Tracker.Tests
             var actual = _sut.DoTrackEcommerceOrder(orderId, grandTotal, subTotal, tax, shipping, discount);
             //Assert
             var actualRequest = retrieveRequest();
-            Assert.NotNull(actualRequest);
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(actualRequest.Method, Is.EqualTo("GET"));
-            Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
 
-            Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
+            Assert.PiwikRequestParameterMatch(actualRequest, new NameValueCollection
                 {
                     { "_idvc", "0" },
                     { "_id", _sut.GetVisitorId() },
@@ -452,12 +358,10 @@ namespace Piwik.Tracker.Tests
             var actual = _sut.DoPing();
             //Assert
             var actualRequest = retrieveRequest();
-            Assert.NotNull(actualRequest);
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(actualRequest.Method, Is.EqualTo("GET"));
-            Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
 
-            Assert.PiwikRequestParameterMatch(actualRequest.RequestUri.ParseQueryString(), new NameValueCollection
+            Assert.PiwikRequestParameterMatch(actualRequest, new NameValueCollection
                 {
                     { "_idvc", "0" },
                     { "_id", _sut.GetVisitorId() },
@@ -487,9 +391,11 @@ namespace Piwik.Tracker.Tests
 
         internal class Assert : NUnit.Framework.Assert
         {
-            public static void PiwikRequestParameterMatch(NameValueCollection actualRequestParameter, NameValueCollection additionalExpectedParamters)
+            public static void PiwikRequestParameterMatch(ActualRequest actualRequest, NameValueCollection additionalExpectedParameter)
             {
-                var expectedRequestParameter = new NameValueCollection(DefaultRequestParameter) { additionalExpectedParamters };
+                Assert.That(actualRequest.RequestUri.GetAuthorityAndPath(), Is.EqualTo(PiwikBaseUrl));
+                var actualRequestParameter = actualRequest.RequestUri.ParseQueryString();
+                var expectedRequestParameter = new NameValueCollection(DefaultRequestParameter) { additionalExpectedParameter };
                 Assert.That(actualRequestParameter.AllKeys, Is.SupersetOf(DefaultRequestParameterKeysToRemoveFromComparison),
                     $"Request parameters must at least contain default Keys {string.Join(",", DefaultRequestParameterKeysToRemoveFromComparison)}.");
 
@@ -501,7 +407,7 @@ namespace Piwik.Tracker.Tests
 
                 Assert.That(actualRequestParameter.AllKeys, Is.EquivalentTo(expectedRequestParameter.AllKeys),
                     () => GetEnhancedMessage("Request parameter keys must be equivalent!", actualRequestParameter, expectedRequestParameter));
-                Assert.That(actualRequestParameter.AllKeys.Select(k => actualRequestParameter[k]), Is.EquivalentTo(expectedRequestParameter.AllKeys.Select(k => expectedRequestParameter[k])),
+                Assert.That(actualRequestParameter.AllKeys.Select(k => expectedRequestParameter[k]), Is.EquivalentTo(expectedRequestParameter.AllKeys.Select(k => expectedRequestParameter[k])),
                     () => GetEnhancedMessage("Request parameter values must be equivalent!", actualRequestParameter, expectedRequestParameter));
             }
 

@@ -234,7 +234,6 @@ namespace Piwik.Tracker.Tests
             _sut.SetNewVisitorId();
             //Assert
             var actual = _sut.GetVisitorId();
-            Console.WriteLine(actual);
             Assert.That(actual, Is.Not.Null.Or.Empty);
             Assert.That(actual, Is.Not.EqualTo(initalVisitorId));
             var request = _sut.GetRequest(SiteId);
