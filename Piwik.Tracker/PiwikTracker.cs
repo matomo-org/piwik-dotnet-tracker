@@ -18,7 +18,6 @@ namespace Piwik.Tracker
     using System.Net;
     using System.Globalization;
     using System.Web;
-    using System.Web.Script.Serialization;
     using System.Text.RegularExpressions;
 
     /// <summary>
@@ -186,6 +185,7 @@ namespace Piwik.Tracker
         private long? _lastVisitTs;
         private long? _lastEcommerceOrderTs;
         private bool _sendImageResponse = true;
+        private readonly HttpContext _httpContext;
 
         /// <summary>
         /// Builds a PiwikTracker object, used to track visits, pages and Goal conversions
@@ -204,11 +204,11 @@ namespace Piwik.Tracker
             }
             PiwikBaseUrl = FixPiwikBaseUrl(apiUrl);
             IdSite = idSite;
-
-            _referrerUrl = HttpContext.Current?.Request?.UrlReferrer?.AbsoluteUri ?? string.Empty;
-            _ip = HttpContext.Current?.Request?.UserHostAddress ?? string.Empty;
-            _acceptLanguage = HttpContext.Current?.Request?.UserLanguages?.FirstOrDefault() ?? string.Empty;
-            _userAgent = HttpContext.Current?.Request?.UserAgent ?? string.Empty;
+            _httpContext = HttpContext.Current;
+            _referrerUrl = _httpContext?.Request?.UrlReferrer?.AbsoluteUri ?? string.Empty;
+            _ip = _httpContext?.Request?.UserHostAddress ?? string.Empty;
+            _acceptLanguage = _httpContext?.Request?.UserLanguages?.FirstOrDefault() ?? string.Empty;
+            _userAgent = _httpContext?.Request?.UserAgent ?? string.Empty;
 
             _pageUrl = GetCurrentUrl();
             SetNewVisitorId();
@@ -1268,7 +1268,7 @@ namespace Piwik.Tracker
         /// </summary>
         public void DeleteCookies()
         {
-            if (HttpContext.Current != null)
+            if (_httpContext != null)
             {
                 var expire = _currentTs - 86400;
                 var cookies = new[] { "id", "ses", "cvar", "ref" };
@@ -1575,9 +1575,9 @@ namespace Piwik.Tracker
             }
             name = GetCookieName(name);
 
-            if (HttpContext.Current != null)
+            if (_httpContext != null)
             {
-                var cookies = HttpContext.Current.Request.Cookies;
+                var cookies = _httpContext.Request.Cookies;
                 for (var i = 0; i < cookies.Count; i++)
                 {
                     if (cookies[i].Name.Contains(name))
@@ -1593,11 +1593,11 @@ namespace Piwik.Tracker
         /// If current URL is <![CDATA[http://example.org/dir1/dir2/index.php?param1=value1&param2=value2]]>
         /// will return "/dir1/dir2/index.php"
         /// </summary>
-        protected static string GetCurrentScriptName()
+        protected string GetCurrentScriptName()
         {
-            if (HttpContext.Current != null)
+            if (_httpContext != null)
             {
-                return HttpContext.Current.Request.Url.AbsolutePath;
+                return _httpContext.Request.Url.AbsolutePath;
             }
             return "";
         }
@@ -1607,11 +1607,11 @@ namespace Piwik.Tracker
         /// will return 'http'.
         /// </summary>
         /// <returns>string 'https' or 'http'</returns>
-        protected static string GetCurrentScheme()
+        protected string GetCurrentScheme()
         {
-            if (HttpContext.Current != null)
+            if (_httpContext != null)
             {
-                return HttpContext.Current.Request.Url.Scheme;
+                return _httpContext.Request.Url.Scheme;
             }
             return "http";
         }
@@ -1621,11 +1621,11 @@ namespace Piwik.Tracker
         /// will return <![CDATA[http://example.org]]>.
         /// </summary>
         /// <returns>string 'https' or 'http'</returns>
-        protected static string GetCurrentHost()
+        protected string GetCurrentHost()
         {
-            if (HttpContext.Current != null)
+            if (_httpContext != null)
             {
-                return HttpContext.Current.Request.Url.Host;
+                return _httpContext.Request.Url.Host;
             }
             return "unknown";
         }
@@ -1634,11 +1634,11 @@ namespace Piwik.Tracker
         /// If current URL is <![CDATA[http://example.org/dir1/dir2/index.php?param1=value1&param2=value2]]>.
         /// will return <![CDATA[?param1=value1&param2=value2]]>.
         /// </summary>
-        protected static string GetCurrentQueryString()
+        protected string GetCurrentQueryString()
         {
-            if (HttpContext.Current != null)
+            if (_httpContext != null)
             {
-                return HttpContext.Current.Request.Url.Query;
+                return _httpContext.Request.Url.Query;
             }
             return "";
         }
@@ -1646,7 +1646,7 @@ namespace Piwik.Tracker
         /// <summary>
         /// Returns the current full URL (scheme, host, path and query string.
         /// </summary>
-        protected static string GetCurrentUrl()
+        protected string GetCurrentUrl()
         {
             return GetCurrentScheme() + "://"
                 + GetCurrentHost()
@@ -1698,10 +1698,10 @@ namespace Piwik.Tracker
         /// <param name="cookieTtl">The cookie TTL.</param>
         protected void SetCookie(string cookieName, string cookieValue, long cookieTtl)
         {
-            if (HttpContext.Current != null)
+            if (_httpContext != null)
             {
                 var cookieExpire = _currentTs + cookieTtl;
-                HttpContext.Current.Response.Cookies.Add(new HttpCookie(GetCookieName(cookieName), cookieValue) { Expires = DateTimeUtils.UnixEpoch.AddSeconds(cookieExpire), Path = _configCookiePath, Domain = _configCookieDomain });
+                _httpContext.Response.Cookies.Add(new HttpCookie(GetCookieName(cookieName), cookieValue) { Expires = DateTimeUtils.UnixEpoch.AddSeconds(cookieExpire), Path = _configCookiePath, Domain = _configCookieDomain });
             }
         }
 
