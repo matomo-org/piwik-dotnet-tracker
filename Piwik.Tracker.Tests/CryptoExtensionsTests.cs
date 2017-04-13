@@ -51,14 +51,14 @@ namespace Piwik.Tracker.Tests
         [TestCase(true, "1234dsfa", "644977634278d36d5f451961fe19622ab13cec87")]
         [TestCase(true, "1-2-3-45-6", "5c13bf8b7ff1d43869a7b4246bef897f9499833b")]
         [TestCase(true, "öüüä%&&", "c24eb4685cd57f32098b33066b5b08b31e378981")]
-        [TestCase(true, "+- fdgsdgafdgffdsfddgdgdfdfgdfhdghdfghdgfhgfdgar^^°gfra7685&%§$\"$§&(=)(&=,// \\", "F77A4A9DFFCB33CB8D7CE078A6DE1BAA")]
+        [TestCase(true, "+- fdgsdgafdgffdsfddgdgdfdfgdfhdghdfghdgfhgfdgar^^°gfra7685&%§$\"$§&(=)(&=,// \\", "bde6cf181dd5bc0ef11342d5c6a4e81a934d9cb8")]
         // Default encoding
         [TestCase(false, "", "da39a3ee5e6b4b0d3255bfef95601890afd80709")]
         [TestCase(false, " ", "b858cb282617fb0956d960215c8e84d1ccf909c6")]
         [TestCase(false, "1234dsfa", "644977634278d36d5f451961fe19622ab13cec87")]
         [TestCase(false, "1-2-3-45-6", "5c13bf8b7ff1d43869a7b4246bef897f9499833b")]
         [TestCase(false, "öüüä%&&", "9082e437598f22b26f5f8b74ffe02fb54afa45bb")]
-        [TestCase(false, "+- fdgsdgafdgffdsfddgdgdfdfgdfhdghdfghdgfhgfdgar^^°gfra7685&%§$\"$§&(=)(&=,// \\", "F77A4A9DFFCB33CB8D7CE078A6DE1BAA")]
+        [TestCase(false, "+- fdgsdgafdgffdsfddgdgdfdfgdfhdghdfghdgfhgfdgar^^°gfra7685&%§$\"$§&(=)(&=,// \\", "fc66daada565e4e9f36abffec6ec53bd1971018d")]
         public void CreateSha1_WhenHashMustBeHexadecimal_RegressionTests(bool utf8, string valueToEncrypt, string expectedHash)
         {
             //Act
