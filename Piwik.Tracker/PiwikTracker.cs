@@ -736,7 +736,7 @@ namespace Piwik.Tracker
                 data["token_auth"] = _tokenAuth;
             }
 
-            var postData = new JavaScriptSerializer().Serialize(data);
+            var postData = data.Serialize();
             var response = SendRequest(PiwikBaseUrl, "POST", postData, true);
 
             _storedTrackingActions = new List<string>();
@@ -801,7 +801,7 @@ namespace Piwik.Tracker
             var serializedCategories = "";
             if (categories != null)
             {
-                serializedCategories = new JavaScriptSerializer().Serialize(categories);
+                serializedCategories = categories.Serialize();
             }
             SetCustomVariable(CvarIndexEcommerceItemCategory, "_pkc", serializedCategories, Scopes.Page);
 
@@ -903,7 +903,7 @@ namespace Piwik.Tracker
 
             if (_ecommerceItems.Count > 0)
             {
-                url += "&ec_items=" + UrlEncode(new JavaScriptSerializer().Serialize(_ecommerceItems.Values));
+                url += "&ec_items=" + UrlEncode(_ecommerceItems.Values.Serialize());
             }
 
             _ecommerceItems = new Dictionary<string, object[]>();
@@ -1300,7 +1300,7 @@ namespace Piwik.Tracker
                 return null;
             }
 
-            var cookieDecoded = new JavaScriptSerializer().Deserialize<string[]>(HttpUtility.UrlDecode(refCookie.Value ?? string.Empty));
+            var cookieDecoded = HttpUtility.UrlDecode(refCookie.Value ?? string.Empty).Deserialize<string[]>();
 
             if (cookieDecoded == null)
             {
@@ -1523,9 +1523,9 @@ namespace Piwik.Tracker
                     (!_ecommerceLastOrderTimestamp.Equals(DateTimeOffset.MinValue) ? "&_ects=" + DateTimeUtils.ConvertToUnixTime(_ecommerceLastOrderTimestamp) : "") +
 
                     // Various important attributes
-                    (_visitorCustomVar.Any() ? "&_cvar=" + UrlEncode(new JavaScriptSerializer().Serialize(_visitorCustomVar)) : "") +
-                    (_pageCustomVar.Any() ? "&cvar=" + UrlEncode(new JavaScriptSerializer().Serialize(_pageCustomVar)) : "") +
-                    (_eventCustomVar.Any() ? "&e_cvar=" + UrlEncode(new JavaScriptSerializer().Serialize(_eventCustomVar)) : "") +
+                    (_visitorCustomVar.Any() ? "&_cvar=" + UrlEncode(_visitorCustomVar.Serialize()) : "") +
+                    (_pageCustomVar.Any() ? "&cvar=" + UrlEncode(_pageCustomVar.Serialize()) : "") +
+                    (_eventCustomVar.Any() ? "&e_cvar=" + UrlEncode(_eventCustomVar.Serialize()) : "") +
                     (_generationTime != null ? "&gt_ms=" + _generationTime : "") +
                     (!string.IsNullOrEmpty(_forcedVisitorId) ? "&cid=" + _forcedVisitorId : "&_id=" + GetVisitorId()) +
 
@@ -1674,7 +1674,7 @@ namespace Piwik.Tracker
             var attributionInfo = GetAttributionInfo();
             if (attributionInfo != null)
             {
-                SetCookie("ref", UrlEncode(new JavaScriptSerializer().Serialize(attributionInfo.ToArray())), ConfigReferralCookieTimeout);
+                SetCookie("ref", UrlEncode(attributionInfo.ToArray().Serialize()), ConfigReferralCookieTimeout);
             }
 
             // Set the 'ses' cookie
@@ -1686,7 +1686,7 @@ namespace Piwik.Tracker
             SetCookie("id", cookieValue, ConfigVisitorCookieTimeout);
 
             // Set the 'cvar' cookie
-            SetCookie("cvar", UrlEncode(new JavaScriptSerializer().Serialize(_visitorCustomVar)), ConfigSessionCookieTimeout);
+            SetCookie("cvar", UrlEncode(_visitorCustomVar.Serialize()), ConfigSessionCookieTimeout);
         }
 
         /// <summary>
@@ -1716,7 +1716,7 @@ namespace Piwik.Tracker
             {
                 return new Dictionary<string, string[]>();
             }
-            return new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value ?? string.Empty));
+            return HttpUtility.UrlDecode(cookie.Value ?? string.Empty).Deserialize<Dictionary<string, string[]>>();
         }
 
         private string FormatDateValue(DateTimeOffset date)

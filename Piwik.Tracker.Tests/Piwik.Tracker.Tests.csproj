@@ -88,6 +88,7 @@
     <Compile Include="PiwikTrackerTests.cs" />
     <Compile Include="PiwikTrackerWithMockedServerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializerExtensionsTests.cs" />
     <Compile Include="UnitTestExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
