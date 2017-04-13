@@ -84,6 +84,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CryptoExtensionsTests.cs" />
     <Compile Include="PiwikTrackerTests.cs" />
     <Compile Include="PiwikTrackerWithMockedServerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
