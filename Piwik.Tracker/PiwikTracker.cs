@@ -578,7 +578,7 @@ namespace Piwik.Tracker
                 ? GetCurrentHost()
                 : _configCookieDomain)
                 + _configCookiePath;
-            var hash = cookieDomain.CreateSha1(Encoding.UTF8, hashAsHexadecimal: true).Substring(0, 4);
+            var hash = cookieDomain.CreateSha1(hashAsHexadecimal: true).Substring(0, 4);
             return FirstPartyCookiesPrefix + cookieName + "." + IdSite + "." + hash;
         }
 
@@ -1164,7 +1164,7 @@ namespace Piwik.Tracker
         /// <returns></returns>
         public static string GetUserIdHashed(string id)
         {
-            var hash = id.CreateSha1(Encoding.Default, hashAsHexadecimal: false);
+            var hash = id.CreateSha1(hashAsHexadecimal: false);
             return hash.Substring(0, 16);
         }
 
