@@ -17,8 +17,6 @@ namespace Piwik.Tracker
     using System.Linq;
     using System.Net;
     using System.Globalization;
-    using System.Text;
-    using System.Security.Cryptography;
     using System.Web;
     using System.Web.Script.Serialization;
     using System.Text.RegularExpressions;
@@ -431,7 +429,7 @@ namespace Piwik.Tracker
         /// </summary>
         public void SetNewVisitorId()
         {
-            _randomVisitorId = Guid.NewGuid().ToString().CreateSha1().Substring(0, LengthVisitorId).ToLower();
+            _randomVisitorId = Guid.NewGuid().ToByteArray().ToSha1().Substring(0, LengthVisitorId).ToLower();
             _userId = null;
             _forcedVisitorId = null;
             _cookieVisitorId = null;
@@ -578,7 +576,7 @@ namespace Piwik.Tracker
                 ? GetCurrentHost()
                 : _configCookieDomain)
                 + _configCookiePath;
-            var hash = cookieDomain.CreateSha1().Substring(0, 4);
+            var hash = cookieDomain.ToSha1().Substring(0, 4);
             return FirstPartyCookiesPrefix + cookieName + "." + IdSite + "." + hash;
         }
 
@@ -1164,7 +1162,7 @@ namespace Piwik.Tracker
         /// <returns></returns>
         public static string GetUserIdHashed(string id)
         {
-            var hash = id.CreateSha1();
+            var hash = (id ?? string.Empty).ToSha1();
             return hash.Substring(0, 16);
         }
 

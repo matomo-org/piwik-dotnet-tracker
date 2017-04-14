@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Piwik.Tracker
@@ -10,12 +11,29 @@ namespace Piwik.Tracker
         /// </summary>
         /// <param name="valueToEncrypt">The value to encrypt.</param>
         /// <returns></returns>
-        public static string CreateSha1(this string valueToEncrypt)
+        public static string ToSha1(this string valueToEncrypt)
         {
+            if (valueToEncrypt == null)
+            {
+                throw new ArgumentNullException(nameof(valueToEncrypt));
+            }
+            return Encoding.UTF8.GetBytes(valueToEncrypt).ToSha1();
+        }
+
+        /// <summary>
+        /// Creates a sha1 hash from given <paramref name="valueToEncrypt" />.
+        /// </summary>
+        /// <param name="valueToEncrypt">The value to encrypt.</param>
+        /// <returns></returns>
+        public static string ToSha1(this byte[] valueToEncrypt)
+        {
+            if (valueToEncrypt == null)
+            {
+                throw new ArgumentNullException(nameof(valueToEncrypt));
+            }
             using (var provider = new SHA1CryptoServiceProvider())
             {
-                var bytes = Encoding.UTF8.GetBytes(valueToEncrypt);
-                var encodedBytes = provider.ComputeHash(bytes);
+                var encodedBytes = provider.ComputeHash(valueToEncrypt);
                 var sb = new StringBuilder();
                 foreach (byte b in encodedBytes)
                 {

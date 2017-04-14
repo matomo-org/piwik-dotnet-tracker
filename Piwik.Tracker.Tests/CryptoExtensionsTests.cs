@@ -12,10 +12,10 @@ namespace Piwik.Tracker.Tests
         [TestCase("1-2-3-45-6", "5c13bf8b7ff1d43869a7b4246bef897f9499833b")]
         [TestCase("öüüä%&&", "c24eb4685cd57f32098b33066b5b08b31e378981")]
         [TestCase("+- fdgsdgafdgffdsfddgdgdfdfgdfhdghdfghdgfhgfdgar^^°gfra7685&%§$\"$§&(=)(&=,// \\", "bde6cf181dd5bc0ef11342d5c6a4e81a934d9cb8")]
-        public void CreateSha1_WhenHashMustBeHexadecimal_RegressionTests(string valueToEncrypt, string expectedHash)
+        public void ToSha1_RegressionTests(string valueToEncrypt, string expectedHash)
         {
             //Act
-            var actualHash = valueToEncrypt.CreateSha1();
+            var actualHash = valueToEncrypt.ToSha1();
             //Assert
             Assert.That(actualHash, Is.EqualTo(expectedHash));
         }
