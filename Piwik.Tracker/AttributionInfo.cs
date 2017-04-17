@@ -38,7 +38,7 @@ namespace Piwik.Tracker
             var infos = new string[4];
             infos[0] = CampaignName;
             infos[1] = CampaignKeyword;
-            infos[2] = (ReferrerTimestamp - new DateTime(1970, 1, 1)).TotalSeconds.ToString(CultureInfo.InvariantCulture);
+            infos[2] = (ReferrerTimestamp - Constants.UnixEpoch).TotalSeconds.ToString(CultureInfo.InvariantCulture);
             infos[3] = ReferrerUrl;
             return infos;
         }

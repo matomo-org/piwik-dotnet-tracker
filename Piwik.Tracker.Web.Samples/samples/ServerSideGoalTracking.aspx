@@ -18,7 +18,7 @@ This page tracks a goal conversion with the Server Side tracking API and display
 
     attributionInfo.CampaignName = "CAMPAIGN NAME";
     attributionInfo.CampaignKeyword = "CAMPAIGN KEYWORD";
-    attributionInfo.ReferrerTimestamp = new DateTime(2011, 04, 08, 23, 48, 24);
+    attributionInfo.ReferrerTimestamp = new DateTime(2011, 04, 08, 23, 48, 24, DateTimeKind.Utc);
     attributionInfo.ReferrerUrl = "http://www.example.org/test/really?q=yes";
 
     piwikTracker.SetAttributionInfo(attributionInfo);

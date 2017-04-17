@@ -180,7 +180,7 @@ namespace Piwik.Tracker
         private bool _configCookiesDisabled;
         private string _configCookiePath = DefaultCookiePath;
         private string _configCookieDomain = "";
-        private readonly long _currentTs = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
+        private readonly long _currentTs = (long)(DateTime.UtcNow - Constants.UnixEpoch).TotalSeconds;
         private long _createTs;
         private long? _visitCount = 0;
         private long? _currentVisitTs;
@@ -1329,7 +1329,7 @@ namespace Piwik.Tracker
 
             if (arraySize > 2 && !string.IsNullOrEmpty(cookieDecoded[2]))
             {
-                attributionInfo.ReferrerTimestamp = new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(Convert.ToInt32(cookieDecoded[2]));
+                attributionInfo.ReferrerTimestamp = Constants.UnixEpoch.AddSeconds(Convert.ToInt32(cookieDecoded[2]));
             }
 
             if (arraySize > 3 && !string.IsNullOrEmpty(cookieDecoded[3]))
@@ -1709,7 +1709,7 @@ namespace Piwik.Tracker
             if (HttpContext.Current != null)
             {
                 var cookieExpire = _currentTs + cookieTtl;
-                HttpContext.Current.Response.Cookies.Add(new HttpCookie(GetCookieName(cookieName), cookieValue) { Expires = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(cookieExpire), Path = _configCookiePath, Domain = _configCookieDomain });
+                HttpContext.Current.Response.Cookies.Add(new HttpCookie(GetCookieName(cookieName), cookieValue) { Expires = Constants.UnixEpoch.AddSeconds(cookieExpire), Path = _configCookiePath, Domain = _configCookieDomain });
             }
         }
 
@@ -1734,8 +1734,7 @@ namespace Piwik.Tracker
 
         private string FormatTimestamp(DateTimeOffset date)
         {
-            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            TimeSpan diff = date - origin;
+            TimeSpan diff = date - Constants.UnixEpoch;
             double seconds = Convert.ToInt32(diff.TotalSeconds);
             return seconds.ToString(CultureInfo.InvariantCulture);
         }

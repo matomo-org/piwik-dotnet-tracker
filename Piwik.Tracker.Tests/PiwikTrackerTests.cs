@@ -187,7 +187,7 @@ namespace Piwik.Tracker.Tests
                 _sut.SetAttributionInfo(new AttributionInfo { ReferrerTimestamp = referrerTimestamp });
                 // Assert
                 var actual = _sut.GetRequest(SiteId);
-                Assert.That(actual, Does.Contain("&_refts=" + referrerTimestamp.ToUnixTimeSeconds().ToString().Substring(0, 6)));
+                Assert.That(actual, Does.Contain("&_refts=" + referrerTimestamp.ToUnixTimeSeconds()));
             }
         }
 
