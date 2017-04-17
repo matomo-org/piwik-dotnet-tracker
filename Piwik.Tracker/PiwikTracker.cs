@@ -429,7 +429,7 @@ namespace Piwik.Tracker
         /// </summary>
         public void SetNewVisitorId()
         {
-            _randomVisitorId = Guid.NewGuid().ToByteArray().ToSha1().Substring(0, LengthVisitorId).ToLower();
+            _randomVisitorId = Guid.NewGuid().ToByteArray().ToSha1().Substring(0, LengthVisitorId);
             _userId = null;
             _forcedVisitorId = null;
             _cookieVisitorId = null;
