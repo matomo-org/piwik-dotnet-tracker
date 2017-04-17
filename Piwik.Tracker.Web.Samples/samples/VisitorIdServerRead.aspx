@@ -18,7 +18,7 @@ It is also possible to override the id using "piwikTracker.setVisitorId()"<br />
 
 <%
     var PiwikBaseUrl = ConfigurationSettings.AppSettings["PiwikURL"];
-    var piwikTracker = new PiwikTracker(1, PiwikBaseUrl);
+    var piwikTracker = new PiwikTracker(Piwik.Tracker.Web.Samples.Singleton.HttpClient, 1, PiwikBaseUrl);
     piwikTracker.EnableCookies();
 
     this.Response.Write(piwikTracker.GetVisitorId());

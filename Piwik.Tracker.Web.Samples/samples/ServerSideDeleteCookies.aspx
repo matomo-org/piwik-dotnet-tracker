@@ -8,7 +8,7 @@ This page deletes all first party Piwik cookies using the Server Side Tracking A
 
 <%
     var PiwikBaseUrl = ConfigurationSettings.AppSettings["PiwikURL"];
-    var piwikTracker = new PiwikTracker(1, PiwikBaseUrl);
+    var piwikTracker = new PiwikTracker(Piwik.Tracker.Web.Samples.Singleton.HttpClient, 1, PiwikBaseUrl);
     piwikTracker.DeleteCookies();
 %>
 
