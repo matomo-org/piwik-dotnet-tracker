@@ -17,8 +17,6 @@ namespace Piwik.Tracker
     using System.Linq;
     using System.Net;
     using System.Globalization;
-    using System.Text;
-    using System.Security.Cryptography;
     using System.Web;
     using System.Web.Script.Serialization;
     using System.Text.RegularExpressions;
@@ -431,8 +429,7 @@ namespace Piwik.Tracker
         /// </summary>
         public void SetNewVisitorId()
         {
-            var encodedGuidBytes = new MD5CryptoServiceProvider().ComputeHash(Encoding.Default.GetBytes(Guid.NewGuid().ToString()));
-            _randomVisitorId = BitConverter.ToString(encodedGuidBytes).Replace("-", "").Substring(0, LengthVisitorId).ToLower();
+            _randomVisitorId = Guid.NewGuid().ToByteArray().ToSha1().Substring(0, LengthVisitorId);
             _userId = null;
             _forcedVisitorId = null;
             _cookieVisitorId = null;
@@ -575,24 +572,12 @@ namespace Piwik.Tracker
         protected string GetCookieName(string cookieName)
         {
             // NOTE: If the cookie name is changed, we must also update the method in piwik.js with the same name.
-            var hash = GetHexStringFromBytes(new SHA1CryptoServiceProvider().ComputeHash(Encoding.UTF8.GetBytes((string.IsNullOrWhiteSpace(_configCookieDomain) ? GetCurrentHost() : _configCookieDomain) + _configCookiePath))).Substring(0, 4);
+            var cookieDomain = (string.IsNullOrWhiteSpace(_configCookieDomain)
+                ? GetCurrentHost()
+                : _configCookieDomain)
+                + _configCookiePath;
+            var hash = cookieDomain.ToSha1().Substring(0, 4);
             return FirstPartyCookiesPrefix + cookieName + "." + IdSite + "." + hash;
-        }
-
-        /// <summary>
-        /// Gets the hexadecimal string from bytes.
-        /// </summary>
-        /// <param name="bytes">The bytes.</param>
-        /// <returns></returns>
-        protected static string GetHexStringFromBytes(byte[] bytes)
-        {
-            var sb = new StringBuilder();
-            foreach (byte b in bytes)
-            {
-                var hex = b.ToString("x2");
-                sb.Append(hex);
-            }
-            return sb.ToString();
         }
 
         /// <summary>
@@ -1177,8 +1162,8 @@ namespace Piwik.Tracker
         /// <returns></returns>
         public static string GetUserIdHashed(string id)
         {
-            var encodedIdBytes = new SHA1CryptoServiceProvider().ComputeHash(Encoding.Default.GetBytes(id));
-            return BitConverter.ToString(encodedIdBytes).Substring(0, 16);
+            var hash = (id ?? string.Empty).ToSha1();
+            return hash.Substring(0, 16);
         }
 
         /// <summary>
