@@ -131,7 +131,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.SetIp("192.168.52.64");
             piwikTracker.SetVisitorId("33c31B01394bdc65");
 
-            piwikTracker.SetForceVisitDateTime(new DateTime(2011, 10, 23, 10, 20, 50));
+            piwikTracker.SetForceVisitDateTime(new DateTime(2011, 10, 23, 10, 20, 50, DateTimeKind.Utc));
 
             piwikTracker.SetResolution(1600, 1400);
 
@@ -143,7 +143,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.SetPlugins(browserPluginsToSet);
             piwikTracker.SetBrowserHasCookies(true);
 
-            piwikTracker.SetLocalTime(new DateTime(2000, 1, 1, 9, 10, 25));
+            piwikTracker.SetLocalTime(new DateTime(2000, 1, 1, 9, 10, 25, DateTimeKind.Utc));
 
             piwikTracker.SetUrl("http://piwik-1.5/supernova");
             piwikTracker.SetUrlReferrer("http://supernovadirectory.org");
@@ -201,7 +201,7 @@ namespace Piwik.Tracker.Samples
 
             attributionInfo.CampaignName = "CAMPAIGN NAME";
             attributionInfo.CampaignKeyword = "CAMPAIGN KEYWORD";
-            attributionInfo.ReferrerTimestamp = new DateTime(2011, 04, 08, 23, 48, 24);
+            attributionInfo.ReferrerTimestamp = new DateTime(2011, 04, 08, 23, 48, 24, DateTimeKind.Utc);
             attributionInfo.ReferrerUrl = "http://www.example.org/test/really?q=yes";
 
             piwikTracker.SetAttributionInfo(attributionInfo);
