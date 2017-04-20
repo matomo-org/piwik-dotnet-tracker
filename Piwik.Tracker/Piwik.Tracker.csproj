@@ -46,7 +46,7 @@
   <ItemGroup>
     <Compile Include="AttributionInfo.cs" />
     <Compile Include="BrowserPlugins.cs" />
-    <Compile Include="Constants.cs" />
+    <Compile Include="DateTimeUtils.cs" />
     <Compile Include="CryptoExtensions.cs" />
     <Compile Include="CustomVar.cs" />
     <Compile Include="Enums.cs" />

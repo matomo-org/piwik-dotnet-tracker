@@ -180,7 +180,7 @@ namespace Piwik.Tracker
         private bool _configCookiesDisabled;
         private string _configCookiePath = DefaultCookiePath;
         private string _configCookieDomain = "";
-        private readonly long _currentTs = (long)(DateTime.UtcNow - Constants.UnixEpoch).TotalSeconds;
+        private readonly long _currentTs = (long)(DateTime.UtcNow - DateTimeUtils.UnixEpoch).TotalSeconds;
         private long _createTs;
         private long? _visitCount = 0;
         private long? _currentVisitTs;
@@ -1329,7 +1329,7 @@ namespace Piwik.Tracker
 
             if (arraySize > 2 && !string.IsNullOrEmpty(cookieDecoded[2]))
             {
-                attributionInfo.ReferrerTimestamp = Constants.UnixEpoch.AddSeconds(Convert.ToInt32(cookieDecoded[2]));
+                attributionInfo.ReferrerTimestamp = DateTimeUtils.UnixEpoch.AddSeconds(Convert.ToInt32(cookieDecoded[2]));
             }
 
             if (arraySize > 3 && !string.IsNullOrEmpty(cookieDecoded[3]))
@@ -1526,7 +1526,7 @@ namespace Piwik.Tracker
                     (!_localTime.Equals(DateTimeOffset.MinValue) ? "&h=" + _localTime.Hour + "&m=" + _localTime.Minute + "&s=" + _localTime.Second : "") +
                     ((_width != 0 && _height != 0) ? "&res=" + _width + "x" + _height : "") +
                     (_hasCookies ? "&cookie=1" : "") +
-                    (!_ecommerceLastOrderTimestamp.Equals(DateTimeOffset.MinValue) ? "&_ects=" + FormatTimestamp(_ecommerceLastOrderTimestamp) : "") +
+                    (!_ecommerceLastOrderTimestamp.Equals(DateTimeOffset.MinValue) ? "&_ects=" + DateTimeUtils.ConvertToUnixTime(_ecommerceLastOrderTimestamp) : "") +
 
                     // Various important attributes
                     // todo _customData is never assigned!
@@ -1548,7 +1548,7 @@ namespace Piwik.Tracker
                     // Campaign keyword
                     ((_attributionInfo != null && !string.IsNullOrEmpty(_attributionInfo.CampaignKeyword)) ? "&_rck=" + UrlEncode(_attributionInfo.CampaignKeyword) : "") +
                     // Timestamp at which the referrer was set
-                    ((_attributionInfo != null && !_attributionInfo.ReferrerTimestamp.Equals(DateTimeOffset.MinValue)) ? "&_refts=" + FormatTimestamp(_attributionInfo.ReferrerTimestamp) : "") +
+                    ((_attributionInfo != null && !_attributionInfo.ReferrerTimestamp.Equals(DateTimeOffset.MinValue)) ? "&_refts=" + DateTimeUtils.ConvertToUnixTime(_attributionInfo.ReferrerTimestamp) : "") +
                     // Referrer URL
                     ((_attributionInfo != null && !string.IsNullOrEmpty(_attributionInfo.ReferrerUrl)) ? "&_ref=" + UrlEncode(_attributionInfo.ReferrerUrl) : "") +
 
@@ -1709,7 +1709,7 @@ namespace Piwik.Tracker
             if (HttpContext.Current != null)
             {
                 var cookieExpire = _currentTs + cookieTtl;
-                HttpContext.Current.Response.Cookies.Add(new HttpCookie(GetCookieName(cookieName), cookieValue) { Expires = Constants.UnixEpoch.AddSeconds(cookieExpire), Path = _configCookiePath, Domain = _configCookieDomain });
+                HttpContext.Current.Response.Cookies.Add(new HttpCookie(GetCookieName(cookieName), cookieValue) { Expires = DateTimeUtils.UnixEpoch.AddSeconds(cookieExpire), Path = _configCookiePath, Domain = _configCookieDomain });
             }
         }
 
@@ -1730,13 +1730,6 @@ namespace Piwik.Tracker
         private string FormatDateValue(DateTimeOffset date)
         {
             return date.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss");
-        }
-
-        private string FormatTimestamp(DateTimeOffset date)
-        {
-            TimeSpan diff = date - Constants.UnixEpoch;
-            double seconds = Convert.ToInt32(diff.TotalSeconds);
-            return seconds.ToString(CultureInfo.InvariantCulture);
         }
 
         private string FormatMonetaryValue(double value)

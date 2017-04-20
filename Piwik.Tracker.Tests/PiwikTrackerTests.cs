@@ -174,21 +174,17 @@ namespace Piwik.Tracker.Tests
         [TestCase("")]
         public void SetAttributionInfo_WhenReferrerTimestampSpecified_IsAddedToRequest(string referrerDateTime)
         {
-            if (string.IsNullOrEmpty(referrerDateTime))
+            var expectedTs = "1486223506"; // cf http://xmillis.com/l1c9bu4i.9e
+            var timestampProvided = !string.IsNullOrEmpty(referrerDateTime);
+            if (timestampProvided)
             {
-                // Assert
-                var actual = _sut.GetRequest(SiteId);
-                Assert.That(actual, Does.Not.Contain("&_refts="));
-            }
-            else
-            {
-                // Arrange, Act
                 var referrerTimestamp = DateTimeOffset.Parse(referrerDateTime, CultureInfo.InvariantCulture);
-                _sut.SetAttributionInfo(new AttributionInfo { ReferrerTimestamp = referrerTimestamp });
-                // Assert
-                var actual = _sut.GetRequest(SiteId);
-                Assert.That(actual, Does.Contain("&_refts=" + referrerTimestamp.ToUnixTimeSeconds()));
+                var attrInfo = new AttributionInfo {ReferrerTimestamp = referrerTimestamp};
+                Assert.That(attrInfo.ToArray()[2], Is.EqualTo(expectedTs));
+                _sut.SetAttributionInfo(attrInfo);
+
             }
+            Assert.That(_sut.GetRequest(SiteId), timestampProvided ? Does.Contain("&_refts=" + expectedTs) : Does.Not.Contain("&_refts="));
         }
 
         [Test]
