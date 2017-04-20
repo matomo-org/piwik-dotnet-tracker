@@ -1729,7 +1729,7 @@ namespace Piwik.Tracker
 
         private string FormatDateValue(DateTimeOffset date)
         {
-            return date.ToString("yyyy-MM-dd HH:mm:ss");
+            return date.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss");
         }
 
         private string FormatTimestamp(DateTimeOffset date)

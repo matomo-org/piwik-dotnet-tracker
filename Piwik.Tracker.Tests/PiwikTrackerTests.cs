@@ -446,23 +446,9 @@ namespace Piwik.Tracker.Tests
         [TestCase(false)]
         public void SetForceVisitDateTime_WhenSpecified_IsAddedToRequest(bool setValue)
         {
-            // Arrange
-            var expected = DateTime.Now;
-            //Act
             if (setValue)
-            {
-                _sut.SetForceVisitDateTime(expected);
-            }
-            // Assert
-            var actual = _sut.GetRequest(SiteId);
-            if (setValue)
-            {
-                Assert.That(actual, Does.Contain("&cdt=" + expected.ToString("yyyy-MM-dd HH:mm:ss")));
-            }
-            else
-            {
-                Assert.That(actual, Does.Not.Contain("&cdt"));
-            }
+                _sut.SetForceVisitDateTime(new DateTimeOffset(2017, 4, 20, 18, 11, 10, new TimeSpan(2, 0, 0)));
+            Assert.That(_sut.GetRequest(SiteId), setValue ? Does.Contain("&cdt=2017-04-20 16:11:10") : Does.Not.Contain("&cdt"));
         }
 
         [Test]
