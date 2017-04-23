@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Piwik.Tracker\AttributionInfo.cs" Link="AttributionInfo.cs" />
+    <Compile Include="..\Piwik.Tracker\BrowserPlugins.cs" Link="BrowserPlugins.cs" />
+    <Compile Include="..\Piwik.Tracker\CryptoExtensions.cs" Link="CryptoExtensions.cs" />
+    <Compile Include="..\Piwik.Tracker\CustomVar.cs" Link="CustomVar.cs" />
+    <Compile Include="..\Piwik.Tracker\Enums.cs" Link="Enums.cs" />
+    <Compile Include="..\Piwik.Tracker\HttpContextExtensions.cs" Link="HttpContextExtensions.cs" />
+    <Compile Include="..\Piwik.Tracker\PiwikTracker.cs" Link="PiwikTracker.cs" />
+    <Compile Include="..\Piwik.Tracker\SerializerExtensions.cs" Link="SerializerExtensions.cs" />
+    <Compile Include="..\Piwik.Tracker\TrackingResponse.cs" Link="TrackingResponse.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="1.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
+  </ItemGroup>
+
+</Project>

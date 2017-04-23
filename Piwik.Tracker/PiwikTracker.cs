@@ -17,8 +17,18 @@ namespace Piwik.Tracker
     using System.Linq;
     using System.Net;
     using System.Globalization;
-    using System.Web;
     using System.Text.RegularExpressions;
+
+#if NETSTANDARD1_4
+
+    // HttpContext.Current has been removed from .Net.Core: Everywhere the HTTP context is needed, declare an IHttpContextAccessor dependency and use it to fetch the context.
+    using Microsoft.AspNetCore.Http;
+
+#else
+
+    using System.Web;
+
+#endif
 
     /// <summary>
     /// PiwikTracker implements the Piwik Tracking Web API.
