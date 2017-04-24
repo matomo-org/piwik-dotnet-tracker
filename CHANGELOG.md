@@ -7,9 +7,6 @@
 **Implemented enhancements:**
 
 - Provide only one Visual Studio Solution file [\#60](https://github.com/piwik/piwik-dotnet-tracker/issues/60)
-- Ability to provide custom tracking parameters [\#59](https://github.com/piwik/piwik-dotnet-tracker/issues/59)
-- Ability to provide custom User Identifiers \("uid" parameter\) [\#57](https://github.com/piwik/piwik-dotnet-tracker/issues/57)
-- Add user geo location support [\#56](https://github.com/piwik/piwik-dotnet-tracker/issues/56)
 - Improve random visitor id generation [\#50](https://github.com/piwik/piwik-dotnet-tracker/issues/50)
 - Use travis for continuous testing [\#41](https://github.com/piwik/piwik-dotnet-tracker/issues/41)
 - Apply C\# Coding Style [\#33](https://github.com/piwik/piwik-dotnet-tracker/issues/33)
@@ -19,8 +16,6 @@
 
 **Fixed bugs:**
 
-- Invalid request timeout [\#58](https://github.com/piwik/piwik-dotnet-tracker/issues/58)
-- Fix exception when setting same custom variable slot ID more than once [\#55](https://github.com/piwik/piwik-dotnet-tracker/issues/55)
 - Invalid timestamps: Referrer, Last Order, Forced DateTime, Current TS in Cookie & First Visit [\#52](https://github.com/piwik/piwik-dotnet-tracker/issues/52)
 - Incorrect generation of visitorId when specifying a userId [\#51](https://github.com/piwik/piwik-dotnet-tracker/issues/51)
 - GetCustomVariable - Invalid result for Visit and Event scoped custom variables [\#37](https://github.com/piwik/piwik-dotnet-tracker/issues/37)
@@ -31,6 +26,7 @@
 
 **Implemented enhancements:**
 
+- Ability to provide custom tracking parameters [\#59](https://github.com/piwik/piwik-dotnet-tracker/issues/59)
 - Let users track Custom Dimensions  [\#16](https://github.com/piwik/piwik-dotnet-tracker/issues/16)
 
 ## [2.12.0](https://github.com/piwik/piwik-dotnet-tracker/tree/2.12.0) (2016-08-07)
@@ -60,6 +56,10 @@
 ## [2.8.1](https://github.com/piwik/piwik-dotnet-tracker/tree/2.8.1) (2016-08-07)
 [Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.8.0...2.8.1)
 
+**Fixed bugs:**
+
+- Invalid request timeout [\#58](https://github.com/piwik/piwik-dotnet-tracker/issues/58)
+
 ## [2.8.0](https://github.com/piwik/piwik-dotnet-tracker/tree/2.8.0) (2016-01-09)
 [Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.7.0...2.8.0)
 
@@ -69,6 +69,10 @@
 
 ## [2.7.0](https://github.com/piwik/piwik-dotnet-tracker/tree/2.7.0) (2015-12-13)
 [Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.6.1...2.7.0)
+
+**Implemented enhancements:**
+
+- Ability to provide custom User Identifiers \("uid" parameter\) [\#57](https://github.com/piwik/piwik-dotnet-tracker/issues/57)
 
 ## [2.6.1](https://github.com/piwik/piwik-dotnet-tracker/tree/2.6.1) (2015-12-13)
 [Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.6.0...2.6.1)
@@ -109,9 +113,9 @@
 ## [2.0.1](https://github.com/piwik/piwik-dotnet-tracker/tree/2.0.1) (2015-12-13)
 [Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.0...2.0.1)
 
-**Implemented enhancements:**
+**Fixed bugs:**
 
-- Add NuGet support [\#8](https://github.com/piwik/piwik-dotnet-tracker/issues/8)
+- Fix exception when setting same custom variable slot ID more than once [\#55](https://github.com/piwik/piwik-dotnet-tracker/issues/55)
 
 ## [2.0](https://github.com/piwik/piwik-dotnet-tracker/tree/2.0) (2015-05-14)
 [Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/1.12...2.0)
@@ -119,6 +123,7 @@
 **Implemented enhancements:**
 
 - Create an official NuGet and SymbolSource Piwik account and publish key [\#9](https://github.com/piwik/piwik-dotnet-tracker/issues/9)
+- Add NuGet support [\#8](https://github.com/piwik/piwik-dotnet-tracker/issues/8)
 
 ## [1.12](https://github.com/piwik/piwik-dotnet-tracker/tree/1.12) (2015-04-12)
 [Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/1.11...1.12)
@@ -131,6 +136,10 @@
 
 ## [1.10](https://github.com/piwik/piwik-dotnet-tracker/tree/1.10) (2015-03-29)
 [Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/1.10.1...1.10)
+
+**Implemented enhancements:**
+
+- Add user geo location support [\#56](https://github.com/piwik/piwik-dotnet-tracker/issues/56)
 
 ## [1.10.1](https://github.com/piwik/piwik-dotnet-tracker/tree/1.10.1) (2015-03-29)
 [Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/1.9.2...1.10.1)
