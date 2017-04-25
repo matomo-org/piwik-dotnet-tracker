@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Resetting user identifiers should be an explicit action [\#62](https://github.com/piwik/piwik-dotnet-tracker/issues/62)
 - Unify tracker and sample projects under one Visual Studio Solution file [\#60](https://github.com/piwik/piwik-dotnet-tracker/issues/60)
 - Improve random visitor id generation [\#50](https://github.com/piwik/piwik-dotnet-tracker/issues/50)
 - Use travis for continuous testing [\#41](https://github.com/piwik/piwik-dotnet-tracker/issues/41)
