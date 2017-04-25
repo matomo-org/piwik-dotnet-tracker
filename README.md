@@ -2,6 +2,10 @@
 
 This is the official C# implementation of the [Piwik Tracking API](http://piwik.org/docs/tracking-api/).
 
+It uses its own versionning scheme since https://github.com/piwik/piwik-dotnet-tracker/issues/22
+
+See [Changelog](CHANGELOG.md).
+
 ## Publishing the project to NuGet
 
 ### Requirements
@@ -19,7 +23,5 @@ This is the official C# implementation of the [Piwik Tracking API](http://piwik.
 4. Build the project using the Release solution configuration
 5. Create NuGet packages using `nuget pack Piwik.Tracker\Piwik.Tracker.csproj -Prop Configuration=Release -Symbols`
 6. Publish packages using `nuget push Piwik.Tracker.VERSION.nupkg`
-
-# [Changelog](CHANGELOG.md)
 
 # [License](LICENSE)
