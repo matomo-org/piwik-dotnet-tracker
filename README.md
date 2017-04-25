@@ -2,7 +2,7 @@
 
 This is the official C# implementation of the [Piwik Tracking API](http://piwik.org/docs/tracking-api/).
 
-It uses its own versionning scheme since https://github.com/piwik/piwik-dotnet-tracker/issues/22
+It uses its own versionning scheme since [#22](https://github.com/piwik/piwik-dotnet-tracker/issues/22).
 
 See [Changelog](CHANGELOG.md).
 
