@@ -13,6 +13,7 @@
 - Apply C\# Coding Style [\#33](https://github.com/piwik/piwik-dotnet-tracker/issues/33)
 - Ability to specify a webproxy to be used by web-requests [\#31](https://github.com/piwik/piwik-dotnet-tracker/issues/31)
 - Relicense the project from GPL to BSD [\#23](https://github.com/piwik/piwik-dotnet-tracker/issues/23)
+- New versioning Scheme [\#22](https://github.com/piwik/piwik-dotnet-tracker/issues/22)
 - Develop automated tests [\#7](https://github.com/piwik/piwik-dotnet-tracker/issues/7)
 
 **Fixed bugs:**
