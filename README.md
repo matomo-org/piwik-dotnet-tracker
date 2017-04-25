@@ -2,17 +2,9 @@
 
 This is the official C# implementation of the [Piwik Tracking API](http://piwik.org/docs/tracking-api/).
 
-## Usage
+It uses its own versionning scheme since [#22](https://github.com/piwik/piwik-dotnet-tracker/issues/22).
 
-Three Visual Studio Solutions are provided : 
-
-* [Piwik.Tracker.sln](Piwik.Tracker.sln) : Library project
-* [Piwik.Tracker.Samples.sln](Piwik.Tracker.Samples.sln) : Console Samples project
-* [Piwik.Tracker.Web.Samples.sln](Piwik.Tracker.Web.Samples.sln) : ASP.NET Samples project
-
-## Changelog
-
-Pending [#22](../../issues/22)
+See [Changelog](CHANGELOG.md).
 
 ## Publishing the project to NuGet
 
@@ -25,7 +17,7 @@ Pending [#22](../../issues/22)
 
 ### Steps
 
-1. Validate tests (requires #7)
+1. [Validate tests](https://travis-ci.org/piwik/piwik-dotnet-tracker)
 2. Update and commit `AssemblyInfo.cs` with new version
 3. Create git tag
 4. Build the project using the Release solution configuration
