@@ -6,7 +6,7 @@
 
 **Implemented enhancements:**
 
-- Provide only one Visual Studio Solution file [\#60](https://github.com/piwik/piwik-dotnet-tracker/issues/60)
+- Unify tracker and sample projects under one Visual Studio Solution file [\#60](https://github.com/piwik/piwik-dotnet-tracker/issues/60)
 - Improve random visitor id generation [\#50](https://github.com/piwik/piwik-dotnet-tracker/issues/50)
 - Use travis for continuous testing [\#41](https://github.com/piwik/piwik-dotnet-tracker/issues/41)
 - Apply C\# Coding Style [\#33](https://github.com/piwik/piwik-dotnet-tracker/issues/33)
@@ -22,12 +22,19 @@
 - Timeout while tracking multiple events at the same time [\#27](https://github.com/piwik/piwik-dotnet-tracker/issues/27)
 
 ## [2.16.0](https://github.com/piwik/piwik-dotnet-tracker/tree/2.16.0) (2016-08-07)
-[Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.12.0...2.16.0)
+[Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.14.0...2.16.0)
 
 **Implemented enhancements:**
 
 - Ability to provide custom tracking parameters [\#59](https://github.com/piwik/piwik-dotnet-tracker/issues/59)
 - Let users track Custom Dimensions  [\#16](https://github.com/piwik/piwik-dotnet-tracker/issues/16)
+
+## [2.14.0](https://github.com/piwik/piwik-dotnet-tracker/tree/2.14.0) (2016-08-07)
+[Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.12.0...2.14.0)
+
+**Implemented enhancements:**
+
+- Support for Piwik Ping requests [\#61](https://github.com/piwik/piwik-dotnet-tracker/issues/61)
 
 ## [2.12.0](https://github.com/piwik/piwik-dotnet-tracker/tree/2.12.0) (2016-08-07)
 [Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.11.1...2.12.0)
