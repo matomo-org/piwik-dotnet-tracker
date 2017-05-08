@@ -150,7 +150,6 @@ namespace Piwik.Tracker
         private Dictionary<string, string[]> _pageCustomVar = new Dictionary<string, string[]>();
         private Dictionary<string, string[]> _eventCustomVar = new Dictionary<string, string[]>();
         private Dictionary<string, string> _customParameters = new Dictionary<string, string>();
-        private readonly string _customData;
         private DateTimeOffset _forcedDatetime = DateTimeOffset.MinValue;
         private bool _forcedNewVisit;
         private string _tokenAuth;
@@ -1483,14 +1482,9 @@ namespace Piwik.Tracker
         {
             SetFirstPartyCookies();
 
-            var customFields = "";
-            if (_customParameters.Any())
-            {
-                foreach (var kvp in _customParameters)
-                {
-                    customFields += string.Format("&{0}={1}", UrlEncode(kvp.Key), UrlEncode(kvp.Value));
-                }
-            }
+            var customFields = _customParameters.Aggregate("",
+                (current, kvp) => current + $"&{UrlEncode(kvp.Key)}={UrlEncode(kvp.Value)}"
+            );
             // http://developer.piwik.org/api-reference/tracking-api
             // Required parameters:
             //     idsite(required) — The ID of the website we're tracking a visit/action for.
@@ -1529,8 +1523,6 @@ namespace Piwik.Tracker
                     (!_ecommerceLastOrderTimestamp.Equals(DateTimeOffset.MinValue) ? "&_ects=" + DateTimeUtils.ConvertToUnixTime(_ecommerceLastOrderTimestamp) : "") +
 
                     // Various important attributes
-                    // todo _customData is never assigned!
-                    (!string.IsNullOrEmpty(_customData) ? "&data=" + _customData : "") +
                     (_visitorCustomVar.Any() ? "&_cvar=" + UrlEncode(new JavaScriptSerializer().Serialize(_visitorCustomVar)) : "") +
                     (_pageCustomVar.Any() ? "&cvar=" + UrlEncode(new JavaScriptSerializer().Serialize(_pageCustomVar)) : "") +
                     (_eventCustomVar.Any() ? "&e_cvar=" + UrlEncode(new JavaScriptSerializer().Serialize(_eventCustomVar)) : "") +
