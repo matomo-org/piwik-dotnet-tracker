@@ -2,4 +2,4 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-github_changelog_generator --token $CHANGELOG_GITHUB_TOKEN --exclude-tags-regex "\-"
+github_changelog_generator --token $CHANGELOG_GITHUB_TOKEN
