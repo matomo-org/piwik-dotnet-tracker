@@ -2,8 +2,6 @@
 
 This is the official C# implementation of the [Piwik Tracking API](http://piwik.org/docs/tracking-api/).
 
-## [Changelog](CHANGELOG.md)
-
-## [Contributor doc](CONTRIBUTE.md)
-
-## [License](LICENSE)
+ - [Changelog](CHANGELOG.md)
+ - [Contributor doc](CONTRIBUTE.md)
+ - [License](LICENSE)
