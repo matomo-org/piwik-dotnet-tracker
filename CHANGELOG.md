@@ -1,15 +1,16 @@
 # Change Log
 
-## [Unreleased](https://github.com/piwik/piwik-dotnet-tracker/tree/HEAD)
-
-[Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.16.0...HEAD)
+## [3.0.0](https://github.com/piwik/piwik-dotnet-tracker/tree/3.0.0) (2017-05-09)
+[Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.16.0...3.0.0)
 
 **Implemented enhancements:**
 
+- Script the publishing process [\#65](https://github.com/piwik/piwik-dotnet-tracker/issues/65)
 - Resetting user identifiers should be an explicit action [\#62](https://github.com/piwik/piwik-dotnet-tracker/issues/62)
 - Unify tracker and sample projects under one Visual Studio Solution file [\#60](https://github.com/piwik/piwik-dotnet-tracker/issues/60)
 - Improve random visitor id generation [\#50](https://github.com/piwik/piwik-dotnet-tracker/issues/50)
 - Use travis for continuous testing [\#41](https://github.com/piwik/piwik-dotnet-tracker/issues/41)
+- Remove unused "data" request parameter [\#38](https://github.com/piwik/piwik-dotnet-tracker/issues/38)
 - Apply C\# Coding Style [\#33](https://github.com/piwik/piwik-dotnet-tracker/issues/33)
 - Ability to specify a webproxy to be used by web-requests [\#31](https://github.com/piwik/piwik-dotnet-tracker/issues/31)
 - Relicense the project from GPL to BSD [\#23](https://github.com/piwik/piwik-dotnet-tracker/issues/23)
@@ -30,6 +31,7 @@
 
 - Ability to provide custom tracking parameters [\#59](https://github.com/piwik/piwik-dotnet-tracker/issues/59)
 - Let users track Custom Dimensions  [\#16](https://github.com/piwik/piwik-dotnet-tracker/issues/16)
+- Publish Symbols to Symbolsource [\#13](https://github.com/piwik/piwik-dotnet-tracker/issues/13)
 
 ## [2.14.0](https://github.com/piwik/piwik-dotnet-tracker/tree/2.14.0) (2016-08-07)
 [Full Changelog](https://github.com/piwik/piwik-dotnet-tracker/compare/2.12.0...2.14.0)
