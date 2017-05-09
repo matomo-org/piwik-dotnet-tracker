@@ -5,7 +5,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 echo -n 'new version'
-read $NEW_VERSION
+read NEW_VERSION
 
 git checkout master
 git pull
