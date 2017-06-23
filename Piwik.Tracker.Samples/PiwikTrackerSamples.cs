@@ -14,45 +14,49 @@
 
         private static void Main(string[] args)
         {
-            // ** PAGE VIEW **
-            //            RecordSimplePageView();
-            //            RecordSimplePageViewWithCustomProperties();
-            //            RecordSimplePageViewWithCustomGeoLocation();
-            //            RecordSimplePageViewWithGenerationTime();
+            // Call async in console app
+            // https://stackoverflow.com/a/24601591/263003
+            Task.Run(async () =>
+            {
+                // ** PAGE VIEW **
+                await RecordSimplePageViewAsync();
+                await RecordSimplePageViewWithCustomPropertiesAsync();
+                await RecordSimplePageViewWithCustomGeoLocationAsync();
+                await RecordSimplePageViewWithGenerationTimeAsync();
 
-            // ** CUSTOM VARIABLES **
-            //            RecordCustomVariables();
+                // ** CUSTOM VARIABLES **
+                await RecordCustomVariablesAsync();
 
-            // ** CUSTOM DIMENSIONS **
-            //            RecordCustomDimensions();
+                // ** CUSTOM DIMENSIONS **
+                await RecordCustomDimensionsAsync();
 
-            // ** GOAL CONVERSION **
-            //            GoalConversion();
-            //            GoalConversionWithAttributionInfo();
+                // ** GOAL CONVERSION **
+                await GoalConversionAsync();
+                await GoalConversionWithAttributionInfoAsync();
 
-            // ** ACTION TRACKING **
-            //            trackDownload();
-            //            TrackLink();
+                // ** ACTION TRACKING **
+                await TrackDownloadAsync();
+                await TrackLinkAsync();
 
-            // ** ECOMMERCE TRACKING **
-            //            ECommerceView();
-            //            ECommerceCategoryView();
-            //            ECommerceViewWithoutCategory();
-            //            UpdateECommerceCartWithOneProduct();
-            //            UpdateECommerceCartWithOneProductSKUOnly();
-            //            UpdateECommerceCartWithMultipleProducts();
-            //            RecordECommerceOrder();
-            //            RecordTwoECommerceOrders();
+                // ** E-COMMERCE TRACKING **
+                await ECommerceViewAsync();
+                await ECommerceCategoryViewAsync();
+                await ECommerceViewWithoutCategoryAsync();
+                await UpdateECommerceCartWithOneProductAsync();
+                await UpdateECommerceCartWithOneProductSKUOnlyAsync();
+                await UpdateECommerceCartWithMultipleProductsAsync();
+                await RecordECommerceOrderAsync();
+                await RecordTwoECommerceOrdersAsync();
 
-            // ** Bulk Tracking **
-            //            BulkTrackTwoRequests();
+                // ** Bulk Tracking **
+                await BulkTrackTwoRequestsAsync();
 
-            // ** Site Search **
-            //            TrackSiteSearch();
+                // ** Site Search **
+                await TrackSiteSearchAsync();
 
-            // ** Event Tracking **
-            //            TrackSongPlayback();
-
+                // ** Event Tracking **
+                await TrackSongPlaybackAsync();
+            }).GetAwaiter().GetResult();
             Console.ReadKey(true);
         }
 
