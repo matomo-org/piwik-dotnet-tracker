@@ -114,7 +114,7 @@ namespace Piwik.Tracker
         /// Charset
         /// <see cref="SetPageCharset"/>
         /// </summary>
-	    private const string DefaultCharsetParameterValues = "utf-8";
+	private const string DefaultCharsetParameterValues = "utf-8";
 
         /// <summary>
         /// <see cref="http://developer.piwik.org/api-reference/tracking-javascript"/>
