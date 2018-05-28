@@ -20,15 +20,10 @@ namespace Piwik.Tracker
     using System.Text.RegularExpressions;
 
 #if NETSTANDARD1_4
-
-    // HttpContext.Current has been removed from .Net.Core: Everywhere the HTTP context is needed, declare an IHttpContextAccessor dependency and use it to fetch the context.
     using Microsoft.AspNetCore.Http;
     using System.Net.Http;
-
 #else
-
     using System.Web;
-
 #endif
 
     /// <summary>
@@ -151,6 +146,9 @@ namespace Piwik.Tracker
         // Life of the session cookie (in sec)
         private const int ConfigReferralCookieTimeout = 15768000; // 6 months
 
+        // default http request timeout
+        private const int DefaultRequestTimeoutSeconds = 600;
+
         private string _debugAppendUrl;
         private string _userAgent;
         private DateTimeOffset _localTime = DateTimeOffset.MinValue;
@@ -245,17 +243,48 @@ namespace Piwik.Tracker
         /// </summary>
         public int IdSite { get; }
 
+#if NETSTANDARD1_4
         /// <summary>
         /// Gets or sets the maximum number of seconds the tracker will spend waiting for a response
         /// from Piwik. Defaults to 600 seconds.
         /// </summary>
-        public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(600);
+        public static TimeSpan RequestTimeout {
+            get 
+            { 
+                return HttpClient.Timeout; 
+            }
+            set 
+            { 
+                HttpClient.Timeout = value; 
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the proxy used for web-requests, or <c>null</c> if no proxy is used.
+        /// </summary>
+        public static IWebProxy Proxy {
+            get 
+            { 
+                return HttpClientHandler.Proxy; 
+            }
+            set 
+            { 
+                HttpClientHandler.Proxy = value; 
+                HttpClientHandler.UseProxy = value != null;
+            }
+        }
+#else
+        /// <summary>
+        /// Gets or sets the maximum number of seconds the tracker will spend waiting for a response
+        /// from Piwik. Defaults to 600 seconds.
+        /// </summary>
+        public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(DefaultRequestTimeoutSeconds);
 
         /// <summary>
         /// Gets or sets the proxy used for web-requests, or <c>null</c> if no proxy is used.
         /// </summary>
         public IWebProxy Proxy { get; set; }
-
+#endif
         /// <summary>
         /// By default, Piwik expects utf-8 encoded values, for example
         /// for the page URL parameter values, Page Title, etc.
@@ -1459,21 +1488,19 @@ namespace Piwik.Tracker
         }
 
 #if NETSTANDARD1_4
+        private static readonly HttpClientHandler HttpClientHandler = new HttpClientHandler();
+
+        // use  a static HttpClient per MS recommedation
         // https://msdn.microsoft.com/en-us/library/system.net.http.httpclient(v=vs.110).aspx#Remarks
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private static readonly HttpClient HttpClient = new HttpClient(HttpClientHandler) { 
+            Timeout = TimeSpan.FromSeconds(DefaultRequestTimeoutSeconds) 
+        };
 
         private TrackingResponse DoSendRequest(string url, string method, string data) 
         {
             var rm = new HttpRequestMessage(GetMethod(method), url);
             rm.Headers.Add("User-Agent", this._userAgent);
             rm.Headers.Add("Accept-Language", this._acceptLanguage);
-
-// TODO: we either need to reinstantiate HttpClient or change the API 
-//            request.Timeout = (int)RequestTimeout.TotalMilliseconds;
-//            if (Proxy != null) 
-//            {
-//                request.Proxy = Proxy;
-//            }
 
             if (!string.IsNullOrEmpty(data)) 
             {
