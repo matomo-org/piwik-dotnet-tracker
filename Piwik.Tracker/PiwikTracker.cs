@@ -1477,7 +1477,7 @@ namespace Piwik.Tracker
 
             if (!string.IsNullOrEmpty(data)) 
             {
-                rm.Content = new StringContent(data, Encoding.UTF8, "application/json");
+                rm.Content = new StringContent(data, System.Text.Encoding.UTF8, "application/json");
             }
 
             using (var result = HttpClient.SendAsync(rm).Result) 
@@ -1766,7 +1766,7 @@ namespace Piwik.Tracker
             if (_httpContext != null)
             {
                 var cookieExpire = _currentTs + cookieTtl;
-                _httpContext.Response.Cookies.Add(new HttpCookie(GetCookieName(cookieName), cookieValue) { Expires = DateTimeUtils.UnixEpoch.AddSeconds(cookieExpire), Path = _configCookiePath, Domain = _configCookieDomain });
+                _httpContext.Response.Cookies.Add(GetCookieName(cookieName), cookieValue, DateTimeUtils.UnixEpoch.AddSeconds(cookieExpire), _configCookieDomain, _configCookiePath);
             }
         }
 

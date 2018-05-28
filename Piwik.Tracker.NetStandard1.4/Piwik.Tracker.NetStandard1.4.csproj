@@ -8,6 +8,7 @@
     <Compile Include="..\Piwik.Tracker\AttributionInfo.cs" Link="AttributionInfo.cs" />
     <Compile Include="..\Piwik.Tracker\BrowserPlugins.cs" Link="BrowserPlugins.cs" />
     <Compile Include="..\Piwik.Tracker\CookiesExtensions.cs" Link="CookiesExtensions.cs" />
+    <Compile Include="..\Piwik.Tracker\DateTimeUtils.cs" Link="DateTimeUtils.cs" />
     <Compile Include="..\Piwik.Tracker\CryptoExtensions.cs" Link="CryptoExtensions.cs" />
     <Compile Include="..\Piwik.Tracker\CustomVar.cs" Link="CustomVar.cs" />
     <Compile Include="..\Piwik.Tracker\Enums.cs" Link="Enums.cs" />
