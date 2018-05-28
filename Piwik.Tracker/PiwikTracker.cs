@@ -9,6 +9,8 @@
 // Piwik Server Api: <see href="http://developer.piwik.org/api-reference/tracking-api"/>
 // </summary>
 
+using System.Threading.Tasks;
+
 namespace Piwik.Tracker
 {
     using System.IO;
@@ -220,12 +222,12 @@ namespace Piwik.Tracker
             PiwikBaseUrl = FixPiwikBaseUrl(apiUrl);
             IdSite = idSite;
             _httpContext = context;
-            _referrerUrl = _httpContext?.Request?.GetUrlReferrer()?.AbsoluteUri ?? string.Empty;
-            _ip = _httpContext?.Request.GetUserHostAddress() ?? string.Empty;
-            _acceptLanguage = _httpContext?.Request.GetFirstUserLanguage() ?? string.Empty;
-            _userAgent = _httpContext?.Request.GetUserAgent() ?? string.Empty;
+            this._referrerUrl = context?.Request?.GetUrlReferrer()?.AbsoluteUri ?? string.Empty;
+            this._ip = context?.Request.GetUserHostAddress() ?? string.Empty;
+            this._acceptLanguage = context?.Request.GetFirstUserLanguage() ?? string.Empty;
+            this._userAgent = context?.Request.GetUserAgent() ?? string.Empty;
 
-            _pageUrl = GetCurrentUrl();
+            _pageUrl = GetPageUrl(context?.Request.GetUrl());
             SetNewVisitorId();
             _createTs = _currentTs;
             _visitorCustomVar = GetCustomVariablesFromCookie();
@@ -618,7 +620,7 @@ namespace Piwik.Tracker
         {
             // NOTE: If the cookie name is changed, we must also update the method in piwik.js with the same name.
             var cookieDomain = (string.IsNullOrWhiteSpace(_configCookieDomain)
-                ? GetCurrentHost()
+                ? GetPageHost(this._httpContext.Request.GetUrl())
                 : _configCookieDomain)
                 + _configCookiePath;
             var hash = cookieDomain.ToSha1().Substring(0, 4);
@@ -635,6 +637,14 @@ namespace Piwik.Tracker
             string url = GetUrlTrackPageView(documentTitle);
             return SendRequest(url);
         }
+
+#if NETSTANDARD1_4
+        public Task<TrackingResponse> DoTrackPageViewAsync(string documentTitle = null)
+        {
+            string url = GetUrlTrackPageView(documentTitle);
+            return SendRequestAsync(url);
+        }
+#endif
 
         /// <summary>
         /// Tracks an event
@@ -1466,8 +1476,25 @@ namespace Piwik.Tracker
             _configCookiesDisabled = true;
         }
 
-        private TrackingResponse SendRequest(string url, string method = "GET", string data = null, bool force = false)
-        {
+        private TrackingResponse SendRequest(string url, string method = "GET", string data = null, bool force = false) {
+            if (TryHandleBulk(url, force)) 
+            {
+                return null;
+            }
+            return DoSendRequest(url, method, data);
+        }
+
+#if NETSTANDARD1_4
+        private Task<TrackingResponse> SendRequestAsync(string url, string method = "GET", string data = null, bool force = false) {
+            if (TryHandleBulk(url, force)) 
+            {
+                return null;
+            }
+            return DoSendRequestAsync(url, method, data);
+        }
+#endif
+
+        private bool TryHandleBulk(string url, bool force) {
             // if doing a bulk request, store the url
             if (_doBulkRequests && !force)
             {
@@ -1482,9 +1509,9 @@ namespace Piwik.Tracker
                 ClearCustomTrackingParameters();
                 _userAgent = null;
                 _acceptLanguage = null;
-                return null;
+                return true;
             }
-            return DoSendRequest(url, method, data);
+            return false;
         }
 
 #if NETSTANDARD1_4
@@ -1498,6 +1525,11 @@ namespace Piwik.Tracker
 
         private TrackingResponse DoSendRequest(string url, string method, string data) 
         {
+            return DoSendRequestAsync(url, method, data).Result;
+        }
+        
+        private async Task<TrackingResponse> DoSendRequestAsync(string url, string method, string data) 
+        {
             var rm = new HttpRequestMessage(GetMethod(method), url);
             rm.Headers.Add("User-Agent", this._userAgent);
             rm.Headers.Add("Accept-Language", this._acceptLanguage);
@@ -1507,7 +1539,7 @@ namespace Piwik.Tracker
                 rm.Content = new StringContent(data, System.Text.Encoding.UTF8, "application/json");
             }
 
-            using (var result = HttpClient.SendAsync(rm).Result) 
+            using (var result = await HttpClient.SendAsync(rm)) 
             {
                 return new TrackingResponse {HttpStatusCode = result.StatusCode, RequestedUrl = url};
             }
@@ -1685,13 +1717,8 @@ namespace Piwik.Tracker
         /// If current URL is <![CDATA[http://example.org/dir1/dir2/index.php?param1=value1&param2=value2]]>
         /// will return "/dir1/dir2/index.php"
         /// </summary>
-        protected string GetCurrentScriptName()
-        {
-            if (_httpContext != null)
-            {
-                return _httpContext.Request.GetUrl().AbsolutePath;
-            }
-            return "";
+        protected static string GetPageScriptName(Uri uri) {
+            return uri != null ? uri.AbsolutePath : "";
         }
 
         /// <summary>
@@ -1699,51 +1726,35 @@ namespace Piwik.Tracker
         /// will return 'http'.
         /// </summary>
         /// <returns>string 'https' or 'http'</returns>
-        protected string GetCurrentScheme()
-        {
-            if (_httpContext != null)
-            {
-                return _httpContext.Request.GetUrl().Scheme;
-            }
-            return "http";
+        protected static string GetPageScheme(Uri uri) {
+            return uri != null ? uri.Scheme : "http";
         }
 
         /// <summary>
         /// If current URL is <![CDATA[http://example.org/dir1/dir2/index.php?param1=value1&param2=value2]]>
         /// will return <![CDATA[http://example.org]]>.
         /// </summary>
-        /// <returns>string 'https' or 'http'</returns>
-        protected string GetCurrentHost()
-        {
-            if (_httpContext != null)
-            {
-                return _httpContext.Request.GetUrl().Host;
-            }
-            return "unknown";
+        protected static string GetPageHost(Uri uri) {
+            return uri != null ? uri.Host : "unknown";
         }
 
         /// <summary>
         /// If current URL is <![CDATA[http://example.org/dir1/dir2/index.php?param1=value1&param2=value2]]>.
         /// will return <![CDATA[?param1=value1&param2=value2]]>.
         /// </summary>
-        protected string GetCurrentQueryString()
-        {
-            if (_httpContext != null)
-            {
-                return _httpContext.Request.GetUrl().Query;
-            }
-            return "";
+        protected static string GetPageQueryString(Uri uri) {
+            return uri != null ? uri.Query : "";
         }
 
         /// <summary>
         /// Returns the current full URL (scheme, host, path and query string.
         /// </summary>
-        protected string GetCurrentUrl()
+        protected static string GetPageUrl(Uri uri)
         {
-            return GetCurrentScheme() + "://"
-                + GetCurrentHost()
-                + GetCurrentScriptName()
-                + GetCurrentQueryString();
+            return GetPageScheme(uri) + "://"
+                + GetPageHost(uri)
+                + GetPageScriptName(uri)
+                + GetPageQueryString(uri);
         }
 
         /// <summary>
