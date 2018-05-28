@@ -46,15 +46,18 @@
   <ItemGroup>
     <Compile Include="AttributionInfo.cs" />
     <Compile Include="BrowserPlugins.cs" />
+    <Compile Include="CookiesExtensions.cs" />
     <Compile Include="DateTimeUtils.cs" />
     <Compile Include="CryptoExtensions.cs" />
     <Compile Include="CustomVar.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="HttpContextExtensions.cs" />
+    <Compile Include="HttpRequestExtensions.cs" />
     <Compile Include="PiwikTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializerExtensions.cs" />
     <Compile Include="TrackingResponse.cs" />
+    <Compile Include="WebExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
