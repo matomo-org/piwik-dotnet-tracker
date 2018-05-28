@@ -12,7 +12,6 @@
     <Compile Include="..\Piwik.Tracker\CryptoExtensions.cs" Link="CryptoExtensions.cs" />
     <Compile Include="..\Piwik.Tracker\CustomVar.cs" Link="CustomVar.cs" />
     <Compile Include="..\Piwik.Tracker\Enums.cs" Link="Enums.cs" />
-    <Compile Include="..\Piwik.Tracker\HttpContextExtensions.cs" Link="HttpContextExtensions.cs" />
     <Compile Include="..\Piwik.Tracker\HttpRequestExtensions.cs" Link="HttpRequestExtensions.cs" />
     <Compile Include="..\Piwik.Tracker\PiwikTracker.cs" Link="PiwikTracker.cs" />
     <Compile Include="..\Piwik.Tracker\SerializerExtensions.cs" Link="SerializerExtensions.cs" />
