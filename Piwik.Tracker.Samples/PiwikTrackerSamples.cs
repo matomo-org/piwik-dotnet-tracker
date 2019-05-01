@@ -10,7 +10,7 @@ namespace Piwik.Tracker.Samples
     internal class PiwikTrackerSamples
     {
         private const string UA = "Firefox";
-        private static readonly string PiwikBaseUrl = "http://piwik.local";
+        private static readonly string PiwikBaseUrl = "http://10.10.158.189:9090";
         private static readonly int SiteId = 1;
 
         private static void Main(string[] args)
@@ -54,6 +54,7 @@ namespace Piwik.Tracker.Samples
             // ** Event Tracking **
             //            TrackSongPlayback();
 
+            TrackDownload();
             Console.ReadKey(true);
         }
 
@@ -129,7 +130,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.SetResolution(1600, 1400);
 
             piwikTracker.SetIp("192.168.52.64");
-            piwikTracker.SetVisitorId("33c31B01394bdc65");
+            piwikTracker.SetUserId("33c31B01394bdc65");
 
             piwikTracker.SetForceVisitDateTime(new DateTime(2011, 10, 23, 10, 20, 50, DateTimeKind.Utc));
 
@@ -137,9 +138,11 @@ namespace Piwik.Tracker.Samples
 
             piwikTracker.SetTokenAuth("XYZ");
 
-            var browserPluginsToSet = new BrowserPlugins();
-            browserPluginsToSet.Silverlight = true;
-            browserPluginsToSet.Flash = true;
+            var browserPluginsToSet = new BrowserPlugins
+            {
+                Silverlight = true,
+                Flash = true
+            };
             piwikTracker.SetPlugins(browserPluginsToSet);
             piwikTracker.SetBrowserHasCookies(true);
 
@@ -179,7 +182,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordSimplePageViewWithGenerationTime()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            PiwikTracker piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetGenerationTime(10000);
@@ -231,8 +234,9 @@ namespace Piwik.Tracker.Samples
         {
             var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
-
-            var response = piwikTracker.DoTrackAction("http://piwik.org/path/again/latest.zip", ActionType.Download);
+            var url = "http://10.10.158.246/piwik.org/path/again/latest.zip";
+            piwikTracker.SetUrl(url);
+            var response = piwikTracker.DoTrackAction(url, ActionType.Download);
 
             DisplayDebugInfo(response);
         }
