@@ -10,7 +10,7 @@ namespace Piwik.Tracker.Samples
     internal class PiwikTrackerSamples
     {
         private const string UA = "Firefox";
-        private static readonly string PiwikBaseUrl = "http://10.10.158.189:9090";
+        private static readonly string PiwikBaseUrl = "http://piwik.local";
         private static readonly int SiteId = 1;
 
         private static void Main(string[] args)
@@ -54,7 +54,6 @@ namespace Piwik.Tracker.Samples
             // ** Event Tracking **
             //            TrackSongPlayback();
 
-            TrackDownload();
             Console.ReadKey(true);
         }
 
@@ -138,11 +137,9 @@ namespace Piwik.Tracker.Samples
 
             piwikTracker.SetTokenAuth("XYZ");
 
-            var browserPluginsToSet = new BrowserPlugins
-            {
-                Silverlight = true,
-                Flash = true
-            };
+            var browserPluginsToSet = new BrowserPlugins();
+            browserPluginsToSet.Silverlight = true;
+            browserPluginsToSet.Flash = true;
             piwikTracker.SetPlugins(browserPluginsToSet);
             piwikTracker.SetBrowserHasCookies(true);
 
@@ -182,7 +179,7 @@ namespace Piwik.Tracker.Samples
         /// </summary>
         static private void RecordSimplePageViewWithGenerationTime()
         {
-            PiwikTracker piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetGenerationTime(10000);
@@ -234,7 +231,7 @@ namespace Piwik.Tracker.Samples
         {
             var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
-            var url = "http://10.10.158.246/piwik.org/path/again/latest.zip";
+            var url = "http://piwik.org/path/again/latest.zip";
             piwikTracker.SetUrl(url);
             var response = piwikTracker.DoTrackAction(url, ActionType.Download);
 
