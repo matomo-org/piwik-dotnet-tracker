@@ -3,5 +3,5 @@ mono: none
 dotnet: 2.1
 solution: Piwik.Tracker.sln
 script:
- - cd Piwik.Tracker.Web.Samples
+ - cd Piwik.Tracker.Tests
  - dotnet test
