@@ -181,10 +181,6 @@ namespace Piwik.Tracker
         private string _configCookieDomain = "";
         private readonly long _currentTs = (long)(DateTime.UtcNow - DateTimeUtils.UnixEpoch).TotalSeconds;
         private long _createTs;
-        private long? _visitCount = 0;
-        private long? _currentVisitTs;
-        private long? _lastVisitTs;
-        private long? _lastEcommerceOrderTs;
         private bool _sendImageResponse = true;
 
         /// <summary>
@@ -200,15 +196,15 @@ namespace Piwik.Tracker
         {
             if (string.IsNullOrEmpty(apiUrl))
             {
-                throw new ArgumentException("Piwik api url must not be emty or null.", nameof(apiUrl));
+                throw new ArgumentException("Piwik api url must not be empty or null.", nameof(apiUrl));
             }
             PiwikBaseUrl = FixPiwikBaseUrl(apiUrl);
             IdSite = idSite;
 
-            _referrerUrl = HttpContext.Current?.Request?.UrlReferrer?.AbsoluteUri ?? string.Empty;
-            _ip = HttpContext.Current?.Request?.UserHostAddress ?? string.Empty;
-            _acceptLanguage = HttpContext.Current?.Request?.UserLanguages?.FirstOrDefault() ?? string.Empty;
-            _userAgent = HttpContext.Current?.Request?.UserAgent ?? string.Empty;
+            _referrerUrl = HttpContext.Current?.Request.UrlReferrer?.AbsoluteUri ?? string.Empty;
+            _ip = HttpContext.Current?.Request.UserHostAddress ?? string.Empty;
+            _acceptLanguage = HttpContext.Current?.Request.UserLanguages?.FirstOrDefault() ?? string.Empty;
+            _userAgent = HttpContext.Current?.Request.UserAgent ?? string.Empty;
 
             _pageUrl = GetCurrentUrl();
             SetNewVisitorId();
@@ -1246,20 +1242,7 @@ namespace Piwik.Tracker
             }
             _cookieVisitorId = parts[0]; // provides backward compatibility since getVisitorId() didn't change any existing VisitorId value
             _createTs = long.Parse(parts[1]);
-            if (!string.IsNullOrWhiteSpace(parts[2]))
-            {
-                _visitCount = long.Parse(parts[2]);
-            }
-            //  _currentVisitTs is set for information / debugging purposes
-            _currentVisitTs = long.Parse(parts[3]);
-            if (!string.IsNullOrWhiteSpace(parts[4]))
-            {
-                _lastVisitTs = long.Parse(parts[4]);
-            }
-            if (!string.IsNullOrWhiteSpace(parts[5]))
-            {
-                _lastEcommerceOrderTs = long.Parse(parts[5]);
-            }
+            
             return true;
         }
 
@@ -1511,9 +1494,6 @@ namespace Piwik.Tracker
 
                     // Values collected from cookie
                     "&_idts=" + _createTs +
-                    "&_idvc=" + _visitCount +
-                    ((_lastVisitTs != null) ? "&_viewts=" + _lastVisitTs : "") +
-                    ((_lastEcommerceOrderTs != null) ? "&_ects=" + _lastEcommerceOrderTs : "") +
 
                     // These parameters are set by the JS, but optional when using API
                     (!string.IsNullOrEmpty(_plugins) ? _plugins : "") +
@@ -1681,8 +1661,7 @@ namespace Piwik.Tracker
             SetCookie("ses", "*", ConfigSessionCookieTimeout);
 
             // Set the 'id' cookie
-            var visitCount = _visitCount + 1;
-            var cookieValue = GetVisitorId() + "." + _createTs + "." + visitCount + "." + _currentTs + "." + _lastVisitTs + "." + _lastEcommerceOrderTs;
+            var cookieValue = GetVisitorId() + "." + _createTs;
             SetCookie("id", cookieValue, ConfigVisitorCookieTimeout);
 
             // Set the 'cvar' cookie
@@ -1719,22 +1698,22 @@ namespace Piwik.Tracker
             return new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value ?? string.Empty));
         }
 
-        private string FormatDateValue(DateTimeOffset date)
+        private static string FormatDateValue(DateTimeOffset date)
         {
             return date.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss");
         }
 
-        private string FormatMonetaryValue(double value)
+        private static string FormatMonetaryValue(double value)
         {
             return value.ToString("0.##", new CultureInfo("en-US"));
         }
 
-        private string FormatGeoLocationValue(float value)
+        private static string FormatGeoLocationValue(float value)
         {
             return value.ToString(new CultureInfo("en-US"));
         }
 
-        private string UrlEncode(string value)
+        private static string UrlEncode(string value)
         {
             return HttpUtility.UrlEncode(value);
         }
