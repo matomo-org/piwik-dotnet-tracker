@@ -26,7 +26,7 @@ namespace Piwik.Tracker.Tests
         }
 
         [Test]
-        public void Read_only_first_two_values_from_Cookie()
+        public void GetVisitorId_TwoComponentCookie_ReturnsCookieId()
         {
             //Arrange
             HttpContext.Current = new HttpContext(new HttpRequest("filename", "http://url.com", "query"), new HttpResponse(new StringWriter()));
@@ -35,12 +35,25 @@ namespace Piwik.Tracker.Tests
 
             //Act
             var actual = _sut.GetVisitorId();
-            var request = _sut.GetRequest(SiteId);
 
             //Assert
             Assert.That(actual, Is.Not.Null.Or.Empty);
             Assert.That(actual, Is.EqualTo("d32ffdf363c2f313"));
-            Assert.That(request, Does.Contain("&_id=" + actual));
+        }
+
+        [Test]
+        public void GetRequest_TwoComponentCookie_SetsCorrectCookie()
+        {
+            //Arrange
+            HttpContext.Current = new HttpContext(new HttpRequest("filename", "http://url.com", "query"), new HttpResponse(new StringWriter()));
+            var cookies = HttpContext.Current.Request.Cookies;
+            cookies.Add(new HttpCookie("_pk_id.1.4ea4", "d32ffdf363c2f313.1610980363."));
+
+            //Act
+            var request = _sut.GetRequest(SiteId);
+
+            //Assert
+            Assert.That(request, Does.Contain("&_id=d32ffdf363c2f313"));
         }
 
         [Test]
