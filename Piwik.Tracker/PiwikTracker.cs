@@ -181,10 +181,6 @@ namespace Piwik.Tracker
         private string _configCookieDomain = "";
         private readonly long _currentTs = (long)(DateTime.UtcNow - DateTimeUtils.UnixEpoch).TotalSeconds;
         private long _createTs;
-        private long? _visitCount = 0;
-        private long? _currentVisitTs;
-        private long? _lastVisitTs;
-        private long? _lastEcommerceOrderTs;
         private bool _sendImageResponse = true;
 
         /// <summary>
@@ -1246,20 +1242,7 @@ namespace Piwik.Tracker
             }
             _cookieVisitorId = parts[0]; // provides backward compatibility since getVisitorId() didn't change any existing VisitorId value
             _createTs = long.Parse(parts[1]);
-            if (!string.IsNullOrWhiteSpace(parts[2]))
-            {
-                _visitCount = long.Parse(parts[2]);
-            }
-            //  _currentVisitTs is set for information / debugging purposes
-            _currentVisitTs = long.Parse(parts[3]);
-            if (!string.IsNullOrWhiteSpace(parts[4]))
-            {
-                _lastVisitTs = long.Parse(parts[4]);
-            }
-            if (!string.IsNullOrWhiteSpace(parts[5]))
-            {
-                _lastEcommerceOrderTs = long.Parse(parts[5]);
-            }
+
             return true;
         }
 
@@ -1511,9 +1494,6 @@ namespace Piwik.Tracker
 
                     // Values collected from cookie
                     "&_idts=" + _createTs +
-                    "&_idvc=" + _visitCount +
-                    ((_lastVisitTs != null) ? "&_viewts=" + _lastVisitTs : "") +
-                    ((_lastEcommerceOrderTs != null) ? "&_ects=" + _lastEcommerceOrderTs : "") +
 
                     // These parameters are set by the JS, but optional when using API
                     (!string.IsNullOrEmpty(_plugins) ? _plugins : "") +
@@ -1681,8 +1661,7 @@ namespace Piwik.Tracker
             SetCookie("ses", "*", ConfigSessionCookieTimeout);
 
             // Set the 'id' cookie
-            var visitCount = _visitCount + 1;
-            var cookieValue = GetVisitorId() + "." + _createTs + "." + visitCount + "." + _currentTs + "." + _lastVisitTs + "." + _lastEcommerceOrderTs;
+            var cookieValue = GetVisitorId() + "." + _createTs;
             SetCookie("id", cookieValue, ConfigVisitorCookieTimeout);
 
             // Set the 'cvar' cookie
