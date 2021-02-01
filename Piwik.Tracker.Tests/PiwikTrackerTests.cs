@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Web;
@@ -22,6 +23,37 @@ namespace Piwik.Tracker.Tests
         public void SetUpTest()
         {
             _sut = new PiwikTracker(SiteId, PiwikBaseUrl);
+        }
+
+        [Test]
+        public void GetVisitorId_TwoComponentCookie_ReturnsCookieId()
+        {
+            //Arrange
+            HttpContext.Current = new HttpContext(new HttpRequest("filename", "http://url.com", "query"), new HttpResponse(new StringWriter()));
+            var cookies = HttpContext.Current.Request.Cookies;
+            cookies.Add(new HttpCookie("_pk_id.1.4ea4", "d32ffdf363c2f313.1610980363."));
+
+            //Act
+            var actual = _sut.GetVisitorId();
+
+            //Assert
+            Assert.That(actual, Is.Not.Null.Or.Empty);
+            Assert.That(actual, Is.EqualTo("d32ffdf363c2f313"));
+        }
+
+        [Test]
+        public void GetRequest_TwoComponentCookie_SetsCorrectCookie()
+        {
+            //Arrange
+            HttpContext.Current = new HttpContext(new HttpRequest("filename", "http://url.com", "query"), new HttpResponse(new StringWriter()));
+            var cookies = HttpContext.Current.Request.Cookies;
+            cookies.Add(new HttpCookie("_pk_id.1.4ea4", "d32ffdf363c2f313.1610980363."));
+
+            //Act
+            var request = _sut.GetRequest(SiteId);
+
+            //Assert
+            Assert.That(request, Does.Contain("&_id=d32ffdf363c2f313"));
         }
 
         [Test]
