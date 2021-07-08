@@ -57,12 +57,12 @@ namespace Piwik.Tracker.Tests
         [Test]
         [TestCase("myPage")]
         [TestCase("myPage/?Ü&")]
-        public void DoTrackPageView_Test(string documentTitle)
+        public async Task TrackPageView_Test(string documentTitle)
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
             //Act
-            var actual = _sut.DoTrackPageView(documentTitle);
+            var actual = await _sut.TrackPageViewAsync(documentTitle);
             //Assert
             var actualRequest = retrieveRequest();
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -79,7 +79,7 @@ namespace Piwik.Tracker.Tests
         [TestCase("myCategory", "myAction", "myName", "myValue")]
         [TestCase("myCategory", "myAction", "myName", "")]
         [TestCase("myCategory", "myAction", "", "myValue")]
-        public void DoTrackEvent_Test(string category, string action, string name, string value)
+        public async Task TrackEvent_Test(string category, string action, string name, string value)
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
@@ -91,7 +91,7 @@ namespace Piwik.Tracker.Tests
                 {"e_a", action},
             };
             //Act
-            var actual = _sut.DoTrackEvent(category, action, name, value);
+            var actual = await _sut.TrackEventAsync(category, action, name, value);
             //Assert
             var actualRequest = retrieveRequest();
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -112,7 +112,7 @@ namespace Piwik.Tracker.Tests
         [TestCase("myCn", "mycp", "myct")]
         [TestCase("myCn", null, "myct")]
         [TestCase("myCn", "mycp", null)]
-        public void DoTrackContentImpression_Test(string contentName, string contentPiece, string contentTarget)
+        public async Task TrackContentImpression_Test(string contentName, string contentPiece, string contentTarget)
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
@@ -123,7 +123,7 @@ namespace Piwik.Tracker.Tests
                 { "c_n", contentName },
             };
             //Act
-            var actual = _sut.DoTrackContentImpression(contentName, contentPiece, contentTarget);
+            var actual = await _sut.TrackContentImpressionAsync(contentName, contentPiece, contentTarget);
             //Assert
             var actualRequest = retrieveRequest();
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -144,7 +144,7 @@ namespace Piwik.Tracker.Tests
         [TestCase("myInteraction", "myCn", "mycp", "myct")]
         [TestCase("myInteraction", "myCn", null, "myct")]
         [TestCase("myInteraction", "myCn", "mycp", null)]
-        public void DoTrackContentInteraction_Test(string interaction, string contentName, string contentPiece, string contentTarget)
+        public async Task TrackContentInteraction_Test(string interaction, string contentName, string contentPiece, string contentTarget)
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
@@ -156,7 +156,7 @@ namespace Piwik.Tracker.Tests
                     { "c_i", interaction },
             };
             //Act
-            var actual = _sut.DoTrackContentInteraction(interaction, contentName, contentPiece, contentTarget);
+            var actual = await _sut.TrackContentInteractionAsync(interaction, contentName, contentPiece, contentTarget);
             //Assert
             var actualRequest = retrieveRequest();
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -177,7 +177,7 @@ namespace Piwik.Tracker.Tests
         [TestCase("myKey", "myCat", 0)]
         [TestCase("myKey", null, 1)]
         [TestCase("myKey", "myCat", null)]
-        public void DoTrackSiteSearch_Test(string keyword, string category, int? countResults)
+        public async Task TrackSiteSearch_Test(string keyword, string category, int? countResults)
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
@@ -188,7 +188,7 @@ namespace Piwik.Tracker.Tests
                  { "search", keyword },
             };
             //Act
-            var actual = _sut.DoTrackSiteSearch(keyword, category, countResults);
+            var actual = await _sut.TrackSiteSearchAsync(keyword, category, countResults);
             //Assert
             var actualRequest = retrieveRequest();
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -209,7 +209,7 @@ namespace Piwik.Tracker.Tests
         [TestCase(1, 0.789f)]
         [TestCase(1, 0f)]
         [TestCase(120, 3655.55f)]
-        public void DoTrackGoal_Test(int idGoal, float revenue)
+        public async Task TrackGoal_Test(int idGoal, float revenue)
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
@@ -220,7 +220,7 @@ namespace Piwik.Tracker.Tests
                  { "idgoal", idGoal.ToString() },
             };
             //Act
-            var actual = _sut.DoTrackGoal(idGoal, revenue);
+            var actual = await _sut.TrackGoalAsync(idGoal, revenue);
             //Assert
             var actualRequest = retrieveRequest();
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -235,12 +235,12 @@ namespace Piwik.Tracker.Tests
         [Test]
         [TestCase("https://myUrl.com/action?test=1&x=5", ActionType.Download)]
         [TestCase("", ActionType.Link)]
-        public void DoTrackAction_Test(string actionUrl, ActionType actionType)
+        public async Task TrackAction_Test(string actionUrl, ActionType actionType)
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
             //Act
-            var actual = _sut.DoTrackAction(actionUrl, actionType);
+            var actual = await _sut.TrackActionAsync(actionUrl, actionType);
             //Assert
             var actualRequest = retrieveRequest();
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -257,12 +257,12 @@ namespace Piwik.Tracker.Tests
         [Test]
         [TestCase(1)]
         [TestCase(33465236365.4346)]
-        public void DoTrackEcommerceCartUpdate_Test(double grandTotal)
+        public async Task TrackEcommerceCartUpdate_Test(double grandTotal)
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
             //Act
-            var actual = _sut.DoTrackEcommerceCartUpdate(grandTotal);
+            var actual = await _sut.TrackEcommerceCartUpdateAsync(grandTotal);
             //Assert
             var actualRequest = retrieveRequest();
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -280,7 +280,7 @@ namespace Piwik.Tracker.Tests
         [Test]
         [TestCase("mytoken")]
         [TestCase("")]
-        public async Task DoBulkTrack_Test(string token)
+        public async Task BulkTrack_Test(string token)
         {
             //Arrange
             var retrieveRequest = CreateAllPostOkRequestBehavior();
@@ -296,11 +296,11 @@ namespace Piwik.Tracker.Tests
             }
             for (int i = 0; i < numberOfRequests; i++)
             {
-                _sut.DoTrackPageView("Page" + i);
+                await _sut.TrackPageViewAsync("Page" + i);
             }
             var expectedUrls = _sut.GetStoredTrackingActions();
             Assert.That(_sut.GetStoredTrackingActions().Length, Is.EqualTo(numberOfRequests));
-            var actual = _sut.DoBulkTrack();
+            var actual = await _sut.BulkTrackAsync();
             Assert.That(_sut.GetStoredTrackingActions().Length, Is.EqualTo(0));
             //Assert
             var actualRequest = retrieveRequest();
@@ -324,12 +324,12 @@ namespace Piwik.Tracker.Tests
 
         [Test]
         [TestCase("sfaf&&Ä5", 32.32, 16.1667, 432.244, 234.324, 65.553)]
-        public void DoTrackEcommerceOrder_Test(string orderId, double grandTotal, double subTotal, double tax, double shipping, double discount)
+        public async Task TrackEcommerceOrder_Test(string orderId, double grandTotal, double subTotal, double tax, double shipping, double discount)
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
             //Act
-            var actual = _sut.DoTrackEcommerceOrder(orderId, grandTotal, subTotal, tax, shipping, discount);
+            var actual = await _sut.TrackEcommerceOrderAsync(orderId, grandTotal, subTotal, tax, shipping, discount);
             //Assert
             var actualRequest = retrieveRequest();
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -350,12 +350,12 @@ namespace Piwik.Tracker.Tests
         }
 
         [Test]
-        public void DoPing_Test()
+        public async Task Ping_Test()
         {
             //Arrange
             var retrieveRequest = CreateAllGetOkRequestBehavior();
             //Act
-            var actual = _sut.DoPing();
+            var actual = await _sut.PingAsync();
             //Assert
             var actualRequest = retrieveRequest();
             Assert.That(actual.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));

@@ -12,7 +12,7 @@ If a tracking request has been sent via javascript, this method will output the 
 
 <%
     var PiwikBaseUrl = ConfigurationSettings.AppSettings["PiwikURL"];
-    var piwikTracker = new PiwikTracker(1, PiwikBaseUrl);
+    var piwikTracker = new PiwikTracker(Piwik.Tracker.Web.Samples.Singleton.HttpClient, 1, PiwikBaseUrl);
     piwikTracker.EnableCookies();
 
     var attributionInfo = piwikTracker.GetAttributionInfo();

@@ -8,7 +8,7 @@ This page displays visit scoped custom variables (index 1 & 2) using the Server 
 
 <%
     var PiwikBaseUrl = ConfigurationSettings.AppSettings["PiwikURL"];
-    var piwikTracker = new PiwikTracker(1, PiwikBaseUrl);
+    var piwikTracker = new PiwikTracker(Piwik.Tracker.Web.Samples.Singleton.HttpClient, 1, PiwikBaseUrl);
     piwikTracker.EnableCookies();
 
     var customVar1 = piwikTracker.GetCustomVariable(1);

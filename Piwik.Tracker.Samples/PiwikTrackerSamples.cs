@@ -1,71 +1,74 @@
-﻿using System;
-using System.Text;
-using System.Net;
-using System.IO;
-
-namespace Piwik.Tracker.Samples
+﻿namespace Piwik.Tracker.Samples
 {
+    using System;
     using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Threading.Tasks;
 
     internal class PiwikTrackerSamples
     {
         private const string UA = "Firefox";
         private static readonly string PiwikBaseUrl = "http://piwik.local";
         private static readonly int SiteId = 1;
+        private static readonly HttpClient HttpClient = new HttpClient();
 
         private static void Main(string[] args)
         {
-            // ** PAGE VIEW **
-            //            RecordSimplePageView();
-            //            RecordSimplePageViewWithCustomProperties();
-            //            RecordSimplePageViewWithCustomGeoLocation();
-            //            RecordSimplePageViewWithGenerationTime();
+            // Call async in console app
+            // https://stackoverflow.com/a/24601591/263003
+            Task.Run(async () =>
+            {
+                // ** PAGE VIEW **
+                await RecordSimplePageViewAsync();
+                await RecordSimplePageViewWithCustomPropertiesAsync();
+                await RecordSimplePageViewWithCustomGeoLocationAsync();
+                await RecordSimplePageViewWithGenerationTimeAsync();
 
-            // ** CUSTOM VARIABLES **
-            //            RecordCustomVariables();
+                // ** CUSTOM VARIABLES **
+                await RecordCustomVariablesAsync();
 
-            // ** CUSTOM DIMENSIONS **
-            //            RecordCustomDimensions();
+                // ** CUSTOM DIMENSIONS **
+                await RecordCustomDimensionsAsync();
 
-            // ** GOAL CONVERSION **
-            //            GoalConversion();
-            //            GoalConversionWithAttributionInfo();
+                // ** GOAL CONVERSION **
+                await GoalConversionAsync();
+                await GoalConversionWithAttributionInfoAsync();
 
-            // ** ACTION TRACKING **
-            //            trackDownload();
-            //            TrackLink();
+                // ** ACTION TRACKING **
+                await TrackDownloadAsync();
+                await TrackLinkAsync();
 
-            // ** ECOMMERCE TRACKING **
-            //            ECommerceView();
-            //            ECommerceCategoryView();
-            //            ECommerceViewWithoutCategory();
-            //            UpdateECommerceCartWithOneProduct();
-            //            UpdateECommerceCartWithOneProductSKUOnly();
-            //            UpdateECommerceCartWithMultipleProducts();
-            //            RecordECommerceOrder();
-            //            RecordTwoECommerceOrders();
+                // ** E-COMMERCE TRACKING **
+                await ECommerceViewAsync();
+                await ECommerceCategoryViewAsync();
+                await ECommerceViewWithoutCategoryAsync();
+                await UpdateECommerceCartWithOneProductAsync();
+                await UpdateECommerceCartWithOneProductSKUOnlyAsync();
+                await UpdateECommerceCartWithMultipleProductsAsync();
+                await RecordECommerceOrderAsync();
+                await RecordTwoECommerceOrdersAsync();
 
-            // ** Bulk Tracking **
-            //            BulkTrackTwoRequests();
+                // ** Bulk Tracking **
+                await BulkTrackTwoRequestsAsync();
 
-            // ** Site Search **
-            //            TrackSiteSearch();
+                // ** Site Search **
+                await TrackSiteSearchAsync();
 
-            // ** Event Tracking **
-            //            TrackSongPlayback();
-
+                // ** Event Tracking **
+                await TrackSongPlaybackAsync();
+            }).GetAwaiter().GetResult();
             Console.ReadKey(true);
         }
 
         /// <summary>
         /// Triggers a Goal conversion
         /// </summary>
-        static private void GoalConversion()
+        private static async Task GoalConversionAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.DoTrackGoal(1, 42.69F);
+            var response = await piwikTracker.TrackGoalAsync(1, 42.69F);
 
             DisplayDebugInfo(response);
         }
@@ -73,9 +76,9 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         /// Records 2 page scoped custom variables and 2 visit scoped custom variables
         /// </summary>
-        static private void RecordCustomVariables()
+        private static async Task RecordCustomVariablesAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetCustomVariable(1, "var1", "value1");
@@ -84,7 +87,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.SetCustomVariable(1, "pagevar1", "pagevalue1", Scopes.Page);
             piwikTracker.SetCustomVariable(2, "pagevar2", "pagevalue2", Scopes.Page);
 
-            var response = piwikTracker.DoTrackPageView("Document title of current page view");
+            var response = await piwikTracker.TrackPageViewAsync("Document title of current page view");
 
             DisplayDebugInfo(response);
         }
@@ -92,15 +95,15 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         /// Records 2 custom dimensions
         /// </summary>
-        static private void RecordCustomDimensions()
+        private static async Task RecordCustomDimensionsAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetCustomTrackingParameter("dimension1", "value1");
             piwikTracker.SetCustomTrackingParameter("dimension2", "value2");
 
-            var response = piwikTracker.DoTrackPageView("Document title of current page view");
+            var response = await piwikTracker.TrackPageViewAsync("Document title of current page view");
 
             DisplayDebugInfo(response);
         }
@@ -108,12 +111,12 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         ///  Records a simple page view with a specified document title
         /// </summary>
-        static private void RecordSimplePageView()
+        private static async Task RecordSimplePageViewAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.DoTrackPageView("Document title of current page view");
+            var response = await piwikTracker.TrackPageViewAsync("Document title of current page view");
 
             DisplayDebugInfo(response);
         }
@@ -121,9 +124,9 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         /// Records a simple page view with advanced user, browser and server properties
         /// </summary>
-        static private void RecordSimplePageViewWithCustomProperties()
+        private static async Task RecordSimplePageViewWithCustomPropertiesAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetResolution(1600, 1400);
@@ -148,7 +151,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.SetUrl("http://piwik-1.5/supernova");
             piwikTracker.SetUrlReferrer("http://supernovadirectory.org");
 
-            var response = piwikTracker.DoTrackPageView("Document title of current page view");
+            var response = await piwikTracker.TrackPageViewAsync("Document title of current page view");
 
             DisplayDebugInfo(response);
         }
@@ -156,9 +159,9 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         /// Records a simple page view with custom geo location parameters
         /// </summary>
-        static private void RecordSimplePageViewWithCustomGeoLocation()
+        private static async Task RecordSimplePageViewWithCustomGeoLocationAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetTokenAuth("XYZ");
 
             piwikTracker.SetUserAgent(UA);
@@ -169,7 +172,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.SetLatitude(48.2F);
             piwikTracker.SetLongitude(2.1F);
 
-            var response = piwikTracker.DoTrackPageView("Document title of current page view");
+            var response = await piwikTracker.TrackPageViewAsync("Document title of current page view");
 
             DisplayDebugInfo(response);
         }
@@ -177,14 +180,14 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         /// Records a simple page view with generation time metric
         /// </summary>
-        static private void RecordSimplePageViewWithGenerationTime()
+        private static async Task RecordSimplePageViewWithGenerationTimeAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetGenerationTime(10000);
 
-            var response = piwikTracker.DoTrackPageView("Document title of current page view");
+            var response = await piwikTracker.TrackPageViewAsync("Document title of current page view");
 
             DisplayDebugInfo(response);
         }
@@ -192,9 +195,9 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         /// Triggers a Goal conversion with advanced attribution properties
         /// </summary>
-        static private void GoalConversionWithAttributionInfo()
+        private static async Task GoalConversionWithAttributionInfoAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             var attributionInfo = new AttributionInfo();
@@ -206,7 +209,7 @@ namespace Piwik.Tracker.Samples
 
             piwikTracker.SetAttributionInfo(attributionInfo);
 
-            var response = piwikTracker.DoTrackGoal(1, 42.69F);
+            var response = await piwikTracker.TrackGoalAsync(1, 42.69F);
 
             DisplayDebugInfo(response);
         }
@@ -214,12 +217,12 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         /// Records a clicked link
         /// </summary>
-        static private void TrackLink()
+        private static async Task TrackLinkAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.DoTrackAction("http://dev.piwik.org/svn", ActionType.Link);
+            var response = await piwikTracker.TrackActionAsync("http://dev.piwik.org/svn", ActionType.Link);
 
             DisplayDebugInfo(response);
         }
@@ -227,12 +230,12 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         /// Records a file download
         /// </summary>
-        static private void TrackDownload()
+        private static async Task TrackDownloadAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.DoTrackAction("http://piwik.org/path/again/latest.zip", ActionType.Download);
+            var response = await piwikTracker.TrackActionAsync("http://piwik.org/path/again/latest.zip", ActionType.Download);
 
             DisplayDebugInfo(response);
         }
@@ -240,50 +243,50 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         /// Records a category page view
         /// </summary>
-        static private void ECommerceCategoryView()
+        private static async Task ECommerceCategoryViewAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetEcommerceView("", "", new List<string> { "Electronics & Cameras" });
-            var response = piwikTracker.DoTrackPageView("Looking at Electronics & Cameras page with a page level custom variable");
+            var response = await piwikTracker.TrackPageViewAsync("Looking at Electronics & Cameras page with a page level custom variable");
             DisplayDebugInfo(response);
         }
 
         /// <summary>
         /// Records a product view
         /// </summary>
-        static private void ECommerceView()
+        private static async Task ECommerceViewAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetEcommerceView("SKU2", "PRODUCT name", new List<string> { "Electronics & Cameras", "Clothes" });
 
-            var response = piwikTracker.DoTrackPageView("incredible title!");
+            var response = await piwikTracker.TrackPageViewAsync("incredible title!");
             DisplayDebugInfo(response);
         }
 
         /// <summary>
         /// Records a product view which doesn't belong to a category
         /// </summary>
-        static private void ECommerceViewWithoutCategory()
+        private static async Task ECommerceViewWithoutCategoryAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.SetEcommerceView("SKU VERY nice indeed", "PRODUCT name");
 
-            var response = piwikTracker.DoTrackPageView("another incredible title!");
+            var response = await piwikTracker.TrackPageViewAsync("another incredible title!");
             DisplayDebugInfo(response);
         }
 
         /// <summary>
         /// Update an eCommerce Cart with one product
         /// </summary>
-        static private void UpdateECommerceCartWithOneProduct()
+        private static async Task UpdateECommerceCartWithOneProductAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.AddEcommerceItem(
@@ -293,7 +296,7 @@ namespace Piwik.Tracker.Samples
                 2
             );
 
-            var response = piwikTracker.DoTrackEcommerceCartUpdate(1000.4);
+            var response = await piwikTracker.TrackEcommerceCartUpdateAsync(1000.4);
 
             DisplayDebugInfo(response);
         }
@@ -301,25 +304,25 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         /// Update an eCommerce Cart with one product
         /// </summary>
-        static private void UpdateECommerceCartWithOneProductSKUOnly()
+        private static async Task UpdateECommerceCartWithOneProductSKUOnlyAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.AddEcommerceItem(
                 "SKU VERY nice indeed"
             );
 
-            var response = piwikTracker.DoTrackEcommerceCartUpdate(1000.2);
+            var response = await piwikTracker.TrackEcommerceCartUpdateAsync(1000.2);
             DisplayDebugInfo(response);
         }
 
         /// <summary>
         /// Update an eCommerce Cart with multiple products
         /// </summary>
-        static private void UpdateECommerceCartWithMultipleProducts()
+        private static async Task UpdateECommerceCartWithMultipleProductsAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.AddEcommerceItem(
@@ -346,7 +349,7 @@ namespace Piwik.Tracker.Samples
                 20
             );
 
-            var response = piwikTracker.DoTrackEcommerceCartUpdate(1000);
+            var response = await piwikTracker.TrackEcommerceCartUpdateAsync(1000);
 
             DisplayDebugInfo(response);
         }
@@ -354,9 +357,9 @@ namespace Piwik.Tracker.Samples
         /// <summary>
         /// Registers 2 eCommerce orders
         /// </summary>
-        static private void RecordTwoECommerceOrders()
+        private static async Task RecordTwoECommerceOrdersAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             // First order
@@ -378,7 +381,7 @@ namespace Piwik.Tracker.Samples
             );
 
             var response =
-                piwikTracker.DoTrackEcommerceOrder(
+                await piwikTracker.TrackEcommerceOrderAsync(
                     "137nsjusG 1094",
                     1111.11,
                     1000,
@@ -399,7 +402,7 @@ namespace Piwik.Tracker.Samples
                 1
             );
 
-            response = piwikTracker.DoTrackEcommerceOrder(
+            response = await piwikTracker.TrackEcommerceOrderAsync(
                 "1037Bjusu4s3894",
                 2000,
                 1500,
@@ -411,9 +414,9 @@ namespace Piwik.Tracker.Samples
             DisplayDebugInfo(response);
         }
 
-        static private void RecordECommerceOrder()
+        private static async Task RecordECommerceOrderAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
             piwikTracker.AddEcommerceItem(
@@ -433,7 +436,7 @@ namespace Piwik.Tracker.Samples
             );
 
             var response =
-                piwikTracker.DoTrackEcommerceOrder(
+                await piwikTracker.TrackEcommerceOrderAsync(
                     "133nsjusu 1094",
                     1111.11,
                     1000,
@@ -445,42 +448,42 @@ namespace Piwik.Tracker.Samples
             DisplayDebugInfo(response);
         }
 
-        private static void BulkTrackTwoRequests()
+        private static async Task BulkTrackTwoRequestsAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
 
             piwikTracker.SetUserAgent(UA);
             piwikTracker.SetTokenAuth("YOUR TOKEN");
 
             piwikTracker.EnableBulkTracking();
 
-            piwikTracker.DoTrackPageView("Tracking Request 1");
-            piwikTracker.DoTrackPageView("Tracking Request 2");
+            await piwikTracker.TrackPageViewAsync("Tracking Request 1");
+            await piwikTracker.TrackPageViewAsync("Tracking Request 2");
 
-            DisplayDebugInfo(piwikTracker.DoBulkTrack());
+            DisplayDebugInfo(await piwikTracker.BulkTrackAsync());
         }
 
-        static private void TrackSiteSearch()
+        private static async Task TrackSiteSearchAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.DoTrackSiteSearch("keyword1", "category2", 0);
+            var response = await piwikTracker.TrackSiteSearchAsync("keyword1", "category2", 0);
 
             DisplayDebugInfo(response);
         }
 
-        static private void TrackSongPlayback()
+        private static async Task TrackSongPlaybackAsync()
         {
-            var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
+            var piwikTracker = new PiwikTracker(HttpClient, SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
 
-            var response = piwikTracker.DoTrackEvent("music", "play", "Eye Of The Tiger");
+            var response = await piwikTracker.TrackEventAsync("music", "play", "Eye Of The Tiger");
 
             DisplayDebugInfo(response);
         }
 
-        static private void DisplayDebugInfo(TrackingResponse response)
+        private static void DisplayDebugInfo(TrackingResponse response)
         {
             Console.WriteLine("DEBUG_LAST_REQUESTED_URL :");
             Console.WriteLine(response.RequestedUrl);

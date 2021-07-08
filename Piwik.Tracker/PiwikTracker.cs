@@ -11,15 +11,16 @@
 
 namespace Piwik.Tracker
 {
-    using System.IO;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Net;
     using System.Globalization;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
     using System.Web;
     using System.Web.Script.Serialization;
-    using System.Text.RegularExpressions;
 
     /// <summary>
     /// PiwikTracker implements the Piwik Tracking Web API.
@@ -141,6 +142,10 @@ namespace Piwik.Tracker
         // Life of the session cookie (in sec)
         private const int ConfigReferralCookieTimeout = 15768000; // 6 months
 
+        // Singleton HttpClient when caller doesn't provide one
+        private static readonly Lazy<HttpClient> HttpClient = new Lazy<HttpClient>();
+
+        private readonly HttpClient _httpClient;
         private string _debugAppendUrl;
         private string _userAgent;
         private DateTimeOffset _localTime = DateTimeOffset.MinValue;
@@ -191,13 +196,40 @@ namespace Piwik.Tracker
         /// </summary>
         /// <param name="idSite">Id site to be tracked</param>
         /// <param name="apiUrl">"http://example.org/piwik/" or "http://piwik.example.org/". If set, will overwrite PiwikTracker.URL</param>
+        /// <remarks>
+        /// This constructor initalizes an HttpClient with the default settings.
+        /// If you are using HttpClient in your application, or need to configure RequestTimeout, Proxy etc,
+        /// use the constructor that accepts HttpClient as a parameter and pass in your configured HttpClient.
+        /// </remarks>
         /// <exception cref="ArgumentException">apiUrl must not be null or empty</exception>
         public PiwikTracker(int idSite, string apiUrl)
+            : this(HttpClient.Value, idSite, apiUrl)
+        {
+        }
+
+        /// <summary>
+        /// Builds a PiwikTracker object, used to track visits, pages and Goal conversions
+        /// for a specific website, by using the Piwik Tracking API.
+        /// If the tracker is used within a web page or web controller, the following information are pre-initialised :
+        /// URL Referrer, current page URL, remote IP, Accept-Language HTTP header and User-Agent HTTP header.
+        /// </summary>
+        /// <param name="httpClient">A singleton HttpClient that is used throughout your application. See <see href="https://msdn.microsoft.com/en-us/library/system.net.http.httpclient(v=vs.110).aspx#Anchor_5">HttpClient class remarks</see></param>
+        /// <param name="idSite">Id site to be tracked</param>
+        /// <param name="apiUrl">"http://example.org/piwik/" or "http://piwik.example.org/". If set, will overwrite PiwikTracker.URL</param>
+        /// <exception cref="ArgumentException">apiUrl must not be null or empty</exception>
+        public PiwikTracker(HttpClient httpClient, int idSite, string apiUrl)
         {
             if (string.IsNullOrEmpty(apiUrl))
             {
-                throw new ArgumentException("Piwik api url must not be emty or null.", nameof(apiUrl));
+                throw new ArgumentException("Piwik api url must not be empty or null.", nameof(apiUrl));
             }
+
+            if (httpClient == null)
+            {
+                throw new ArgumentNullException(nameof(httpClient), $"Initialize a single instance of HttpClient in your application and pass that instance to the {nameof(httpClient)} parameter.");
+            }
+
+            _httpClient = httpClient;
             PiwikBaseUrl = FixPiwikBaseUrl(apiUrl);
             IdSite = idSite;
 
@@ -223,17 +255,6 @@ namespace Piwik.Tracker
         /// idsite (required) — The ID of the website we're tracking a visit/action for.
         /// </summary>
         public int IdSite { get; }
-
-        /// <summary>
-        /// Gets or sets the maximum number of seconds the tracker will spend waiting for a response
-        /// from Piwik. Defaults to 600 seconds.
-        /// </summary>
-        public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(600);
-
-        /// <summary>
-        /// Gets or sets the proxy used for web-requests, or <c>null</c> if no proxy is used.
-        /// </summary>
-        public IWebProxy Proxy { get; set; }
 
         /// <summary>
         /// By default, Piwik expects utf-8 encoded values, for example
@@ -390,7 +411,7 @@ namespace Piwik.Tracker
         }
 
         /// <summary>
-        /// Gets the stored tracking actions, that have been stored for bulkRequest <see cref="EnableBulkTracking"/>, <see cref="DoBulkTrack"/>.
+        /// Gets the stored tracking actions, that have been stored for bulkRequest <see cref="EnableBulkTracking"/>, <see cref="BulkTrackAsync"/>.
         /// </summary>
         /// <returns></returns>
         public string[] GetStoredTrackingActions()
@@ -580,10 +601,10 @@ namespace Piwik.Tracker
         /// </summary>
         /// <param name="documentTitle">Page title as it will appear in the Actions > Page titles report</param>
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public TrackingResponse DoTrackPageView(string documentTitle = null)
+        public Task<TrackingResponse> TrackPageViewAsync(string documentTitle = null)
         {
             string url = GetUrlTrackPageView(documentTitle);
-            return SendRequest(url);
+            return SendRequestAsync(url);
         }
 
         /// <summary>
@@ -594,10 +615,10 @@ namespace Piwik.Tracker
         /// <param name="name">(optional) The Event's object Name (a particular Movie name, or Song name, or File name...)</param>
         /// <param name="value">(optional) The Event's value</param>
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public TrackingResponse DoTrackEvent(string category, string action, string name = "", string value = "")
+        public Task<TrackingResponse> TrackEventAsync(string category, string action, string name = "", string value = "")
         {
             var url = GetUrlTrackEvent(category, action, name, value);
-            return SendRequest(url);
+            return SendRequestAsync(url);
         }
 
         /// <summary>
@@ -607,10 +628,10 @@ namespace Piwik.Tracker
         /// <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param>
         /// <param name="contentTarget">(optional) The target of the content. For instance the URL of a landing page.</param>
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public TrackingResponse DoTrackContentImpression(string contentName, string contentPiece = "Unknown", string contentTarget = null)
+        public Task<TrackingResponse> TrackContentImpressionAsync(string contentName, string contentPiece = "Unknown", string contentTarget = null)
         {
             var url = GetUrlTrackContentImpression(contentName, contentPiece, contentTarget);
-            return SendRequest(url);
+            return SendRequestAsync(url);
         }
 
         /// <summary>
@@ -622,10 +643,10 @@ namespace Piwik.Tracker
         /// <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param>
         /// <param name="contentTarget">(optional) The target the content leading to when an interaction occurs. For instance the URL of a landing page.</param>
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public TrackingResponse DoTrackContentInteraction(string interaction, string contentName, string contentPiece = "Unknown", string contentTarget = null)
+        public Task<TrackingResponse> TrackContentInteractionAsync(string interaction, string contentName, string contentPiece = "Unknown", string contentTarget = null)
         {
             var url = GetUrlTrackContentInteraction(interaction, contentName, contentPiece, contentTarget);
-            return SendRequest(url);
+            return SendRequestAsync(url);
         }
 
         /// <summary>
@@ -636,10 +657,10 @@ namespace Piwik.Tracker
         /// <param name="category">(optional) Search engine category if applicable</param>
         /// <param name="countResults">(optional) results displayed on the search result page. Used to track "zero result" keywords.</param>
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public TrackingResponse DoTrackSiteSearch(string keyword, string category = "", int? countResults = null)
+        public Task<TrackingResponse> TrackSiteSearchAsync(string keyword, string category = "", int? countResults = null)
         {
             var url = GetUrlTrackSiteSearch(keyword, category, countResults);
-            return SendRequest(url);
+            return SendRequestAsync(url);
         }
 
         /// <summary>
@@ -648,10 +669,10 @@ namespace Piwik.Tracker
         /// <param name="idGoal">Id Goal to record a conversion</param>
         /// <param name="revenue">Revenue for this conversion</param>
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public TrackingResponse DoTrackGoal(int idGoal, float revenue = 0)
+        public Task<TrackingResponse> TrackGoalAsync(int idGoal, float revenue = 0)
         {
             string url = GetUrlTrackGoal(idGoal, revenue);
-            return SendRequest(url);
+            return SendRequestAsync(url);
         }
 
         /// <summary>
@@ -660,11 +681,11 @@ namespace Piwik.Tracker
         /// <param name="actionUrl">URL of the download or outlink</param>
         /// <param name="actionType">Type of the action: 'download' or 'link'</param>
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public TrackingResponse DoTrackAction(string actionUrl, ActionType actionType)
+        public Task<TrackingResponse> TrackActionAsync(string actionUrl, ActionType actionType)
         {
             // Referrer could be udpated to be the current URL temporarily (to mimic JS behavior)
             string url = GetUrlTrackAction(actionUrl, actionType);
-            return SendRequest(url);
+            return SendRequestAsync(url);
         }
 
         /// <summary>
@@ -702,10 +723,10 @@ namespace Piwik.Tracker
         /// </summary>
         /// <param name="grandTotal">Cart grandTotal (typically the sum of all items' prices)</param>
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public TrackingResponse DoTrackEcommerceCartUpdate(double grandTotal)
+        public Task<TrackingResponse> TrackEcommerceCartUpdateAsync(double grandTotal)
         {
             string url = GetUrlTrackEcommerceCartUpdate(grandTotal);
-            return SendRequest(url);
+            return SendRequestAsync(url);
         }
 
         /// <summary>
@@ -716,11 +737,11 @@ namespace Piwik.Tracker
         /// Response
         /// </returns>
         /// <exception cref="System.InvalidOperationException">Error: you must call the function DoTrackPageView or DoTrackGoal from this class, before calling this method DoBulkTrack()</exception>
-        public TrackingResponse DoBulkTrack()
+        public async Task<TrackingResponse> BulkTrackAsync()
         {
             if (!_storedTrackingActions.Any())
             {
-                throw new InvalidOperationException("Error: you must call the function DoTrackPageView or DoTrackGoal from this class, before calling this method DoBulkTrack()");
+                throw new InvalidOperationException($"Error: you must call the function {nameof(TrackPageViewAsync)} or {nameof(TrackGoalAsync)} from this class, before calling this method DoBulkTrack()");
             }
 
             var data = new Dictionary<string, object>();
@@ -733,7 +754,7 @@ namespace Piwik.Tracker
             }
 
             var postData = new JavaScriptSerializer().Serialize(data);
-            var response = SendRequest(PiwikBaseUrl, "POST", postData, true);
+            var response = await SendRequestAsync(PiwikBaseUrl, "POST", postData, true).ConfigureAwait(false);
 
             _storedTrackingActions = new List<string>();
 
@@ -754,10 +775,10 @@ namespace Piwik.Tracker
         /// <param name="shipping">Shipping amount for this order</param>
         /// <param name="discount">Discounted amount in this order</param>
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public TrackingResponse DoTrackEcommerceOrder(string orderId, double grandTotal, double subTotal = 0, double tax = 0, double shipping = 0, double discount = 0)
+        public Task<TrackingResponse> TrackEcommerceOrderAsync(string orderId, double grandTotal, double subTotal = 0, double tax = 0, double shipping = 0, double discount = 0)
         {
             string url = GetUrlTrackEcommerceOrder(orderId, grandTotal, subTotal, tax, shipping, discount);
-            return SendRequest(url);
+            return SendRequestAsync(url);
         }
 
         /// <summary>
@@ -768,11 +789,11 @@ namespace Piwik.Tracker
         /// ping requests will create a new visit using the last action in the last known visit.
         /// </summary>
         /// <returns>HTTP Response from the server or null if using bulk requests.</returns>
-        public TrackingResponse DoPing()
+        public Task<TrackingResponse> PingAsync()
         {
             var url = GetRequest(IdSite);
             url += "&ping=1";
-            return SendRequest(url);
+            return SendRequestAsync(url);
         }
 
         /// <summary>
@@ -910,7 +931,7 @@ namespace Piwik.Tracker
         /// <summary>
         /// Builds URL to track a page view.
         /// </summary>
-        /// <see cref="DoTrackPageView"/>
+        /// <see cref="TrackPageViewAsync"/>
         /// <param name="documentTitle">Page view name as it will appear in Piwik reports</param>
         /// <returns>URL to piwik.php with all parameters set to track the pageview</returns>
         public string GetUrlTrackPageView(string documentTitle = "")
@@ -940,7 +961,7 @@ namespace Piwik.Tracker
         /// or
         /// You must specify an Event action (click, view, add...). - action
         /// </exception>
-        /// <see cref="DoTrackEvent" />
+        /// <see cref="TrackEventAsync" />
         public string GetUrlTrackEvent(string category, string action, string name = "", string value = "")
         {
             if (string.IsNullOrWhiteSpace(category))
@@ -977,7 +998,7 @@ namespace Piwik.Tracker
         /// URL to piwik.php with all parameters set to track the pageview
         /// </returns>
         /// <exception cref="ArgumentException">You must specify a content name - contentName</exception>
-        /// <see cref="DoTrackContentImpression" />
+        /// <see cref="TrackContentImpressionAsync" />
         public string GetUrlTrackContentImpression(string contentName, string contentPiece, string contentTarget)
         {
             if (string.IsNullOrWhiteSpace(contentName))
@@ -1015,7 +1036,7 @@ namespace Piwik.Tracker
         /// or
         /// You must specify a content name - contentName
         /// </exception>
-        /// <see cref="DoTrackContentImpression" />
+        /// <see cref="TrackContentImpressionAsync" />
         public string GetUrlTrackContentInteraction(string interaction, string contentName, string contentPiece, string contentTarget)
         {
             if (string.IsNullOrWhiteSpace(interaction))
@@ -1051,7 +1072,7 @@ namespace Piwik.Tracker
         /// <param name="category">The category.</param>
         /// <param name="countResults">The count results.</param>
         /// <returns></returns>
-        /// <see cref="DoTrackSiteSearch" />
+        /// <see cref="TrackSiteSearchAsync" />
         public string GetUrlTrackSiteSearch(string keyword, string category, int? countResults)
         {
             var url = GetRequest(IdSite);
@@ -1070,7 +1091,7 @@ namespace Piwik.Tracker
         /// <summary>
         /// Builds URL to track a goal with idGoal and revenue.
         /// </summary>
-        /// <see cref="DoTrackGoal"/>
+        /// <see cref="TrackGoalAsync"/>
         /// <param name="idGoal">Id Goal to record a conversion</param>
         /// <param name="revenue">Revenue for this conversion</param>
         /// <returns>URL to piwik.php with all parameters set to track the goal conversion</returns>
@@ -1088,7 +1109,7 @@ namespace Piwik.Tracker
         /// <summary>
         /// Builds URL to track a new action.
         /// </summary>
-        /// <see cref="DoTrackAction"/>
+        /// <see cref="TrackActionAsync"/>
         /// <param name="actionUrl">URL of the download or outlink</param>
         /// <param name="actionType">Type of the action: 'download' or 'link'</param>
         /// <returns>URL to piwik.php with all parameters set to track an action</returns>
@@ -1403,7 +1424,7 @@ namespace Piwik.Tracker
             _configCookiesDisabled = true;
         }
 
-        private TrackingResponse SendRequest(string url, string method = "GET", string data = null, bool force = false)
+        private async Task<TrackingResponse> SendRequestAsync(string url, string method = "GET", string data = null, bool force = false)
         {
             // if doing a bulk request, store the url
             if (_doBulkRequests && !force)
@@ -1422,27 +1443,30 @@ namespace Piwik.Tracker
                 return null;
             }
 
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = method;
-            request.UserAgent = _userAgent;
-            request.Headers.Add("Accept-Language", _acceptLanguage);
-            request.Timeout = (int)RequestTimeout.TotalMilliseconds;
-            if (Proxy != null)
+            var request = new HttpRequestMessage
             {
-                request.Proxy = Proxy;
+                RequestUri = new Uri(url, UriKind.Absolute),
+                Method = new HttpMethod(method)
+            };
+            if (!string.IsNullOrEmpty(_userAgent))
+            {
+                request.Headers.TryAddWithoutValidation("User-Agent", _userAgent);
+            }
+
+            if (!string.IsNullOrEmpty(_acceptLanguage))
+            {
+                request.Headers.AcceptLanguage.Add(new StringWithQualityHeaderValue(_acceptLanguage));
             }
 
             if (!string.IsNullOrEmpty(data))
             {
-                request.ContentType = "application/json";
-                using (var streamWriter = new StreamWriter(request.GetRequestStream()))
-                {
-                    streamWriter.Write(data);
-                }
+                request.Content = new StringContent(data);
+                request.Content.Headers.ContentType.MediaType = "application/json";
             }
-            using (var result = (HttpWebResponse)request.GetResponse())
+
+            using (var response = await _httpClient.SendAsync(request).ConfigureAwait(false))
             {
-                return new TrackingResponse { HttpStatusCode = result.StatusCode, RequestedUrl = url };
+                return new TrackingResponse { HttpStatusCode = response.StatusCode, RequestedUrl = url };
             }
         }
 
@@ -1695,7 +1719,9 @@ namespace Piwik.Tracker
             {
                 return new Dictionary<string, string[]>();
             }
-            return new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value ?? string.Empty));
+
+            return new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value ?? string.Empty)) ??
+                         new Dictionary<string, string[]>();
         }
 
         private string FormatDateValue(DateTimeOffset date)
