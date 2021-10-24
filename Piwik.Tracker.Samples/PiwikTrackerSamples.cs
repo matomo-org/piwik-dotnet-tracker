@@ -129,7 +129,7 @@ namespace Piwik.Tracker.Samples
             piwikTracker.SetResolution(1600, 1400);
 
             piwikTracker.SetIp("192.168.52.64");
-            piwikTracker.SetVisitorId("33c31B01394bdc65");
+            piwikTracker.SetUserId("33c31B01394bdc65");
 
             piwikTracker.SetForceVisitDateTime(new DateTime(2011, 10, 23, 10, 20, 50, DateTimeKind.Utc));
 
@@ -231,8 +231,9 @@ namespace Piwik.Tracker.Samples
         {
             var piwikTracker = new PiwikTracker(SiteId, PiwikBaseUrl);
             piwikTracker.SetUserAgent(UA);
-
-            var response = piwikTracker.DoTrackAction("http://piwik.org/path/again/latest.zip", ActionType.Download);
+            var url = "http://piwik.org/path/again/latest.zip";
+            piwikTracker.SetUrl(url);
+            var response = piwikTracker.DoTrackAction(url, ActionType.Download);
 
             DisplayDebugInfo(response);
         }

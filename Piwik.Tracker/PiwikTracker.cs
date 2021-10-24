@@ -1095,7 +1095,7 @@ namespace Piwik.Tracker
         public string GetUrlTrackAction(string actionUrl, ActionType actionType)
         {
             var url = GetRequest(IdSite);
-            url += "&" + actionType + "=" + UrlEncode(actionUrl);
+            url += "&" + actionType.ToString().ToLower() + "=" + UrlEncode(actionUrl);
             return url;
         }
 
@@ -1403,7 +1403,7 @@ namespace Piwik.Tracker
             _configCookiesDisabled = true;
         }
 
-        private TrackingResponse SendRequest(string url, string method = "GET", string data = null, bool force = false)
+        public TrackingResponse SendRequest(string url, string method = "GET", string data = null, bool force = false)
         {
             // if doing a bulk request, store the url
             if (_doBulkRequests && !force)
