@@ -425,7 +425,6 @@ namespace Piwik.Tracker
         public void SetNewVisitorId()
         {
             _randomVisitorId = Guid.NewGuid().ToByteArray().ToSha1().Substring(0, LengthVisitorId);
-            _userId = null;
             _forcedVisitorId = null;
             _cookieVisitorId = null;
         }
@@ -1150,29 +1149,14 @@ namespace Piwik.Tracker
         }
 
         /// <summary>
-        /// Hash function used internally by Piwik to hash a User ID into the Visitor ID.
-        /// Note: matches implementation of Tracker\Request-&gt;getUserIdHashed()
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns></returns>
-        public static string GetUserIdHashed(string id)
-        {
-            var hash = (id ?? string.Empty).ToSha1();
-            return hash.Substring(0, 16);
-        }
-
-        /// <summary>
         /// Forces the requests to be recorded for the specified Visitor ID.
-        /// Note: it is recommended to use -&gt;setUserId($userId); instead.
         /// Rather than letting Piwik attribute the user with a heuristic based on IP and other user fingeprinting attributes,
         /// force the action to be recorded for a particular visitor.
-        /// If you use both setVisitorId and setUserId, setUserId will take precedence.
         /// If not set, the visitor ID will be fetched from the 1st party cookie, or will be set to a random UUID.
         /// </summary>
         /// <param name="visitorId">16 hexadecimal characters visitor ID, eg. "33c31e01394bdc63"</param>
         /// <exception cref="System.ArgumentException">SetVisitorId() expects a n characters hexadecimal string
         /// (containing only the following: "01234567890abcdefABCDEF")</exception>
-        [Obsolete("We recommend to use  ->setUserId($userId).")]
         public void SetVisitorId(string visitorId)
         {
             if (visitorId.Length != LengthVisitorId
@@ -1200,10 +1184,6 @@ namespace Piwik.Tracker
         /// <returns>16 hex chars visitor ID string</returns>
         public string GetVisitorId()
         {
-            if (!string.IsNullOrEmpty(_userId))
-            {
-                return GetUserIdHashed(_userId);
-            }
             if (!string.IsNullOrEmpty(_forcedVisitorId))
             {
                 return _forcedVisitorId;
