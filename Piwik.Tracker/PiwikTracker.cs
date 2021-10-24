@@ -9,6 +9,8 @@
 // Piwik Server Api: <see href="http://developer.piwik.org/api-reference/tracking-api"/>
 // </summary>
 
+using System.Threading.Tasks;
+
 namespace Piwik.Tracker
 {
     using System.IO;
@@ -17,9 +19,14 @@ namespace Piwik.Tracker
     using System.Linq;
     using System.Net;
     using System.Globalization;
-    using System.Web;
-    using System.Web.Script.Serialization;
     using System.Text.RegularExpressions;
+
+#if NETSTANDARD1_4
+    using Microsoft.AspNetCore.Http;
+    using System.Net.Http;
+#else
+    using System.Web;
+#endif
 
     /// <summary>
     /// PiwikTracker implements the Piwik Tracking Web API.
@@ -141,6 +148,9 @@ namespace Piwik.Tracker
         // Life of the session cookie (in sec)
         private const int ConfigReferralCookieTimeout = 15768000; // 6 months
 
+        // default http request timeout
+        private const int DefaultRequestTimeoutSeconds = 600;
+
         private string _debugAppendUrl;
         private string _userAgent;
         private DateTimeOffset _localTime = DateTimeOffset.MinValue;
@@ -182,6 +192,7 @@ namespace Piwik.Tracker
         private readonly long _currentTs = (long)(DateTime.UtcNow - DateTimeUtils.UnixEpoch).TotalSeconds;
         private long _createTs;
         private bool _sendImageResponse = true;
+        private readonly HttpContext _httpContext;
 
         /// <summary>
         /// Builds a PiwikTracker object, used to track visits, pages and Goal conversions
@@ -192,7 +203,13 @@ namespace Piwik.Tracker
         /// <param name="idSite">Id site to be tracked</param>
         /// <param name="apiUrl">"http://example.org/piwik/" or "http://piwik.example.org/". If set, will overwrite PiwikTracker.URL</param>
         /// <exception cref="ArgumentException">apiUrl must not be null or empty</exception>
-        public PiwikTracker(int idSite, string apiUrl)
+#if !NETSTANDARD1_4
+        public PiwikTracker(int idSite, string apiUrl) 
+            : this(idSite, apiUrl, HttpContext.Current)
+        {
+        }
+#endif
+        public PiwikTracker(int idSite, string apiUrl, HttpContext context)
         {
             if (string.IsNullOrEmpty(apiUrl))
             {
@@ -200,13 +217,13 @@ namespace Piwik.Tracker
             }
             PiwikBaseUrl = FixPiwikBaseUrl(apiUrl);
             IdSite = idSite;
+            _httpContext = context;
+            this._referrerUrl = context?.Request?.GetUrlReferrer()?.AbsoluteUri ?? string.Empty;
+            this._ip = context?.Request.GetUserHostAddress() ?? string.Empty;
+            this._acceptLanguage = context?.Request.GetFirstUserLanguage() ?? string.Empty;
+            this._userAgent = context?.Request.GetUserAgent() ?? string.Empty;
 
-            _referrerUrl = HttpContext.Current?.Request?.UrlReferrer?.AbsoluteUri ?? string.Empty;
-            _ip = HttpContext.Current?.Request?.UserHostAddress ?? string.Empty;
-            _acceptLanguage = HttpContext.Current?.Request?.UserLanguages?.FirstOrDefault() ?? string.Empty;
-            _userAgent = HttpContext.Current?.Request?.UserAgent ?? string.Empty;
-
-            _pageUrl = GetCurrentUrl();
+            _pageUrl = GetPageUrl(context?.Request.GetUrl());
             SetNewVisitorId();
             _createTs = _currentTs;
             _visitorCustomVar = GetCustomVariablesFromCookie();
@@ -224,17 +241,48 @@ namespace Piwik.Tracker
         /// </summary>
         public int IdSite { get; }
 
+#if NETSTANDARD1_4
         /// <summary>
         /// Gets or sets the maximum number of seconds the tracker will spend waiting for a response
         /// from Piwik. Defaults to 600 seconds.
         /// </summary>
-        public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(600);
+        public static TimeSpan RequestTimeout {
+            get 
+            { 
+                return HttpClient.Timeout; 
+            }
+            set 
+            { 
+                HttpClient.Timeout = value; 
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the proxy used for web-requests, or <c>null</c> if no proxy is used.
+        /// </summary>
+        public static IWebProxy Proxy {
+            get 
+            { 
+                return HttpClientHandler.Proxy; 
+            }
+            set 
+            { 
+                HttpClientHandler.Proxy = value; 
+                HttpClientHandler.UseProxy = value != null;
+            }
+        }
+#else
+        /// <summary>
+        /// Gets or sets the maximum number of seconds the tracker will spend waiting for a response
+        /// from Piwik. Defaults to 600 seconds.
+        /// </summary>
+        public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(DefaultRequestTimeoutSeconds);
 
         /// <summary>
         /// Gets or sets the proxy used for web-requests, or <c>null</c> if no proxy is used.
         /// </summary>
         public IWebProxy Proxy { get; set; }
-
+#endif
         /// <summary>
         /// By default, Piwik expects utf-8 encoded values, for example
         /// for the page URL parameter values, Page Title, etc.
@@ -568,7 +616,7 @@ namespace Piwik.Tracker
         {
             // NOTE: If the cookie name is changed, we must also update the method in piwik.js with the same name.
             var cookieDomain = (string.IsNullOrWhiteSpace(_configCookieDomain)
-                ? GetCurrentHost()
+                ? GetPageHost(this._httpContext.Request.GetUrl())
                 : _configCookieDomain)
                 + _configCookiePath;
             var hash = cookieDomain.ToSha1().Substring(0, 4);
@@ -585,6 +633,14 @@ namespace Piwik.Tracker
             string url = GetUrlTrackPageView(documentTitle);
             return SendRequest(url);
         }
+
+#if NETSTANDARD1_4
+        public Task<TrackingResponse> DoTrackPageViewAsync(string documentTitle = null)
+        {
+            string url = GetUrlTrackPageView(documentTitle);
+            return SendRequestAsync(url);
+        }
+#endif
 
         /// <summary>
         /// Tracks an event
@@ -732,7 +788,7 @@ namespace Piwik.Tracker
                 data["token_auth"] = _tokenAuth;
             }
 
-            var postData = new JavaScriptSerializer().Serialize(data);
+            var postData = data.Serialize();
             var response = SendRequest(PiwikBaseUrl, "POST", postData, true);
 
             _storedTrackingActions = new List<string>();
@@ -797,7 +853,7 @@ namespace Piwik.Tracker
             var serializedCategories = "";
             if (categories != null)
             {
-                serializedCategories = new JavaScriptSerializer().Serialize(categories);
+                serializedCategories = categories.Serialize();
             }
             SetCustomVariable(CvarIndexEcommerceItemCategory, "_pkc", serializedCategories, Scopes.Page);
 
@@ -899,7 +955,7 @@ namespace Piwik.Tracker
 
             if (_ecommerceItems.Count > 0)
             {
-                url += "&ec_items=" + UrlEncode(new JavaScriptSerializer().Serialize(_ecommerceItems.Values));
+                url += "&ec_items=" + UrlEncode(_ecommerceItems.Values.Serialize());
             }
 
             _ecommerceItems = new Dictionary<string, object[]>();
@@ -1230,12 +1286,12 @@ namespace Piwik.Tracker
         /// <returns>True if cookie exists and is valid, False otherwise</returns>
         protected bool LoadVisitorIdCookie()
         {
-            var idCookie = GetCookieMatchingName("id");
-            if (idCookie == null)
+            var idCookieValue = GetCookieValueMatchingName("id");
+            if (idCookieValue == null)
             {
                 return false;
             }
-            var parts = idCookie.Value.Split('.');
+            var parts = idCookieValue.Split('.');
             if (parts[0].Length != LengthVisitorId)
             {
                 return false;
@@ -1251,7 +1307,7 @@ namespace Piwik.Tracker
         /// </summary>
         public void DeleteCookies()
         {
-            if (HttpContext.Current != null)
+            if (_httpContext != null)
             {
                 var expire = _currentTs - 86400;
                 var cookies = new[] { "id", "ses", "cvar", "ref" };
@@ -1276,14 +1332,14 @@ namespace Piwik.Tracker
             {
                 return _attributionInfo;
             }
-            var refCookie = GetCookieMatchingName("ref");
+            var refCookieValue = GetCookieValueMatchingName("ref");
 
-            if (refCookie == null)
+            if (refCookieValue == null)
             {
                 return null;
             }
 
-            var cookieDecoded = new JavaScriptSerializer().Deserialize<string[]>(HttpUtility.UrlDecode(refCookie.Value ?? string.Empty));
+            var cookieDecoded = refCookieValue.UrlDecode().Deserialize<string[]>();
 
             if (cookieDecoded == null)
             {
@@ -1403,8 +1459,25 @@ namespace Piwik.Tracker
             _configCookiesDisabled = true;
         }
 
-        private TrackingResponse SendRequest(string url, string method = "GET", string data = null, bool force = false)
-        {
+        private TrackingResponse SendRequest(string url, string method = "GET", string data = null, bool force = false) {
+            if (TryHandleBulk(url, force)) 
+            {
+                return null;
+            }
+            return DoSendRequest(url, method, data);
+        }
+
+#if NETSTANDARD1_4
+        private Task<TrackingResponse> SendRequestAsync(string url, string method = "GET", string data = null, bool force = false) {
+            if (TryHandleBulk(url, force)) 
+            {
+                return null;
+            }
+            return DoSendRequestAsync(url, method, data);
+        }
+#endif
+
+        private bool TryHandleBulk(string url, bool force) {
             // if doing a bulk request, store the url
             if (_doBulkRequests && !force)
             {
@@ -1419,9 +1492,54 @@ namespace Piwik.Tracker
                 ClearCustomTrackingParameters();
                 _userAgent = null;
                 _acceptLanguage = null;
-                return null;
+                return true;
+            }
+            return false;
+        }
+
+#if NETSTANDARD1_4
+        private static readonly HttpClientHandler HttpClientHandler = new HttpClientHandler();
+
+        // use  a static HttpClient per MS recommedation
+        // https://msdn.microsoft.com/en-us/library/system.net.http.httpclient(v=vs.110).aspx#Remarks
+        private static readonly HttpClient HttpClient = new HttpClient(HttpClientHandler) { 
+            Timeout = TimeSpan.FromSeconds(DefaultRequestTimeoutSeconds) 
+        };
+
+        private TrackingResponse DoSendRequest(string url, string method, string data) 
+        {
+            return DoSendRequestAsync(url, method, data).Result;
+        }
+        
+        private async Task<TrackingResponse> DoSendRequestAsync(string url, string method, string data) 
+        {
+            var rm = new HttpRequestMessage(GetMethod(method), url);
+            rm.Headers.Add("User-Agent", this._userAgent);
+            rm.Headers.Add("Accept-Language", this._acceptLanguage);
+
+            if (!string.IsNullOrEmpty(data)) 
+            {
+                rm.Content = new StringContent(data, System.Text.Encoding.UTF8, "application/json");
             }
 
+            using (var result = await HttpClient.SendAsync(rm)) 
+            {
+                return new TrackingResponse {HttpStatusCode = result.StatusCode, RequestedUrl = url};
+            }
+        }
+
+        private static HttpMethod GetMethod(string method) 
+        {
+            switch (method) 
+            {
+                case "GET": return HttpMethod.Get;
+                case "POST": return HttpMethod.Post;
+                default: throw new ArgumentException(method);
+            }
+        }
+#else
+        private TrackingResponse DoSendRequest(string url, string method, string data) 
+        {
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = method;
             request.UserAgent = _userAgent;
@@ -1445,6 +1563,7 @@ namespace Piwik.Tracker
                 return new TrackingResponse { HttpStatusCode = result.StatusCode, RequestedUrl = url };
             }
         }
+#endif
 
         /// <summary>
         /// Returns the base URL for the piwik server.
@@ -1503,9 +1622,9 @@ namespace Piwik.Tracker
                     (!_ecommerceLastOrderTimestamp.Equals(DateTimeOffset.MinValue) ? "&_ects=" + DateTimeUtils.ConvertToUnixTime(_ecommerceLastOrderTimestamp) : "") +
 
                     // Various important attributes
-                    (_visitorCustomVar.Any() ? "&_cvar=" + UrlEncode(new JavaScriptSerializer().Serialize(_visitorCustomVar)) : "") +
-                    (_pageCustomVar.Any() ? "&cvar=" + UrlEncode(new JavaScriptSerializer().Serialize(_pageCustomVar)) : "") +
-                    (_eventCustomVar.Any() ? "&e_cvar=" + UrlEncode(new JavaScriptSerializer().Serialize(_eventCustomVar)) : "") +
+                    (_visitorCustomVar.Any() ? "&_cvar=" + UrlEncode(_visitorCustomVar.Serialize()) : "") +
+                    (_pageCustomVar.Any() ? "&cvar=" + UrlEncode(_pageCustomVar.Serialize()) : "") +
+                    (_eventCustomVar.Any() ? "&e_cvar=" + UrlEncode(_eventCustomVar.Serialize()) : "") +
                     (_generationTime != null ? "&gt_ms=" + _generationTime : "") +
                     (!string.IsNullOrEmpty(_forcedVisitorId) ? "&cid=" + _forcedVisitorId : "&_id=" + GetVisitorId()) +
 
@@ -1547,7 +1666,7 @@ namespace Piwik.Tracker
             return url;
         }
 
-        private HttpCookie GetCookieMatchingName(string name)
+        private string GetCookieValueMatchingName(string name)
         {
             if (_configCookiesDisabled)
             {
@@ -1555,16 +1674,21 @@ namespace Piwik.Tracker
             }
             name = GetCookieName(name);
 
-            if (HttpContext.Current != null)
+            if (_httpContext != null)
             {
-                var cookies = HttpContext.Current.Request.Cookies;
+                var cookies = _httpContext.Request.Cookies;
+#if NETSTANDARD1_4
+                cookies.TryGetValue(name, out var result);
+                return result;
+#else
                 for (var i = 0; i < cookies.Count; i++)
                 {
                     if (cookies[i].Name.Contains(name))
                     {
-                        return cookies[i];
+                        return cookies[i].Value;
                     }
                 }
+#endif
             }
             return null;
         }
@@ -1573,13 +1697,8 @@ namespace Piwik.Tracker
         /// If current URL is <![CDATA[http://example.org/dir1/dir2/index.php?param1=value1&param2=value2]]>
         /// will return "/dir1/dir2/index.php"
         /// </summary>
-        protected static string GetCurrentScriptName()
-        {
-            if (HttpContext.Current != null)
-            {
-                return HttpContext.Current.Request.Url.AbsolutePath;
-            }
-            return "";
+        protected static string GetPageScriptName(Uri uri) {
+            return uri != null ? uri.AbsolutePath : "";
         }
 
         /// <summary>
@@ -1587,51 +1706,35 @@ namespace Piwik.Tracker
         /// will return 'http'.
         /// </summary>
         /// <returns>string 'https' or 'http'</returns>
-        protected static string GetCurrentScheme()
-        {
-            if (HttpContext.Current != null)
-            {
-                return HttpContext.Current.Request.Url.Scheme;
-            }
-            return "http";
+        protected static string GetPageScheme(Uri uri) {
+            return uri != null ? uri.Scheme : "http";
         }
 
         /// <summary>
         /// If current URL is <![CDATA[http://example.org/dir1/dir2/index.php?param1=value1&param2=value2]]>
         /// will return <![CDATA[http://example.org]]>.
         /// </summary>
-        /// <returns>string 'https' or 'http'</returns>
-        protected static string GetCurrentHost()
-        {
-            if (HttpContext.Current != null)
-            {
-                return HttpContext.Current.Request.Url.Host;
-            }
-            return "unknown";
+        protected static string GetPageHost(Uri uri) {
+            return uri != null ? uri.Host : "unknown";
         }
 
         /// <summary>
         /// If current URL is <![CDATA[http://example.org/dir1/dir2/index.php?param1=value1&param2=value2]]>.
         /// will return <![CDATA[?param1=value1&param2=value2]]>.
         /// </summary>
-        protected static string GetCurrentQueryString()
-        {
-            if (HttpContext.Current != null)
-            {
-                return HttpContext.Current.Request.Url.Query;
-            }
-            return "";
+        protected static string GetPageQueryString(Uri uri) {
+            return uri != null ? uri.Query : "";
         }
 
         /// <summary>
         /// Returns the current full URL (scheme, host, path and query string.
         /// </summary>
-        protected static string GetCurrentUrl()
+        protected static string GetPageUrl(Uri uri)
         {
-            return GetCurrentScheme() + "://"
-                + GetCurrentHost()
-                + GetCurrentScriptName()
-                + GetCurrentQueryString();
+            return GetPageScheme(uri) + "://"
+                + GetPageHost(uri)
+                + GetPageScriptName(uri)
+                + GetPageQueryString(uri);
         }
 
         /// <summary>
@@ -1654,7 +1757,7 @@ namespace Piwik.Tracker
             var attributionInfo = GetAttributionInfo();
             if (attributionInfo != null)
             {
-                SetCookie("ref", UrlEncode(new JavaScriptSerializer().Serialize(attributionInfo.ToArray())), ConfigReferralCookieTimeout);
+                SetCookie("ref", UrlEncode(attributionInfo.ToArray().Serialize()), ConfigReferralCookieTimeout);
             }
 
             // Set the 'ses' cookie
@@ -1665,7 +1768,7 @@ namespace Piwik.Tracker
             SetCookie("id", cookieValue, ConfigVisitorCookieTimeout);
 
             // Set the 'cvar' cookie
-            SetCookie("cvar", UrlEncode(new JavaScriptSerializer().Serialize(_visitorCustomVar)), ConfigSessionCookieTimeout);
+            SetCookie("cvar", UrlEncode(_visitorCustomVar.Serialize()), ConfigSessionCookieTimeout);
         }
 
         /// <summary>
@@ -1677,10 +1780,10 @@ namespace Piwik.Tracker
         /// <param name="cookieTtl">The cookie TTL.</param>
         protected void SetCookie(string cookieName, string cookieValue, long cookieTtl)
         {
-            if (HttpContext.Current != null)
+            if (_httpContext != null)
             {
                 var cookieExpire = _currentTs + cookieTtl;
-                HttpContext.Current.Response.Cookies.Add(new HttpCookie(GetCookieName(cookieName), cookieValue) { Expires = DateTimeUtils.UnixEpoch.AddSeconds(cookieExpire), Path = _configCookiePath, Domain = _configCookieDomain });
+                _httpContext.Response.Cookies.Add(GetCookieName(cookieName), cookieValue, DateTimeUtils.UnixEpoch.AddSeconds(cookieExpire), _configCookieDomain, _configCookiePath);
             }
         }
 
@@ -1690,12 +1793,12 @@ namespace Piwik.Tracker
         /// <returns></returns>
         protected Dictionary<string, string[]> GetCustomVariablesFromCookie()
         {
-            var cookie = GetCookieMatchingName("cvar");
-            if (cookie == null)
+            var cookieValue = GetCookieValueMatchingName("cvar");
+            if (cookieValue == null)
             {
                 return new Dictionary<string, string[]>();
             }
-            return new JavaScriptSerializer().Deserialize<Dictionary<string, string[]>>(HttpUtility.UrlDecode(cookie.Value ?? string.Empty));
+            return (cookieValue ?? string.Empty).UrlDecode().Deserialize<Dictionary<string, string[]>>();
         }
 
         private string FormatDateValue(DateTimeOffset date)
@@ -1715,7 +1818,7 @@ namespace Piwik.Tracker
 
         private string UrlEncode(string value)
         {
-            return HttpUtility.UrlEncode(value);
+            return value.UrlEncode();
         }
     }
 }
